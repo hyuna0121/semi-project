@@ -7,8 +7,8 @@
 <title>일정 추가</title>
     	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 	
-    <script type="text/javascript" src="./js/Schedule_main.js" defer="defer"></script>
-    <link rel="stylesheet" href="./css/Schedule_main.css">
+    <script type="text/javascript" src="./js/schedule.js" defer="defer"></script>
+    <link rel="stylesheet" href="./css/schedule.css">
 </head>
 <body>
 	<h2>일정 추가</h2>
@@ -60,7 +60,6 @@
 				<button type="submit" class="btn btn-primary" onclick="checkAddTrip(event)" >등록</button>
 			</div>
 		</div>
-	</div>
     </form>
 </body>
 </html>
