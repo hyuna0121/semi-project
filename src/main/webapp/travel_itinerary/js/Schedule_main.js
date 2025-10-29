@@ -7,4 +7,4 @@ checkbox.addEventListener("change", function() {
     } else {
       labelText.textContent = "공개";
         }
-});
+});	
