@@ -123,3 +123,4 @@ $RECYCLE.BIN/
 # =========================================================
 # Ignore compiled /classes directory
 /build/classes/
+/build/
