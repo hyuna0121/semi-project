@@ -6,9 +6,14 @@
 <meta charset="UTF-8">
 <title>일정 추가</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link rel="stylesheet" href="./css/schedule.css">
 <script type="text/javascript" src="./js/schedule.js" defer="defer"></script>
 <script type="text/javascript" src="./js/search.js" defer="defer"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
 </head>
 <body>
 	<%@ include file="../header.jsp" %>
@@ -31,13 +36,9 @@
 						</div>
 					</div>
 			      	<div class="mb-3 row g-3">
-						<label class="col-sm-2">여행 시작일</label>
+						<label class="col-sm-2">여행 날짜</label>
 						<div class="col-sm-3">
-							<input type='date' id="startDate" name="startDate" class="form-control">
-						</div>
-						<label class="col-sm-2">여행 종료일</label>
-						<div class="col-sm-3">
-							<input type='date' id="endDate" name="endDate" class="form-control">
+							<input type="text" id="demo" name="demo" value="" />
 						</div>
 					</div>
 					<div class="mb-3 row mt-3">
@@ -82,5 +83,6 @@
 	</div>
 	
 <%@ include file="../footer.jsp" %>
+
 </body>
 </html>

@@ -38,9 +38,12 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         String location = request.getParameter("location");
         String description = request.getParameter("description");
         String visibility = request.getParameter("visibility") == null ? "N" : "Y"; // Y : 공개, N : 비공개
-        String startDate = request.getParameter("startDate");
-        String endDate = request.getParameter("endDate");
+        String date = request.getParameter("demo");
         String[] travelBuddies = request.getParameterValues("travelBudies");
+        
+        String[] dates = date.split("~");
+        String startDate = dates[0].trim();
+        String endDate = dates[1].trim();
         
         // ==== 파일 업로드 처리 ====
         Part filePart = request.getPart("mainImage");
