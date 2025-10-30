@@ -1,14 +1,24 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <style>
   :root{
-    --line:#eee; --muted:#666; --fg:#111; --accent:#2d6a4f;
-    --chip:#e8f3ff; --chip-fg:#1769aa;
+    --line:#eee; 
+    --muted:#666; 
+    --fg:#111; 
+    --accent:#2d6a4f;
+    --chip:#e8f3ff; 
+    --chip-fg:#1769aa;
   }
-  /* 네가 만든 기본 헤더 스타일 */
+  /* 기본 헤더 스타일 */
   header {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:15px 20px; border-bottom:1px solid var(--line);
-    background:#fff; box-sizing:border-box; position:relative; z-index:5;
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center;
+    padding:15px 20px; 
+    border-bottom:1px solid var(--line);
+    background:#fff; 
+    box-sizing:border-box; 
+    position:relative; 
+    z-index:5;
   }
   .logo { font-weight:700; font-size:20px; letter-spacing:2px; color:#000; text-decoration:none; }
   .nav-right { display:flex; align-items:center; gap:25px; font-size:14px; color:var(--muted); }
@@ -69,6 +79,17 @@
   .drawer__footer { padding:16px 20px; border-top:1px solid var(--line); }
   .btn-outline { width:100%; padding:12px 14px; background:#fff; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-weight:600; }
   .btn-outline:hover { background:#fafafa; }
+  
+  .page-content { transition: filter .3s ease; }
+  
+  body.drawer-open .page-content { filter: blur(5px); pointer-events: none; }
+  
+  body.drawer-open::before{
+  content:""; position:fixed; inset:0;
+  background: rgba(0,0,0,.2);
+  backdrop-filter: blur(3px);
+  z-index:4; /* 헤더/드로어보다 뒤 */
+}
 </style>
 
 <header>
@@ -83,7 +104,9 @@
 
     <!-- 햄버거 버튼 -->
     <div class="menu-icon" id="menuBtn" aria-label="메뉴 열기" role="button" tabindex="0">
-      <span></span><span></span><span></span>
+      <span></span>
+      <span></span>
+      <span></span>
       <div class="notification-dot"></div>
     </div>
   </div>
@@ -146,5 +169,20 @@
     overlay.addEventListener('click', close);
     closeBtn.addEventListener('click', close);
     window.addEventListener('keydown', e => { if(e.key==='Escape') close(); });
+    
+    //  drawer 내부 클릭시 닫히게 
+    drawer.addEventListener('click', (e) => e.stopPropagation());
+
+    // 2) 문서 어디든 클릭/터치하면(드로어/버튼 제외) 닫기
+    const outsideHandler = (e) => {
+      if (!body.classList.contains('drawer-open')) return;
+
+      const isInsideDrawer = drawer.contains(e.target);
+      const isMenuBtn = menuBtn.contains(e.target);
+
+      if (!isInsideDrawer && !isMenuBtn) close();
+    };
+    document.addEventListener('click', outsideHandler);
+    document.addEventListener('touchstart', outsideHandler, { passive: true });
   })();
 </script>

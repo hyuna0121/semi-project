@@ -12,7 +12,10 @@
   <%@ include file="../header.jsp" %>
 
   <section class="main">
-    <div class="main__bg"></div>
+    <div class="main__bg bg1 active"></div>
+    <div class="main__bg bg2"></div>
+    <div class="main__bg bg3"></div>
+    
     <div class="main__overlay"></div>
 
     <div class="main__content">
@@ -27,5 +30,7 @@
   
   <!-- footer -->
   <%@ include file="../footer.jsp" %>
+  
+  <script src="js/mainpage.js"></script>
 </body>
 </html>

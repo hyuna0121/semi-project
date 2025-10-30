@@ -24,28 +24,40 @@ body {
 .main__bg {
   position: absolute;
   inset: 0;
-  background: url('../image/background.jpg') center/cover no-repeat;
-  transform: scale(1.03);
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}	
+.main__bg.active{
+	opacity: 1;
 }
+
+.main__bg.bg1{ background-image: url("../image/background.jpg");}
+.main__bg.bg2{ background-image: url("../image/background2.jpg");}
+.main__bg.bg3{ background-image: url("../image/background3.jpg");}
 
 .main__overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.35) 100%);
+  z-index: 1;
 }
 
 .main__content {
-  position: absolute;
-  left: min(6vw, 64px);
-  right: min(6vw, 64px);
-  bottom: min(10vh, 120px);
-  max-width: 980px;
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  text-align: center;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 16px;
 }
 
 .main__title {
   font-weight: 800;
   letter-spacing: .2px;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 /* 반응형 제목 */
@@ -59,37 +71,35 @@ body {
   .main__title { font-size: 84px; }
 }
 
-/* 흰색 알약형 폼 */
 .main__pill {
-  margin-top: 22px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: #fff;
-  color: #0a0a0a;
-  border-radius: 9999px;
-  padding: 14px 14px 14px 28px;
-  width: min(820px, 92vw);
+  margin: 1rem auto 0; 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 12px;
+  background: #fff; 
+  color: #000; 
+  border-radius: 9999px; 
+  padding: 12px 14px 12px 22px;
   box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 .main__text {
-  flex: 1;
   font-size: 18px;
   font-weight: 600;
-  opacity: .95;
+  white-space: nowrap;
 }
 .main__cta {
   border: none;
   background: #2d6a4f;
   color: #fff;
   font-weight: 700;
-  padding: 14px 22px;
+  padding: 12px 18px;
   border-radius: 9999px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: filter .2s;
 }
 .main__cta:hover {
   background: #1b4332;
+  filter: brightness(.95);
 }
 
 /* 모바일 대응 */
