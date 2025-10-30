@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 public class DBUtil {
 	private static final String URL = "jdbc:mysql://localhost:3306/traveldb";
 	private static final String USER = "root";
-	private static final String PASSWORD = "test1234";
+	private static final String PASSWORD = "1234";
 	
 	// 커넥션 생성
     public static Connection getConnection() {
