@@ -85,18 +85,6 @@
 </style>
 </head>
 <body>
-  <!-- 헤더 -->
-  <header>
-    <div class="logo">로고</div>
-    <div class="nav-right">
-      <div class="reservation">로그인</div>
-      <div class="menu-icon">
-        <span></span>
-        <span></span>
-        <span></span>
-        <div class="notification-dot"></div>
-      </div>
-    </div>
-  </header>
+  <%@ include file="/header.jspf" %>
 </body>
 </html>
