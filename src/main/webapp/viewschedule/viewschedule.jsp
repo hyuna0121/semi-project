@@ -4,9 +4,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>일정 보기</title>
 </head>
 <body>
-
+	
 </body>
 </html>
