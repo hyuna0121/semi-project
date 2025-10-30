@@ -1,24 +1,9 @@
-/* body */
-body{
-	width: 800px;
-	margin: 0 auto;
-	padding: 200px 0;
-	
-}
-
-
-
 /* 캘린더 */
-
 input[type="date"] {position:relative; padding:14px; width:150px; height:30px; font-size:14px; color:#999; border:none; border-bottom:1px solid #e0e0e0;}
 input[type="date"]::-webkit-calendar-picker-indicator {position:absolute; top:0; left:0; right:0; bottom:0; width:auto; height:auto; color:transparent; background:transparent;}
 input[type="date"].has-value::before {content:attr(data-placeholder); width:100%;}
 
-
-
-
 /* 공개 비공개 버튼 */
-
 .visibility{
 	display: flex;
 	justify-content: flex-end;
