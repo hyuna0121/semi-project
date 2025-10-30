@@ -1,0 +1,106 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+  height: 100%;
+}
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #fff;
+  background: #000;
+}
+
+/* main section */
+.main {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ✅ background.jpg 경로 수정 */
+.main__bg {
+  position: absolute;
+  inset: 0;
+  background: url('../image/background.jpg') center/cover no-repeat;
+  transform: scale(1.03);
+}
+
+.main__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.35) 100%);
+}
+
+.main__content {
+  position: absolute;
+  left: min(6vw, 64px);
+  right: min(6vw, 64px);
+  bottom: min(10vh, 120px);
+  max-width: 980px;
+}
+
+.main__title {
+  font-weight: 800;
+  letter-spacing: .2px;
+  line-height: 1.1;
+}
+
+/* 반응형 제목 */
+@media (min-width: 480px) {
+  .main__title { font-size: 42px; }
+}
+@media (min-width: 768px) {
+  .main__title { font-size: 64px; }
+}
+@media (min-width: 1024px) {
+  .main__title { font-size: 84px; }
+}
+
+/* 흰색 알약형 폼 */
+.main__pill {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  color: #0a0a0a;
+  border-radius: 9999px;
+  padding: 14px 14px 14px 28px;
+  width: min(820px, 92vw);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+.main__text {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 600;
+  opacity: .95;
+}
+.main__cta {
+  border: none;
+  background: #2d6a4f;
+  color: #fff;
+  font-weight: 700;
+  padding: 14px 22px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.main__cta:hover {
+  background: #1b4332;
+}
+
+/* 모바일 대응 */
+@media (max-width: 540px) {
+  .main__pill {
+    padding: 10px 10px 10px 18px;
+  }
+  .main__text {
+    font-size: 15px;
+  }
+  .main__cta {
+    padding: 10px 16px;
+  }
+}
