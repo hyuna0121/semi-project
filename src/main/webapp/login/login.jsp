@@ -1,30 +1,46 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+  <meta charset="UTF-8" />
+  <title>로그인</title>
+  <!-- 외부 CSS 연결 -->
+  <link rel="stylesheet" href="css/login.css" />
+  <!-- 웹폰트(선택) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<center>
-	<form method="post" action="loginProc.jsp">
-	<h2> 로그인 </h2>
-		<table width="800">
-			<tr>
-				<td width="300" align="center"> 아이디(ID) </td>
-				<td width="500"> <input type="text" name="id"> </td>
-			</tr>
-			<tr>
-				<td width="300" align="center"> 비밀번호(PWD) </td>
-				<td width="500"> <input type="password" name="pwd"> </td>
-			</tr>
-			<tr>
-				<td colspan="2" align="center"> <button type="submit">로그인</button> </td>
-			</tr>
-		
-		</table>
-	</form>
-</center>
+  <div class="login-wrap">
+    <div class="brand">
+      <img class="logo" src="image/logo.png" alt="서비스 로고">
+    </div>
+    
+  <form class="card" method="post" action="loginProc.jsp">
+    <!-- 아이디 / 비밀번호 -->
+    <div class="field">
+      <input class="input" type="text" name="id" placeholder="아이디 입력" required>
+    </div>
+    <div class="field">
+      <input class="input" type="password" name="pwd" placeholder="비밀번호 입력" required>
+    </div>
+
+    <!-- 아이디 저장 -->
+    <label class="remember">
+      <input type="checkbox" name="rememberId">
+      <span>아이디 저장</span>
+    </label>
+
+    <!-- 로그인 버튼 -->
+    <button class="btn" type="submit">로그인</button>
+
+    <!-- 하단 링크 -->
+    <div class="links">
+      <a href="findId.jsp">아이디 찾기</a>
+      <span>|</span>
+      <a href="findPwd.jsp">비밀번호 찾기</a>
+    </div>
+   </form>
+  </div>
 </body>
 </html>
