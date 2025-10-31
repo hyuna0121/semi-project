@@ -1,0 +1,107 @@
+:root{
+  --bg:#e5ebf7;
+  --panel:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --input:#f3f4f6;
+  --btn:#6b7280;
+  --btn-h:#4b5563;
+}
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:'Noto Sans KR', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 카드 */
+.card{
+  width: 520px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  padding:32px 40px 26px;
+}
+.title{ margin:0 0 10px; font-size:22px; text-align:center; }
+
+/* 폼 행 */
+.row{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin:12px 0;
+}
+.label{ font-weight:600; font-size:14px; color:#374151; }
+
+/* 입력 */
+.input{
+  width:100%;
+  height:46px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:var(--input);
+  font-size:15px;
+  outline:none;
+}
+.input::placeholder{ color:#cbd5e1; }
+
+/* 아이디/닉네임 중복확인 버튼과 한 줄 배치 */
+.input-group{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.subbtn{
+  height:46px;
+  padding:0px 14px;
+  border:1px solid var(--line);
+  background:#f8fafc;
+  border-radius:8px;
+  cursor:pointer;
+  white-space:nowrap;           
+  font-size:14px;
+  line-height:1; 
+}
+.subbtn:hover{ background:#eef2f7; }
+
+.hint{ font-size:12px; color:#9ca3af; }
+
+/* 메인 버튼들 */
+.actions{
+  display:flex; gap:10px; margin-top:8px;
+}
+.btn, .btn-outline{
+  flex:1;
+  height:48px;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+.btn{
+  border:none; background:var(--btn); color:#fff;
+  transition:background .15s ease;
+}
+.btn:hover{ background:var(--btn-h); }
+
+.btn-outline{
+  background:#ffffff; border:1px solid var(--line); color:#374151;
+}
+.btn-outline:hover{ background:#f8fafc; }
+
+.links{
+  text-align:center; margin-top:16px; font-size:14px; color:var(--muted);
+}
+.links a{ color:inherit; text-decoration:none; }
+
+@media (max-width:560px){
+  .card{ width:92vw; padding:24px; }
+}
