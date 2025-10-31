@@ -40,7 +40,7 @@ if (!birth.isEmpty()) {
 
 String url = "jdbc:mysql://localhost:3306/memberjoin";
 String dbUser = "root";
-String dbPass = "test1234";
+String dbPass = "mysql1234";
 
 try {
     Class.forName("com.mysql.cj.jdbc.Driver");
@@ -106,4 +106,3 @@ try {
 %>
 </body>
 </html>
-
