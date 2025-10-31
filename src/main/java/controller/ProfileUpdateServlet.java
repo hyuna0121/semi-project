@@ -90,7 +90,7 @@ public class ProfileUpdateServlet extends HttpServlet {
             updatedUser.setId(userId);
             updatedUser.setName(name);
             updatedUser.setAddress(address);
-            updatedUser.setPhone(콜);
+            updatedUser.setPhone(phone);
             updatedUser.setEmail(email);
             updatedUser.setProfileImage(newProfileImageBase64); // Base64 문자열 저장
 
