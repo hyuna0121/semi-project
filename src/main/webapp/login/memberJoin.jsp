@@ -39,10 +39,14 @@
       </div>
 
       <!-- 생년월일 -->
-      <label class="row">
-        <span class="label">생년월일</span>
-        <input class="input" type="text" name="birth" placeholder="예) 19870908" pattern="\\d{8}" required>
-      </label>
+	  <label class="row">
+	  	<span class="label">생년월일</span>
+	  	<input class="input" type="text" name="birth"
+	         placeholder="예) 19870908"
+	         pattern="\d{8}" inputmode="numeric" maxlength="8"
+	         title="생년월일 8자리(YYYYMMDD)를 입력하세요">
+ 	  </label>
+
 
       <!-- 비밀번호 -->
       <label class="row">
