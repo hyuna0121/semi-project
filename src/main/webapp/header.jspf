@@ -98,9 +98,9 @@
 
   <div class="nav-right">
     <!-- 로그인: login.jsp로 이동 -->
-    <a href="login.jsp" class="reservation">로그인</a>
+    <a href="../login/login.jsp" class="reservation">로그인</a>
     <!-- 회원가입: 회원가입 페이지로 이동 -->
-    <a href="login.jsp" class="reservation">회원가입</a>
+    <a href="../login/memberJoin.jsp" class="reservation">회원가입</a>
 
     <!-- 햄버거 버튼 -->
     <div class="menu-icon" id="menuBtn" aria-label="메뉴 열기" role="button" tabindex="0">

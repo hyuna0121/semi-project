@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DBUtil {
-	private static final String URL = "jdbc:mysql://localhost:3306/traveldb";
-	private static final String USER = "root";
+	private static final String URL = "jdbc:mysql://192.168.8.141:3306/traveldb?serverTimezone=UTC";
+	private static final String USER = "traveldb";
 	private static final String PASSWORD = "mysql1234";
 	
 	// 커넥션 생성
