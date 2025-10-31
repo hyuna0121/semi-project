@@ -6,7 +6,34 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style type="text/css">
-	.map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
+    .modal {
+        display: none;
+        position: absolute;
+        top:0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        background: rgba(0,0,0,0.5);
+    }
+    .modal_map {
+        display: none;
+        position: absolute;
+        top:30%;
+        left: 30%;
+        width: 50%;
+        height: 50vh;
+        overflow: hidden;
+        background: rgba(0,0,0,0.5);
+    }
+
+    .modal.show {
+        display: block;
+    }
+    .modal_map.show {
+        display: block;
+    }
+.map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
 .map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
 .map_wrap {position:relative;width:100%;height:500px;}
 #menu_wrap {position:absolute;top:0;left:0;bottom:0;width:250px;margin:10px 0 30px 10px;padding:5px;overflow-y:auto;background:rgba(255, 255, 255, 0.7);z-index: 1;font-size:12px;border-radius: 10px;}
@@ -46,21 +73,47 @@
 </head>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8aaef2cb5fdf5a54c0607c5d2c9935c1&libraries=services"></script>
 <body>
-	<div id="menu_wrap" class="bg_white" style="width:100%;">
-		<div class="option">
-			<div>
-	        	<form onsubmit="searchPlaces(); return false;">
-	            	키워드 : <input type="text" value="잠실야구장" id="keyword" size="15"> 
-	                <button type="submit">검색하기</button> 
-	            </form>
-	        </div>
-		</div>
-	    <hr>
-	    <ul id="placesList"></ul>
-	    <div id="pagination"></div>
-	</div>
-	<div id="map" style="width:100%;height:400px; margin-top:1000px;"></div>
+	<button type="button" class="modal_btn">일정추가 +</button>
+    <div class="modal">
+        <div id="menu_wrap" class="bg_white" style="width:100%;">
+			<button type="button" class="close_btn">X</button>
+            <div class="option">
+                <div>
+                    <form onsubmit="searchPlaces(); return false;">
+                        키워드 : <input type="text" value="잠실야구장" id="keyword" size="15"> 
+                        <button type="submit">검색하기</button> 
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <ul id="placesList"></ul>
+            <div id="pagination"></div>
+        </div>
+        <div class="modal_map">
+            <button type="button" class="close_map_btn">X</button>
+            <div id="map" style="width:100%;height:100%;"></div>
+        </div>
+    </div>
 <script>
+const modal = document.querySelector('.modal');
+const modalOpen = document.querySelector('.modal_btn');
+const modalClose = document.querySelector('.close_btn');
+
+const mapModal = document.querySelector('.modal_map');
+const mapModalClose = document.querySelector('.close_map_btn');
+
+modalOpen.addEventListener('click', function () {
+    modal.classList.add('show');
+});
+
+modalClose.addEventListener('click', function () {
+    modal.classList.remove('show');
+});
+
+mapModalClose.addEventListener('click', function () {
+    mapModal.classList.remove('show');
+});
+
 // 마커를 담을 배열입니다
 var markers = [];
 
@@ -84,7 +137,6 @@ searchPlaces();
 
 // 키워드 검색을 요청하는 함수입니다
 function searchPlaces() {
-
     var keyword = document.getElementById('keyword').value;
 
     if (!keyword.replace(/^\s+|\s+$/g, '')) {
@@ -92,37 +144,30 @@ function searchPlaces() {
         return false;
     }
 
-    // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다
-    ps.keywordSearch( keyword, placesSearchCB); 
+    // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다(비동기식 동작)
+    ps.keywordSearch(keyword, placesSearchCB); 
 }
 
 // 장소검색이 완료됐을 때 호출되는 콜백함수 입니다
 function placesSearchCB(data, status, pagination) {
     if (status === kakao.maps.services.Status.OK) {
-
         // 정상적으로 검색이 완료됐으면
         // 검색 목록과 마커를 표출합니다
         displayPlaces(data);
 
         // 페이지 번호를 표출합니다
         displayPagination(pagination);
-
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-
         alert('검색 결과가 존재하지 않습니다.');
         return;
-
     } else if (status === kakao.maps.services.Status.ERROR) {
-
         alert('검색 결과 중 오류가 발생했습니다.');
         return;
-
     }
 }
 
 // 검색 결과 목록과 마커를 표출하는 함수입니다
 function displayPlaces(places) {
-
     var listEl = document.getElementById('placesList'), 
     menuEl = document.getElementById('menu_wrap'),
     fragment = document.createDocumentFragment(), 
@@ -135,8 +180,7 @@ function displayPlaces(places) {
     // 지도에 표시되고 있는 마커를 제거합니다
     removeMarker();
     
-    for ( var i=0; i<places.length; i++ ) {
-
+    for (var i = 0; i < places.length; i++) {
         // 마커를 생성하고 지도에 표시합니다
         var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
             marker = addMarker(placePosition, i), 
@@ -162,6 +206,11 @@ function displayPlaces(places) {
                 displayInfowindow(marker, title);
             };
 
+            itemEl.onclick = function () {
+                mapModal.classList.add('show');
+                map.relayout();
+            }
+
             itemEl.onmouseout =  function () {
                 infowindow.close();
             };
@@ -180,20 +229,18 @@ function displayPlaces(places) {
 
 // 검색결과 항목을 Element로 반환하는 함수입니다
 function getListItem(index, places) {
-
     var el = document.createElement('li'),
-    itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
-                '<div class="info">' +
+    itemStr = (index+1) + 
+            '<div class="info">' + 
                 '   <h5>' + places.place_name + '</h5>';
 
     if (places.road_address_name) {
-        itemStr += '    <span>' + places.road_address_name + '</span>' +
-                    '   <span class="jibun gray">' +  places.address_name  + '</span>';
+        itemStr += '    <span>' + places.road_address_name + ' (' + places.address_name + ')' + '</span>';
     } else {
         itemStr += '    <span>' +  places.address_name  + '</span>'; 
     }
-                 
-      itemStr += '  <span class="tel">' + places.phone  + '</span>' +
+
+        itemStr += '  <span class="tel">' + places.phone  + '</span>' +
                 '</div>';           
 
     el.innerHTML = itemStr;
