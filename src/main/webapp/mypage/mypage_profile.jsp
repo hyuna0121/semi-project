@@ -10,21 +10,21 @@ String userId = "new_user_01"; // 🚨 테스트용 ID 설정 (실제 로그인 
 
 if (userId == null) {
 	// 실제 운영 환경: response.sendRedirect("../login/login.jsp");
-    // return;
+	// return;
 }
 
 // 🔸 2. DB에서 회원 정보 조회
-MemberDTO member = null;
+MemberDTO users = null;
 try {
 	MemberDAO dao = new MemberDAO();
 	// MemberDAO는 내부적으로 users 테이블을 조회하도록 수정되었어야 합니다.
-	member = dao.getMemberById(userId);
+	users = dao.getMemberById(userId);
 
-	if (member == null) {
+	if (users == null) {
 		// DB에 해당 ID가 없을 경우 DTO 객체를 비어있게 초기화 (NPE 방지)
-		member = new MemberDTO();
-		member.setId(userId);
-		member.setName("정보 없음");
+		users = new MemberDTO();
+		users.setId(userId);
+		users.setName("정보 없음");
 	}
 
 } catch (SQLException e) {
@@ -34,10 +34,13 @@ try {
 	return;
 }
 
-// 🔸 3. 이미지 경로 설정 (null 체크)
-String profileImgPath = member.getProfileImage() != null && !member.getProfileImage().isEmpty()
-		? "images/" + member.getProfileImage()
-		: "images/default_profile.png";
+String cacheBuster = String.valueOf(System.currentTimeMillis());
+
+String profileImgPath = users.getProfileImage() != null && !users.getProfileImage().isEmpty()
+//🚨🚨🚨 images/를 image/로 수정 (폴더 이름 통일)
+? "image/" + users.getProfileImage() + "?v=" + cacheBuster 
+//🚨🚨🚨 images/를 image/로 수정
+: "image/default_profile.png" + "?v=" + cacheBuster;
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -127,33 +130,33 @@ body {
 					<table class="table table-bordered">
 						<tr>
 							<th>이름</th>
-							<td><%=member.getName()%></td>
+							<td><%=users.getName()%></td>
 						</tr>
 						<tr>
 							<th>주소</th>
-							<td><%=member.getAddress() != null ? member.getAddress() : "정보 없음"%></td>
+							<td><%=users.getAddress() != null ? users.getAddress() : "정보 없음"%></td>
 						</tr>
 						<tr>
 							<th>전화번호</th>
-							<td><%=member.getPhone() != null ? member.getPhone() : "정보 없음"%></td>
+							<td><%=users.getPhone() != null ? users.getPhone() : "정보 없음"%></td>
 						</tr>
 						<tr>
 							<th>이메일</th>
-							<td><%=member.getEmail() != null ? member.getEmail() : "정보 없음"%></td>
+							<td><%=users.getEmail() != null ? users.getEmail() : "정보 없음"%></td>
 						</tr>
 						<tr>
 							<th>성별</th>
 							<%
-								String genderText = "정보 없음";
-								if ("M".equals(member.getGender())) {
-									genderText = "남성";
-								} else if ("F".equals(member.getGender())) {
-									genderText = "여성";
-								}
+							String genderText = "정보 없음";
+							if ("M".equals(users.getGender())) {
+								genderText = "남성";
+							} else if ("F".equals(users.getGender())) {
+								genderText = "여성";
+							}
 							%>
-							<td><%= genderText %></td>
+							<td><%=genderText%></td>
 						</tr>
-						</table>
+					</table>
 
 					<div class="text-end">
 						<button class="btn btn-warning text-dark" id="editBtn">정보
@@ -165,43 +168,46 @@ body {
 					<form action="ProfileUpdateServlet" method="post"
 						enctype="multipart/form-data" class="row g-4">
 
-						<input type="hidden" name="id" value="<%=member.getId()%>">
+						<input type="hidden" name="id" value="<%=users.getId()%>">
 						<input type="hidden" name="currentProfileImage"
-							value="<%=member.getProfileImage()%>">
+							value="<%=profileImgPath%>">
 
 						<div class="col-md-4 text-center">
-							<img id="preview" src="<%=profileImgPath%>" class="profile-img"
+							<img id="preview" src="<%=users.getProfileImage()%>" class="profile-img"
 								alt="프로필 사진"> <input type="file" id="profileImg"
 								name="profileImg" class="form-control mt-2" accept="image/*">
 						</div>
 
 						<div class="col-md-8">
 							<div class="mb-3">
-								<label class="form-label">이름</label>
-								<input type="text" name="name" class="form-control" 
-									   value="<%= member.getName() != null ? member.getName() : "" %>" required>
+								<label class="form-label">이름</label> <input type="text"
+									name="name" class="form-control"
+									value="<%=users.getName() != null ? users.getName() : ""%>"
+									required>
 							</div>
 							<div class="mb-3">
-								<label class="form-label">주소</label>
-								<input type="text" name="address" class="form-control" 
-									   value="<%= member.getAddress() != null ? member.getAddress() : "" %>">
+								<label class="form-label">주소</label> <input type="text"
+									name="address" class="form-control"
+									value="<%=users.getAddress() != null ? users.getAddress() : ""%>">
 							</div>
 							<div class="mb-3">
-								<label class="form-label">전화번호</label>
-								<input type="text" name="phone" class="form-control" 
-									   value="<%= member.getPhone() != null ? member.getPhone() : "" %>">
+								<label class="form-label">전화번호</label> <input type="text"
+									name="phone" class="form-control"
+									value="<%=users.getPhone() != null ? users.getPhone() : ""%>">
 							</div>
 							<div class="mb-3">
-								<label class="form-label">이메일</label>
-								<input type="email" name="email" class="form-control" 
-									   value="<%= member.getEmail() != null ? member.getEmail() : "" %>" required>
+								<label class="form-label">이메일</label> <input type="email"
+									name="email" class="form-control"
+									value="<%=users.getEmail() != null ? users.getEmail() : ""%>"
+									required>
 							</div>
 							<div class="mb-3">
-								<label class="form-label">새 비밀번호 (변경시에만 입력)</label>
-								<input type="password" name="newPassword" class="form-control" placeholder="변경하지 않으려면 비워두세요">
+								<label class="form-label">새 비밀번호 (변경시에만 입력)</label> <input
+									type="password" name="newPassword" class="form-control"
+									placeholder="변경하지 않으려면 비워두세요">
 							</div>
-							</div>
-						
+						</div>
+
 						<div class="text-end">
 							<button type="button" class="btn btn-secondary me-2"
 								id="cancelBtn">취소</button>
