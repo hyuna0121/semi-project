@@ -7,7 +7,7 @@
   <title>여행 일정 한눈에 보기</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- CSS 절대경로로 연결 -->
-  <link rel="stylesheet" href="<c:url value='/css/viewschedule.css'/>">
+  <link rel="stylesheet" href="<c:url value='/viewschedule/css/viewschedule.css'/>">
 </head>
 <body>
   <!-- 상단 요약 바 -->
@@ -117,7 +117,7 @@
   </script>
 
   <!-- JS -->
-  <script src="<c:url value='/js/viewschedule.js'/>"></script>
+  <script src="<c:url value='/viewschedule/js/viewschedule.js'/>"></script>
 
   <!-- Google Maps API (※ 실제 키로 교체하세요) -->
   <script async defer
