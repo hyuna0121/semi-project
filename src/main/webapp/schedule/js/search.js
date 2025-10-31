@@ -63,17 +63,15 @@ addButton.addEventListener('click', async () => {
         if (user && user.userId) {
             const userCard = document.createElement('div');
             userCard.className = 'user-card'; 
-            userCard.style.padding = '10px';
-            userCard.style.borderBottom = '1px solid #eee';
-            
             userCard.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <strong>아이디:</strong> ${user.userId}<br>
                         <strong>이름:</strong> ${user.userName}<br>
                         <strong>이메일:</strong> ${user.email || 'N/A'}
                     </div>
+					<div>
                     <button type="button" class="btn btn-danger btn-sm btn-remove-buddy">삭제</button>
+                    </div>
                 </div>
             `;
             
@@ -102,3 +100,6 @@ addButton.addEventListener('click', async () => {
         alert('사용자 정보를 가져오는 중 오류가 발생했습니다.');
     }
 });
+
+
+

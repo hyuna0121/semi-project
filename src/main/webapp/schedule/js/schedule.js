@@ -3,9 +3,9 @@ const labelText = document.getElementById("visibilityText");
       
 checkbox.addEventListener("change", function() {
    if (checkbox.checked) {
-       labelText.textContent = "비공개";
+      labelText.textContent = "lock";
     } else {
-      labelText.textContent = "공개";
+      labelText.textContent = "lock_open_right";
         }
 });	
 
@@ -28,3 +28,11 @@ $('#demo').daterangepicker({
 }, function (start, end, label) {
 	console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 });
+
+
+
+
+
+
+
+
