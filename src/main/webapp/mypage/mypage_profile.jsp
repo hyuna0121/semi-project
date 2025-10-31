@@ -6,7 +6,7 @@
 <%
 // 🔸 1. 로그인된 사용자 ID 가정 (실제로는 세션에서 가져와야 함)
 // String userId = (String) session.getAttribute("userId");
-String userId = "new_user_01"; // 🚨 테스트용 ID 설정 (실제 로그인 시 변경 필요)
+String userId = "admin"; // 🚨 테스트용 ID 설정 (실제 로그인 시 변경 필요)
 
 if (userId == null) {
 	// 실제 운영 환경: response.sendRedirect("../login/login.jsp");

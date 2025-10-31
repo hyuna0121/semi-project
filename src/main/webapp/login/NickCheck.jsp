@@ -6,7 +6,7 @@ String nickname = request.getParameter("nickname");
 
 String url = "jdbc:mysql://localhost:3306/memberjoin";
 String user = "root";
-String password = "test1234";
+String password = "mysql1234";
 String sql = "SELECT nickname FROM member WHERE nickname = ?";
 
 boolean exists = false;
