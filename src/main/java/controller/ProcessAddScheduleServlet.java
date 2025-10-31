@@ -155,7 +155,7 @@ public class ProcessAddScheduleServlet extends HttpServlet {
    		    }
    		}
            
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("./schedule/schedule.jsp?schedule_id=" + scheduleId);
 	}
 
 }
