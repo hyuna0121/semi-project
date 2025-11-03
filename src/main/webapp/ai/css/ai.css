@@ -1,0 +1,164 @@
+/* =========================
+   AI 추천 일정 공통 스타일 (통합본)
+   ========================= */
+:root{
+  --bg:#f6f9fc;
+  --card:#ffffff;
+  --line:#e5e7eb;
+  --fg:#0f172a;
+  --muted:#667085;
+  --primary:#2563eb;
+  --primary-h:#1d4ed8;
+  --chip:#eef2ff;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;
+}
+
+/* ------- 공통 레이아웃 ------- */
+.container{ width:min(920px,92vw); margin:28px auto; }
+.center{ text-align:center; }
+.hidden{ display:none !important; }
+
+/* ------- 카드 ------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 8px 28px rgba(0,0,0,.06);
+  padding:24px 22px;
+}
+
+/* ------- 버튼 ------- */
+.btn{ display:inline-block; border:none; cursor:pointer; font-weight:700; }
+.btn:disabled{ opacity:.55; cursor:not-allowed; }
+.btn-primary{
+  background:var(--primary); color:#fff; border-radius:12px;
+  padding:12px 18px; transition:background .15s;
+}
+.btn-primary:hover{ background:var(--primary-h); }
+.btn-outline{
+  background:#fff; color:var(--fg);
+  border:1px solid var(--line); border-radius:10px;
+  padding:10px 14px;
+}
+
+/* =========================
+   단계 헤더(아이콘/타이틀/진행도)
+   ========================= */
+.step-wrap{ width:min(920px,92vw); margin:28px auto; }
+.step-head{ position:relative; text-align:center; margin:14px 0 28px; }
+.step-back{
+  position:absolute; left:0; top:50%; transform:translateY(-50%);
+  border:none; background:transparent; font-size:20px; cursor:pointer;
+  padding:6px 10px; border-radius:10px;
+}
+.step-back:hover{ background:#f3f4f6; }
+.step-progress{
+  position:absolute; right:0; top:0; font-size:13px; color:#94a3b8; font-weight:700;
+}
+.step-icon{ width:56px; height:56px; display:block; margin:0 auto 10px; }
+.step-title{ font-size:28px; font-weight:800; margin:0 0 6px; letter-spacing:-.2px; }
+.step-sub{ color:#94a3b8; margin:0; }
+
+/* =========================
+   칩 버튼(기존 폼형)
+   ========================= */
+.chips{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+.chip{
+  padding:12px 18px; border-radius:999px; border:1px solid var(--line);
+  background:#fff; cursor:pointer; font-weight:600;
+  transition:background .15s, box-shadow .15s, border-color .15s;
+}
+.chip:hover{ background:#fafafa; }
+.chip.active{ background:var(--chip); border-color:#c7d2fe; box-shadow:0 6px 18px rgba(37,99,235,.15); }
+
+/* =========================
+   필(Pill) 라디오 버튼 그리드 (신규)
+   ========================= */
+.pill-group{
+  display:grid; grid-template-columns: repeat(3, minmax(180px,1fr));
+  gap:16px; justify-items:center; margin:34px auto 40px; width:min(820px,90vw);
+}
+.pill{
+  position:relative; width:100%; max-width:240px; height:56px; border-radius:999px;
+  border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:700; cursor:pointer; transition:box-shadow .15s, border-color .15s, background .15s;
+}
+.pill input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.pill span{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  border-radius:999px; border:1px solid transparent; pointer-events:none;
+}
+.pill:hover{ background:#fafafa; }
+.pill input:checked + span{
+  background:var(--chip); border-color:#c7d2fe;
+  box-shadow:0 8px 24px rgba(37,99,235,.15) inset;
+}
+
+/* =========================
+   하단 고정 ‘다음’ 버튼 바 (신규)
+   ========================= */
+.footer{ display:flex; justify-content:center; margin-top:20px; } /* 기존 */
+.footer-bar{
+  position:fixed; left:0; right:0; bottom:18px; display:flex; justify-content:center; pointer-events:none; z-index:10;
+}
+.footer-bar .btn-next{
+  width:min(820px,90vw); height:52px; border:none; border-radius:12px; font-weight:800; letter-spacing:.2px;
+  background:#cfe3ff; color:#fff; cursor:not-allowed; pointer-events:auto; transition:background .15s;
+}
+.footer-bar .btn-next.enabled{
+  background:var(--primary); cursor:pointer;
+}
+.footer-bar .btn-next.enabled:hover{ background:var(--primary-h); }
+
+/* =========================
+   결과 화면
+   ========================= */
+.result__head{ display:flex; justify-content:space-between; align-items:center; margin:8px 0 16px; }
+#result-title{ margin:0; font-size:26px; }
+#result-sub{ margin:4px 0 0; color:var(--muted); }
+.map{ height:300px; border:1px solid var(--line); border-radius:14px; margin:12px 0 20px; }
+
+.tabs{ display:flex; gap:8px; margin:10px 0; }
+.tabs button{ padding:8px 14px; border:1px solid var(--line); background:#fff; border-radius:10px; cursor:pointer; }
+.tabs button.active{ background:#eef2ff; border-color:#c7d2fe; }
+
+.day-panel{ border:1px solid var(--line); border-radius:14px; background:#fff; padding:12px 14px; box-shadow:0 2px 10px rgba(0,0,0,.04); margin-bottom:14px; }
+.day-item{ display:flex; gap:10px; border-bottom:1px dashed #eee; padding:10px 0; }
+.day-item:last-child{ border-bottom:none; }
+.time{ width:64px; color:#475569; }
+.meta b{ display:block; }
+.badge{ display:inline-block; background:#f1f5f9; border-radius:999px; padding:4px 8px; font-size:12px; margin-top:4px; }
+
+/* =========================
+   0단계 Hero (선택)
+   ========================= */
+.hero{
+  height:65vh; display:grid; place-items:center; position:relative; overflow:hidden;
+  background:
+    radial-gradient(1200px 600px at 70% 40%, rgba(255,255,255,.65), transparent 60%),
+    url('https://images.unsplash.com/photo-1502920917128-1aa500764b8a?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat;
+  filter:saturate(1.05);
+}
+.hero .hero__content{ text-align:center; padding:20px; }
+.hero h1{ font-size:44px; line-height:1.25; margin:0 0 8px; }
+.hero .sub{ color:#475569; margin:0 0 20px; }
+
+/* ------- 반응형 ------- */
+@media (max-width:720px){
+  .pill-group{ grid-template-columns: repeat(2, minmax(140px,1fr)); }
+  .step-title{ font-size:24px; }
+}
+@media (max-width:560px){
+  .map{ height:240px; }
+}
+@media (max-width:480px){
+  .pill-group{ grid-template-columns:1fr; }
+}

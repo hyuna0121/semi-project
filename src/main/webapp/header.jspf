@@ -146,9 +146,10 @@
 
   <nav class="menu">
     <div class="group">
-      <a href="#">내 예약</a>
-      <a href="#"><span>도시별 여행정보</span> <span class="chip">무료로 확인!</span></a>
-      <a href="#">AI 추천 맞춤일정</a>
+    <% String contextPath = request.getContextPath(); %>
+      <a href="<%=contextPath%>/mypage/mypage_profile.jsp">내 프로필</a>
+      <a href="<%=contextPath%>/mypage/travel_schedule.jsp"><span>여행 일정</span> <span class="chip">간편한 확인!</span></a>
+      <a href="#">내 댓글</a>
     </div>
 
     <div class="group">

@@ -9,7 +9,8 @@ public class MemberDTO {
     private String email;
     private String address;
     private String gender;
-    private String profileImage; // profile_image와 매핑
+    private String profileImage; 
+    private int passwordUpdateCount; 
 
 
     public String getId() { return id; }
@@ -35,4 +36,12 @@ public class MemberDTO {
     
     public String getProfileImage() { return profileImage; }
     public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
+    
+    // 🚨 추가
+    public int getPasswordUpdateCount() { 
+        return passwordUpdateCount; 
+    }
+    public void setPasswordUpdateCount(int passwordUpdateCount) { 
+        this.passwordUpdateCount = passwordUpdateCount; 
+    }
 }
