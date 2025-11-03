@@ -10,19 +10,24 @@ public class DBUtil {
 	
 	// 커넥션 생성
     public static Connection getConnection() {
+        Connection conn = null;
         try {
-        		// JDBC 드라이버 로드
             Class.forName("com.mysql.cj.jdbc.Driver");
-			return DriverManager.getConnection(URL, USER, PASSWORD);
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            
+            // 🚨 핵심: 격리 레벨을 READ COMMITTED로 강제 설정하여 DB 캐시 문제 방지
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            
+			return conn;
 		} catch (Exception e) {
 			e.printStackTrace();
+			close(conn); 
 			return null;
 		}
     }
     
     // 리소스 해제
-    // try-with-resources를 사용한다면 필요 없음
-    public static void close(AutoCloseable... resources) { // ... : 가변인자, 내부적으로 배열로 처리
+    public static void close(AutoCloseable... resources) {
         for (AutoCloseable r : resources) {
             if (r != null) {
                 try { 
