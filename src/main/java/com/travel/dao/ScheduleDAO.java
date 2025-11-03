@@ -43,29 +43,39 @@ public class ScheduleDAO {
         return scheduleId;
     }
 	
-	public ScheduleDTO selectSchedule(Connection conn, long scheduleId, String[] travelBuddies) {
-		String sql = "SELECT * FROM schedules WHERE id = ?";
+	public ScheduleDTO selectSchedule(Connection conn, long scheduleId) {
+		String sql = "SELECT s.*, GROUP_CONCAT(m.user_id) AS buddies " +
+                "FROM schedules s LEFT JOIN members m ON s.id = m.schedule_id " +
+                "WHERE s.id = ? GROUP BY s.id";
 		
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setLong(1, scheduleId);
             
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-            	ScheduleDTO schedule = new ScheduleDTO();
-            	schedule.setId(scheduleId);
-            	schedule.setUserId(rs.getString("user_id"));
-            	schedule.setTitle(rs.getString("title"));
-            	schedule.setLocation(rs.getString("location"));
-            	schedule.setDescription(rs.getString("description"));
-            	schedule.setVisibility(rs.getString("visibility"));
-            	schedule.setStartDate(rs.getString("start_date"));
-            	schedule.setEndDate(rs.getString("end_date"));
-            	schedule.setMainImage(rs.getString("main_image"));
-            	schedule.setTravelBuddies(travelBuddies);
-            	
-            	return schedule;
+            try (ResultSet rs = pstmt.executeQuery()) {
+            	if (rs.next()) {
+            		ScheduleDTO schedule = new ScheduleDTO();
+            		schedule.setId(scheduleId);
+            		schedule.setUserId(rs.getString("user_id"));
+            		schedule.setTitle(rs.getString("title"));
+            		schedule.setLocation(rs.getString("location"));
+            		schedule.setDescription(rs.getString("description"));
+            		schedule.setVisibility(rs.getString("visibility"));
+            		schedule.setStartDate(rs.getString("start_date"));
+            		schedule.setEndDate(rs.getString("end_date"));
+            		schedule.setMainImage(rs.getString("main_image"));
+            		
+            		String buddiesString = rs.getString("buddies");
+            		
+            		if (buddiesString != null && ! buddiesString.isEmpty()) {
+						schedule.setTravelBuddies(buddiesString.split(","));
+					} else {
+						schedule.setTravelBuddies(new String[0]);
+					}
+            		
+            		return schedule;
+            	}
             }
+            
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -73,6 +83,50 @@ public class ScheduleDAO {
 		return null;
 	}
 	
+	public List<ScheduleDTO> searchSchedule(Connection conn, String keyword) {
+		String sql = "SELECT s.*, GROUP_CONCAT(m.user_id) AS buddies " +
+                "FROM schedules s LEFT JOIN members m ON s.id = m.schedule_id " +
+                "WHERE s.location LIKE ? GROUP BY s.id";
+		
+		List<ScheduleDTO> searchResult = new ArrayList<>();
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, "%" + keyword + "%");
+			
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					ScheduleDTO schedule = new ScheduleDTO();
+					schedule.setId(rs.getLong("id"));
+					schedule.setUserId(rs.getString("user_id"));
+					schedule.setTitle(rs.getString("title"));
+					schedule.setLocation(rs.getString("location"));
+					schedule.setDescription(rs.getString("description"));
+					schedule.setVisibility(rs.getString("visibility"));
+					schedule.setStartDate(rs.getString("start_date"));
+					schedule.setEndDate(rs.getString("end_date"));
+					schedule.setMainImage(rs.getString("main_image"));
+					
+					String buddiesString = rs.getString("buddies");
+					
+					if (buddiesString != null && ! buddiesString.isEmpty()) {
+						schedule.setTravelBuddies(buddiesString.split(","));
+					} else {
+						schedule.setTravelBuddies(new String[0]);
+					}
+					
+					searchResult.add(schedule);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			return new ArrayList<>();
+		}
+		
+		return searchResult;
+	}
+	
+
 	public void insertMembers(Connection conn, long scheduleId, String creatorId, String[] travelBuddies) throws SQLException {
         String sql = "INSERT INTO members(schedule_id, user_id) VALUES (?, ?)";
         
@@ -96,22 +150,4 @@ public class ScheduleDAO {
 		}
     }
 	
-	public String[] selectMembers(Connection conn, long scheduleId) throws SQLException {
-		String sql = "SELECT user_id FROM members WHERE schedule_id = ?";
-		List<String> travelBuddiesList = new ArrayList<>();
-		
-		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, scheduleId);
-            
-            try (ResultSet rs = pstmt.executeQuery()) {
-				while(rs.next()) {
-					travelBuddiesList.add(rs.getString("user_id"));
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return travelBuddiesList.toArray(new String[travelBuddiesList.size()]);
-	}
 }

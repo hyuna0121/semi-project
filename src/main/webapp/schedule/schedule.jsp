@@ -1,3 +1,5 @@
+<%@page import="jdk.internal.org.jline.terminal.TerminalBuilder.SystemOutput"%>
+<%@page import="jdk.internal.misc.FileSystemOption"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="java.time.LocalDate"%>
@@ -33,13 +35,15 @@
 				conn = DBUtil.getConnection(); 
 				ScheduleDAO dao = new ScheduleDAO();
 				
-				members = dao.selectMembers(conn, scheduleId);
-				schedule = dao.selectSchedule(conn, scheduleId, members);
+				schedule = dao.selectSchedule(conn, scheduleId);
 			} else {
 				errorMessage = "유효한 schedule_id가 없습니다.";
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			errorMessage = "데이터 조회 중 오류가 발생했습니다.";
+		} finally {
+			if (conn != null) conn.close(); 
 		}
 		
 		String userId = (String) session.getAttribute("loginId");
