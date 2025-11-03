@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.travel.dto.ScheduleDTO;
 
@@ -35,9 +37,41 @@ public class ScheduleDAO {
                     }
                 }
             }
-        }
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
         return scheduleId;
     }
+	
+	public ScheduleDTO selectSchedule(Connection conn, long scheduleId, String[] travelBuddies) {
+		String sql = "SELECT * FROM schedules WHERE id = ?";
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, scheduleId);
+            
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+            	ScheduleDTO schedule = new ScheduleDTO();
+            	schedule.setId(scheduleId);
+            	schedule.setUserId(rs.getString("user_id"));
+            	schedule.setTitle(rs.getString("title"));
+            	schedule.setLocation(rs.getString("location"));
+            	schedule.setDescription(rs.getString("description"));
+            	schedule.setVisibility(rs.getString("visibility"));
+            	schedule.setStartDate(rs.getString("start_date"));
+            	schedule.setEndDate(rs.getString("end_date"));
+            	schedule.setMainImage(rs.getString("main_image"));
+            	schedule.setTravelBuddies(travelBuddies);
+            	
+            	return schedule;
+            }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 	
 	public void insertMembers(Connection conn, long scheduleId, String creatorId, String[] travelBuddies) throws SQLException {
         String sql = "INSERT INTO members(schedule_id, user_id) VALUES (?, ?)";
@@ -57,6 +91,27 @@ public class ScheduleDAO {
             }
             
             pstmt.executeBatch();
-        }
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
     }
+	
+	public String[] selectMembers(Connection conn, long scheduleId) throws SQLException {
+		String sql = "SELECT user_id FROM members WHERE schedule_id = ?";
+		List<String> travelBuddiesList = new ArrayList<>();
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, scheduleId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+				while(rs.next()) {
+					travelBuddiesList.add(rs.getString("user_id"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return travelBuddiesList.toArray(new String[travelBuddiesList.size()]);
+	}
 }

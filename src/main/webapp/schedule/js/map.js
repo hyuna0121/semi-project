@@ -4,11 +4,15 @@ const modalClose = document.querySelector('.close_btn');
 
 const mapModal = document.querySelector('.modal_map');
 const mapModalClose = document.querySelector('.close_map_btn');
+const mapModalInfo = document.querySelector('#map_info');
+
+const addModal = document.querySelector('.modal_add');
+const addModalOpen = document.querySelector('.add_schedule_btn');
+const addModalClose = document.querySelector('.close_add_btn');
 
 modalOpen.addEventListener('click', function () {
     modal.classList.add('show');
 });
-
 modalClose.addEventListener('click', function () {
     modal.classList.remove('show');
 });
@@ -17,6 +21,17 @@ mapModalClose.addEventListener('click', function () {
     mapModal.classList.remove('show');
     removeCurrentMarker();
 });
+
+addModalOpen.addEventListener('click', function() {
+	addModal.classList.add('show');
+});
+
+addModalClose.addEventListener('click', function() {
+	addModal.classList.remove('show');
+	mapModal.classList.remove('show');
+	removeCurrentMarker();
+});
+
 
 var currentMarker = null;
 
@@ -93,6 +108,10 @@ function displayPlaces(places) {
         // mouseout 했을 때는 인포윈도우를 닫습니다
         (function(position, idx, title) {            
             itemEl.onclick = function () {
+				mapModalInfo.innerHTML = ''; 
+				var clonedItem = this.cloneNode(true); 
+				mapModalInfo.appendChild(clonedItem);				
+				
                 removeCurrentMarker();
                 currentMarker = addMarker(position, idx);
                 mapModal.classList.add('show');
@@ -118,7 +137,7 @@ function displayPlaces(places) {
 function getListItem(index, places) {
     var el = document.createElement('li'),
     itemStr = '<div class="info">' + 
-                '   <h5>' + (index+1) + places.place_name + '</h5>';
+                '   <h3>' + places.place_name + '</h3>';
 
     if (places.road_address_name) {
         itemStr += '    <span>' + places.road_address_name + ' (' + places.address_name + ')' + '</span>';
