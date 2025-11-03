@@ -97,10 +97,25 @@
   <a href="../mainpage/mainpage.jsp" class="logo">로고</a>
 
   <div class="nav-right">
-    <!-- 로그인: login.jsp로 이동 -->
-    <a href="../login/login.jsp" class="reservation">로그인</a>
-    <!-- 회원가입: 회원가입 페이지로 이동 -->
-    <a href="../login/memberJoin.jsp" class="reservation">회원가입</a>
+  	<%
+  		String loginId = (String) session.getAttribute("loginId");
+  		String ctx = request.getContextPath();
+  		String nickname = (String) session.getAttribute("nickname");
+  		String displayName = (nickname != null && !nickname.isEmpty()) ? nickname : (loginId != null ? loginId : "게스트");
+  	%>
+   <% if (loginId == null) { %>
+    <!-- 로그인 X -->
+    <a href="<%=ctx%>/login/login.jsp" class="reservation">로그인</a>
+    <a href="<%=ctx%>/login/memberJoin.jsp" class="reservation">회원가입</a>
+   <% } else { %>
+    <!-- 로그인 O -->
+    <form action="<%=ctx%>/Logout" method="post" style="display:inline;">
+      <button type="submit" class="reservation" 
+              style="background:none;border:none;cursor:pointer;font:inherit;">
+        로그아웃
+      </button>
+    </form>
+   <% } %>
 
     <!-- 햄버거 버튼 -->
     <div class="menu-icon" id="menuBtn" aria-label="메뉴 열기" role="button" tabindex="0">
@@ -124,8 +139,8 @@
   <div class="profile">
     <span class="avatar"></span>
     <div>
-      <div class="nickname">게스트</div>
-      <div class="grade">NOL 회원</div>
+      <div class="nickname"><%= displayName %></div>
+      <div class="grade"><%= (loginId == null ? "NOL 회원" : "로그인됨") %></div>
     </div>
   </div>
 
@@ -147,9 +162,15 @@
   </nav>
 
   <div class="drawer__footer">
-    <a href="login.jsp"><button class="btn-outline">로그인</button></a>
-    <%-- 로그인 상태라면 로그아웃으로 변경
-    <form action="logout" method="post"><button class="btn-outline">로그아웃</button></form> --%>
+  <!-- 로그인 -->
+  <% if (loginId == null) { %>
+    <a href="<%=ctx%>/login/login.jsp"><button class="btn-outline">로그인</button></a>
+  <% } else { %>
+    <form action="<%=ctx%>/Logout" method="post" style="margin:0;">
+      <!-- 로그아웃 -->
+      <button type="submit" class="btn-outline">로그아웃</button>
+    </form>
+  <% } %>
   </div>
 </aside>
 
