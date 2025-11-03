@@ -13,16 +13,19 @@ import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Base64; // Base64 인코딩/디코딩 사용
+import java.util.Base64; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 1, 
     maxFileSize = 1024 * 1024 * 10,      
-    maxRequestSize = 1024 * 1024 * 15   
+    maxRequestSize = 1024 * 1024 * 15    
 )
 @WebServlet("/mypage/ProfileUpdateServlet") 
 public class ProfileUpdateServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(ProfileUpdateServlet.class.getName());
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -33,12 +36,15 @@ public class ProfileUpdateServlet extends HttpServlet {
         String address = null;
         String phone = null;
         String email = null;
+        String gender = null; 
         String newPassword = null;
-        String currentProfileImage = null; // Base64 String 또는 NULL
-        String newProfileImageBase64 = null; // 새로 DB에 저장될 Base64 String
+        String newPasswordConfirm = null; 
+        String currentPassword = null; 
+        String currentProfileImage = null; 
+        String newProfileImageBase64 = null; 
         Part profileImgPart = null;        
 
-        // 1. 폼 데이터 추출 (기존 로직 유지)
+        // 1. 폼 데이터 추출
         try {
             for (Part part : request.getParts()) {
                 String partName = part.getName();
@@ -52,7 +58,10 @@ public class ProfileUpdateServlet extends HttpServlet {
                         case "address": address = value; break;
                         case "phone": phone = value; break;
                         case "email": email = value; break;
+                        case "gender": gender = value; break;
                         case "newPassword": newPassword = value; break;
+                        case "newPasswordConfirm": newPasswordConfirm = value; break; 
+                        case "currentPassword": currentPassword = value; break;
                         case "currentProfileImage": currentProfileImage = value; break;
                     }
                 } else {
@@ -62,50 +71,95 @@ public class ProfileUpdateServlet extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Form data processing error", e);
             response.getWriter().println("<script>alert('폼 데이터 처리 중 오류 발생.'); history.back();</script>");
             return;
         }
 
         MemberDAO dao = new MemberDAO();
         try {
-            // 2. 파일 업로드 처리 및 Base64 문자열 생성
-            if (profileImgPart != null && profileImgPart.getSize() > 0) {
+            // 0. 현재 사용자 정보를 조회하여 카운트를 확인
+            MemberDTO currentUser = dao.getMemberById(userId);
+           
+            // 🚨🚨 수정: 입력된 현재 비밀번호 공백 제거
+            if (currentPassword != null) {
+                 currentPassword = currentPassword.trim();
+            }
+            
+            if (currentPassword == null || currentPassword.isEmpty()) {
+                 response.getWriter().println("<script>alert('정보 수정을 위해 현재 비밀번호를 입력해주세요.'); history.back();</script>");
+                 return;
+            }
+            
+            // 1. DB에 저장된 평문 비밀번호를 가져와 검증
+            String storedPassword = dao.getPasswordHash(userId);
+            
+            // 🚨🚨 수정: DB에서 가져온 비밀번호 공백 제거
+            if (storedPassword != null) {
+                 storedPassword = storedPassword.trim();
+            }
+
+            if (storedPassword == null || !storedPassword.equals(currentPassword)) { 
+               
+                 response.getWriter().println("<script>alert('비밀번호가 일치하지 않습니다.'); history.back();</script>");
+                 return;
+            }
+            
+            // 2. 새 비밀번호 처리
+            if (newPassword != null && !newPassword.isEmpty()) {
+                 // 🚨🚨 수정: 비밀번호 수정 횟수 제한 (3회부터 차단)
+                if (currentUser.getPasswordUpdateCount() >= 3) { 
+                    response.getWriter().println("<script>alert('비밀번호는 최대 3회만 수정 가능합니다. 수정되지 않았습니다.'); location.href='mypage_profile.jsp';</script>");
+                    return;
+                }
+                 
+                 if (!newPassword.equals(newPasswordConfirm)) {
+                     response.getWriter().println("<script>alert('새 비밀번호와 확인 비밀번호가 일치하지 않습니다.'); history.back();</script>");
+                     return;
+                 }
                 
-                // 🚨🚨🚨 이미지 파일을 Base64 문자열로 변환 🚨🚨🚨
-                try (InputStream input = profileImgPart.getInputStream()) {
-                    byte[] imageBytes = input.readAllBytes();
-                    // Java 8 표준 Base64 인코더 사용
-                    newProfileImageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-                } 
-                // 🚨🚨🚨 파일 시스템 저장/삭제 로직은 완전히 제거됩니다. 🚨🚨🚨
+                // 🚨🚨 수정: DB에 저장될 새 비밀번호 공백 제거
+                newPassword = newPassword.trim(); 
                 
             } else {
-                // 업로드 파일이 없으면 기존 Base64 문자열을 유지
+                 newPassword = null; 
+            }
+
+            // 3. 프로필 이미지 처리
+            if (profileImgPart != null && profileImgPart.getSize() > 0) {
+                
+                try (InputStream input = profileImgPart.getInputStream()) {
+                    byte[] imageBytes = input.readAllBytes();
+                    newProfileImageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+                } 
+                
+            } else {
                 newProfileImageBase64 = currentProfileImage; 
             }
 
-            // 3. DB 업데이트 DTO 설정
+            // 4. DB 업데이트 DTO 설정
             MemberDTO updatedUser = new MemberDTO();
             updatedUser.setId(userId);
             updatedUser.setName(name);
             updatedUser.setAddress(address);
             updatedUser.setPhone(phone);
             updatedUser.setEmail(email);
-            updatedUser.setProfileImage(newProfileImageBase64); // Base64 문자열 저장
+            updatedUser.setGender(gender); 
+            updatedUser.setProfileImage(newProfileImageBase64); 
 
-            String hashedPassword = newPassword; 
-            int result = dao.updateMember(updatedUser, hashedPassword);
+            String finalPasswordToSave = newPassword; 
+
+            // 5. DAO 호출 (DAO 내부에서 트랜잭션 및 카운트 증가 처리)
+            int result = dao.updateMember(updatedUser, finalPasswordToSave);
 
             if (result > 0) {
-                // 4. 성공 응답 및 리다이렉트
                 response.getWriter().println("<script>alert('프로필 정보가 성공적으로 수정되었습니다.'); location.href='mypage_profile.jsp';</script>");
             } else {
                 response.getWriter().println("<script>alert('프로필 업데이트에 실패했습니다. (DB 오류)'); history.back();</script>");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Database error during profile update for user: " + userId, e);
             response.getWriter().println("<script>alert('데이터베이스 처리 중 오류가 발생했습니다.'); history.back();</script>");
         }
     }

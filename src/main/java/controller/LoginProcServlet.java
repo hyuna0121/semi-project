@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import util.DBUtil;
 
 @WebServlet("/LoginProc")
 public class LoginProcServlet extends HttpServlet {
@@ -35,17 +36,15 @@ public class LoginProcServlet extends HttpServlet {
             return;
         }
 
-        // DB 연결 정보
-        String url = "jdbc:mysql://localhost:3306/memberjoin";
-        String dbUser = "root";
-        String dbPass = "test1234";
+
+    
 
         try {
             // JDBC 드라이버 로드
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             try (
-                Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+                Connection conn = DBUtil.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(
                         "SELECT name FROM users WHERE id=? AND password=?");
             ) {

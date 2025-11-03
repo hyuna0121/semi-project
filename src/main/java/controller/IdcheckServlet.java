@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import util.DBUtil;
 
 @WebServlet("/IdCheck")
 public class IdcheckServlet extends HttpServlet {
@@ -31,11 +32,7 @@ public class IdcheckServlet extends HttpServlet {
             return;
         }
 
-        // DB 연결 설정
-        String url = "jdbc:mysql://localhost:3306/memberjoin";
-        String dbUser = "root";
-        String dbPass = "test1234";
-        String sql = "SELECT id FROM member WHERE id = ?";
+  
 
         boolean exists = false;
 
@@ -44,7 +41,7 @@ public class IdcheckServlet extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             try (
-                Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+                Connection conn = DBUtil.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
             ) {
                 pstmt.setString(1, id);
