@@ -4,8 +4,8 @@
 <%@ page import="java.net.URLDecoder" %>
 
 <sql:setDataSource var="db" driver="com.mysql.cj.jdbc.Driver"
-    url="jdbc:mysql://localhost:3306/traveldb"
-    user="root" password="test1234"/>
+    url="jdbc:mysql://192.168.8.141:3306/traveldb?serverTimezone=UTC"
+    user="traveldb" password="mysql1234"/>
 
 <%
     String userId = request.getParameter("userId");
