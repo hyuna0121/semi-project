@@ -72,7 +72,7 @@
     <a href="mypage_profile.jsp">내 프로필</a>
     <a href="#" class="active">여행 일정</a>
     <a href="#">내 댓글</a>
-    <a href="#">설정</a>
+    
   </aside>
 
   <!-- 오른쪽 콘텐츠 -->
