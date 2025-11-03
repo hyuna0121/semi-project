@@ -5,61 +5,50 @@ import java.io.PrintWriter;
 import java.sql.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import util.DBUtil;
 
 @WebServlet("/NickCheck")
 public class NickCheckServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    private static final String SQL_EXISTS = "SELECT 1 FROM users WHERE nickname = ? LIMIT 1";
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        // 요청 인코딩 및 응답 타입 설정
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
+        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html; charset=UTF-8");
 
-        String nickname = request.getParameter("nickname");
-        PrintWriter out = response.getWriter();
+        PrintWriter out = resp.getWriter();
+        String nickname = req.getParameter("nickname");
+        nickname = (nickname == null) ? "" : nickname.trim();
 
-        // 닉네임이 비어 있으면 처리 중단
-        if (nickname == null || nickname.trim().isEmpty()) {
-            out.print("<span style='color:red;'>닉네임을 입력해주세요 ⚠️</span>");
+        if (nickname.isEmpty()) {
+            out.print("<span style='color:#ef4444'>닉네임을 입력해주세요 ⚠️</span>");
+            return;
+        }
+        if (nickname.length() < 2 || nickname.length() > 20) {
+            out.print("<span style='color:#ef4444'>닉네임은 2~20자로 입력하세요.</span>");
             return;
         }
 
-        // DB 연결 정보
-        String url = "jdbc:mysql://localhost:3306/memberjoin";
-        String dbUser = "root";
-        String dbPass = "test1234";
-        String sql = "SELECT nickname FROM member WHERE nickname = ?";
-
-        boolean exists = false;
-
-        try (
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-        ) {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            pstmt.setString(1, nickname);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    exists = true;
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_EXISTS)) {
+            ps.setString(1, nickname);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean exists = rs.next();
+                if (exists) {
+                    out.print("<span style='color:#ef4444'>이미 사용 중인 닉네임입니다 ❌</span>");
+                } else {
+                    out.print("<span style='color:#16a34a'>사용 가능한 닉네임입니다 ✅</span>");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            out.print("<span style='color:red;'>서버 오류 발생 ❌</span>");
-            return;
-        }
-
-        // 결과 출력 (AJAX 응답)
-        if (exists) {
-            out.print("<span style='color:red;'>이미 사용 중인 닉네임입니다 ❌</span>");
-        } else {
-            out.print("<span style='color:green;'>사용 가능한 닉네임입니다 ✅</span>");
+            resp.setStatus(500);
+            out.print("<span style='color:#ef4444'>서버 오류 발생 ❌</span>");
         }
     }
 }

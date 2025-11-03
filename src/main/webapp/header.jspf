@@ -150,15 +150,7 @@
       <a href="<%=contextPath%>/mypage/mypage_profile.jsp">내 프로필</a>
       <a href="<%=contextPath%>/mypage/travel_schedule.jsp"><span>여행 일정</span> <span class="chip">간편한 확인!</span></a>
       <a href="#">내 댓글</a>
-    </div>
-
-    <div class="group">
-      <div class="group__title">여행상품</div>
-      <div class="submenu">
-        <a href="#">항공</a>
-        <a href="#">숙소</a>
-        <a href="#">투어·티켓</a>
-      </div>
+      <a href="<%=contextPath%>/ai/ai0.jsp">AI 추천 일정</a>
     </div>
   </nav>
 

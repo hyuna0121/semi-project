@@ -1,240 +1,274 @@
 package controller;
 
-import java.io.IOException;
-import java.util.*;
+import com.google.gson.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-/**
- * 5단계 입력(도시/기간/동행/관심사/템포)을 결합해 추천 일정 JSON 생성
- * URL: GET /ai/recommend
- */
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.*;   // ★ OkHttp 사용
+
 @WebServlet("/ai/recommend")
 public class AiRecommendServlet extends HttpServlet {
 
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    req.setCharacterEncoding("UTF-8");
-    resp.setCharacterEncoding("UTF-8");
+    private static String GEMINI_API_KEY = "";
+    private static String GEMINI_MODEL   = "gemini-1.5-flash";
 
-    try {
-      // 1) 세션/파라미터에서 최종 입력 수집 (세션 우선, 쿼리가 있으면 덮어쓰기 허용)
-      HttpSession session = req.getSession(false);
-      String city = pick(req, session, "city", "w_city", "seoul");
-      int days = parseInt(pick(req, session, "days", "w_days", "2"), 2);
-      String pace = pick(req, session, "pace", "w_pace", "normal");
+    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
+    private static final OkHttpClient HTTP = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build();
 
-      String companionsCsv = pick(req, session, "companions", "w_companions", "");
-      Set<String> companions = toSet(companionsCsv);
+    private static final Map<String, String> CACHE = new HashMap<>();
 
-      String interestsCsv = pick(req, session, "interests", "w_interests", "");
-      Set<String> interests = toSet(interestsCsv);
-
-      // 2) 도시별 POI(간단 샘플) 로드 – 실제로는 DB에서 SELECT 해오면 됩니다
-      List<Poi> all = samplePois(city);
-
-      // 3) 스코어링: 관심사/동행/인기도를 가중치로 점수 계산
-      List<ScoredPoi> ranked = rankPois(all, interests, companions);
-
-      // 4) 템포별 1일 방문 수
-      int perDay = pace.equals("fast") ? 6 : pace.equals("slow") ? 3 : 4;
-
-      // 5) 일자별로 POI 배치 + 식사/카페 자동 끼워넣기
-      List<Map<String,Object>> dayPlans = buildItinerary(ranked, days, perDay);
-
-      // 6) JSON 결과
-      Map<String,Object> result = new LinkedHashMap<>();
-      result.put("city", city);
-      result.put("daysCount", days);
-      result.put("pace", pace);
-      result.put("interests", interests.toArray(new String[0]));
-      result.put("days", dayPlans);
-
-      resp.setContentType("application/json; charset=UTF-8");
-      resp.getWriter().write(new GsonBuilder().create().toJson(result));
-
-    } catch (Exception e) {
-	  e.printStackTrace();
-	  resp.setStatus(500);
-	  resp.setContentType("application/json; charset=UTF-8");
-	  Map<String,Object> err = new LinkedHashMap<>();
-	  err.put("error", true);
-	  err.put("message", e.getClass().getSimpleName() + " - " + (e.getMessage()==null?"":e.getMessage()));
-	  resp.getWriter().write(new com.google.gson.Gson().toJson(err));
+    @Override
+    public void init() {
+        try (InputStream in = getServletContext().getResourceAsStream("/WEB-INF/config.properties")) {
+            if (in != null) {
+                Properties props = new Properties();
+                props.load(in);
+                GEMINI_API_KEY = props.getProperty("gemini.api.key", "").trim();
+                GEMINI_MODEL   = props.getProperty("gemini.model", "gemini-1.5-flash").trim();
+                System.out.println("[Gemini] ✅ config.properties loaded. model=" + GEMINI_MODEL);
+            } else {
+                System.err.println("[Gemini] ⚠ config.properties not found under /WEB-INF/");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-  }
 
-  /* ----------------- 유틸/모델 ----------------- */
-
-  private static String pick(HttpServletRequest req, HttpSession ses, String q, String s, String def){
-    String v = req.getParameter(q);
-    if (v != null && !v.trim().isEmpty()) return v.trim();
-    if (ses != null) {
-      Object o = ses.getAttribute(s);
-      if (o != null) {
-        String sv = String.valueOf(o).trim();
-        if (!sv.isEmpty()) return sv;
-      }
+    private static String GEMINI_URL() {
+        return "https://generativelanguage.googleapis.com/v1beta/models/"
+                + GEMINI_MODEL + ":generateContent?key=" + GEMINI_API_KEY;
     }
-    return def;
-  }
-  private static int parseInt(String v, int def){ try { return Integer.parseInt(v); } catch(Exception e){ return def; } }
-  private static Set<String> toSet(String csv){
-    Set<String> set = new LinkedHashSet<>();
-    if (csv == null || csv.trim().isEmpty()) return set;
-    for (String t : csv.split("\\s*,\\s*")) if (!t.isEmpty()) set.add(t);
-    return set;
-  }
 
-  /* POI 모델 */
-  static class Poi {
-    String name, category; // spot, food, cafe, nature, culture, shopping ...
-    double lat, lon;
-    double rating;  // 0~5
-    boolean kidFriendly, seniorFriendly, coupleHot;
-    Set<String> tags; // hotplace, activity, nightview 등
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json; charset=UTF-8");
 
-    Poi(String name, String category, double lat, double lon, double rating,
-        boolean kidFriendly, boolean seniorFriendly, boolean coupleHot, String... tags){
-      this.name = name; this.category = category; this.lat=lat; this.lon=lon; this.rating=rating;
-      this.kidFriendly=kidFriendly; this.seniorFriendly=seniorFriendly; this.coupleHot=coupleHot;
-      this.tags = new LinkedHashSet<>(Arrays.asList(tags));
+        String city = nv(req.getParameter("city"), "seoul");
+        int days    = parseInt(nv(req.getParameter("days"), "2"), 2, 1, 10);
+        String pace = nv(req.getParameter("pace"), "normal");
+        String interestsParam = nv(req.getParameter("interests"), "hotplace");
+
+        List<String> interests = new ArrayList<>();
+        for (String s : interestsParam.split(",")) {
+            String t = s.trim();
+            if (!t.isEmpty()) interests.add(t);
+        }
+        if (interests.isEmpty()) interests.add("hotplace");
+
+        String cacheKey = city + "|" + days + "|" + pace + "|" + String.join(",", interests);
+        if (CACHE.containsKey(cacheKey)) {
+            resp.getWriter().write(CACHE.get(cacheKey));
+            return;
+        }
+
+        JsonObject input = new JsonObject();
+        input.addProperty("city", city);
+        input.addProperty("daysCount", days);
+        input.addProperty("pace", pace);
+        input.add("interests", GSON.toJsonTree(interests));
+
+        JsonObject result;
+        try {
+            if (!GEMINI_API_KEY.isEmpty()) {
+                result = callGemini(input);
+            } else {
+                result = ruleBasedFallback(input);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = ruleBasedFallback(input);
+        }
+
+        JsonObject fixed = validateAndFix(result, city, days);
+        String json = GSON.toJson(fixed);
+        CACHE.put(cacheKey, json);
+        resp.getWriter().write(json);
     }
-  }
-  static class ScoredPoi {
-    Poi poi; double score;
-    ScoredPoi(Poi p, double s){ this.poi=p; this.score=s; }
-  }
 
-  /* 도시별 샘플 데이터 (좌표/카테고리/태그) */
-  private static List<Poi> samplePois(String city){
-    List<Poi> L = new ArrayList<>();
-    if ("busan".equals(city)) {
-      L.add(new Poi("해운대 해수욕장","nature",35.1587,129.1604,4.6,false,true,true,"hotplace","nightview"));
-      L.add(new Poi("광안대교 야경","nature",35.1534,129.1187,4.7,false,true,true,"nightview","hotplace"));
-      L.add(new Poi("자갈치 시장","food",35.0977,129.0306,4.4,false,true,false,"food"));
-      L.add(new Poi("감천 문화마을","culture",35.0970,129.0107,4.5,false,true,true,"hotplace","vibes"));
-      L.add(new Poi("서면 카페거리","cafe",35.1577,129.0595,4.3,false,true,true,"cafe","hotplace"));
-      L.add(new Poi("신세계 센텀시티","shopping",35.1683,129.1291,4.5,true,true,false,"shopping"));
-    } else { // default seoul
-      L.add(new Poi("경복궁","culture",37.5796,126.9770,4.7,true,true,false,"culture","mustsee"));
-      L.add(new Poi("북촌 한옥마을","vibes",37.5827,126.9830,4.5,true,true,true,"hotplace","vibes"));
-      L.add(new Poi("남산 N서울타워","nature",37.5512,126.9882,4.6,false,true,true,"nightview","hotplace"));
-      L.add(new Poi("광장시장","food",37.5700,127.0010,4.4,false,true,false,"food","mustsee"));
-      L.add(new Poi("카페거리(성수)","cafe",37.5446,127.0565,4.3,false,true,true,"cafe","hotplace"));
-      L.add(new Poi("명동 쇼핑거리","shopping",37.5636,126.9827,4.2,false,true,true,"shopping","hotplace"));
-      L.add(new Poi("뚝섬 한강공원","nature",37.5311,127.0669,4.3,true,true,false,"nature","activity"));
+    /* ===== Gemini 호출 (OkHttp) ===== */
+    private JsonObject callGemini(JsonObject userInput) throws IOException {
+        String systemPrompt =
+                "You are a travel planner. Respond in EXACT JSON following this schema only:\n" +
+                "{ city, daysCount, pace, interests[], days:[{date, items:[{time,name,category,lat,lon,note}]}] }\n" +
+                "Rules:\n" +
+                "- Use valid lat/lon ranges.\n" +
+                "- time format HH:MM (09:00,12:00,15:00,19:00 preferred).\n" +
+                "- category in {spot, food, cafe, nature}.\n" +
+                "- days.length == daysCount.\n" +
+                "- Return JSON only, no explanations.";
+
+        JsonObject body = new JsonObject();
+
+        // system_instruction
+        JsonObject sys = new JsonObject();
+        JsonArray sysParts = new JsonArray();
+        JsonObject sysPart = new JsonObject();
+        sysPart.addProperty("text", systemPrompt);
+        sysParts.add(sysPart);
+        sys.add("parts", sysParts);
+        body.add("system_instruction", sys);
+
+        // contents (user)
+        JsonArray contents = new JsonArray();
+        JsonObject contentUser = new JsonObject();
+        contentUser.addProperty("role", "user");
+        JsonArray userParts = new JsonArray();
+        JsonObject up = new JsonObject();
+        up.addProperty("text", userInput.toString());
+        userParts.add(up);
+        contentUser.add("parts", userParts);
+        contents.add(contentUser);
+        body.add("contents", contents);
+
+        JsonObject gen = new JsonObject();
+        gen.addProperty("temperature", 0.6);
+        gen.addProperty("max_output_tokens", 1024);
+        gen.addProperty("response_mime_type", "application/json");
+        body.add("generation_config", gen);
+
+        Request request = new Request.Builder()
+                .url(GEMINI_URL())
+                .addHeader("Content-Type", "application/json")
+                .post(RequestBody.create(GSON.toJson(body), MediaType.parse("application/json")))
+                .build();
+
+        try (Response r = HTTP.newCall(request).execute()) {
+            if (!r.isSuccessful()) {
+                String err = r.body() != null ? r.body().string() : "";
+                throw new IOException("Gemini HTTP " + r.code() + ": " + err);
+            }
+            String res = r.body() != null ? r.body().string() : "{}";
+            JsonObject root = JsonParser.parseString(res).getAsJsonObject();
+            JsonArray candidates = root.has("candidates") ? root.getAsJsonArray("candidates") : new JsonArray();
+            if (candidates.size() == 0) throw new IOException("No candidates");
+            JsonObject cand = candidates.get(0).getAsJsonObject();
+            JsonObject content = cand.getAsJsonObject("content");
+            JsonArray parts = (content != null && content.has("parts")) ? content.getAsJsonArray("parts") : new JsonArray();
+            if (parts.size() == 0) throw new IOException("No parts in response");
+            String jsonText = parts.get(0).getAsJsonObject().get("text").getAsString();
+            return JsonParser.parseString(jsonText).getAsJsonObject();
+        }
     }
-    return L;
-  }
 
-  /* 관심사/동행 기반 스코어링 */
-  private static List<ScoredPoi> rankPois(List<Poi> all, Set<String> interests, Set<String> companions){
-    List<ScoredPoi> out = new ArrayList<>();
-    for (Poi p : all) {
-      double s = 0.0;
-      // 기본 가중치: 평점
-      s += p.rating * 1.2;
+    /* ===== 폴백 ===== */
+    private JsonObject ruleBasedFallback(JsonObject input) {
+        String city = input.get("city").getAsString();
+        int days = input.get("daysCount").getAsInt();
+        String pace = input.get("pace").getAsString();
 
-      // 관심사 매칭(태그/카테고리)
-      for (String it : interests) {
-        if (p.tags.contains(it)) s += 1.5;
-        if ("food".equals(it) && "food".equals(p.category)) s += 1.3;
-        if ("cafe".equals(it) && "cafe".equals(p.category)) s += 1.2;
-        if ("shopping".equals(it) && "shopping".equals(p.category)) s += 1.2;
-        if ("nature".equals(it) && "nature".equals(p.category)) s += 1.2;
-        if ("culture".equals(it) && "culture".equals(p.category)) s += 1.2;
-        if ("hotplace".equals(it) && p.tags.contains("hotplace")) s += 1.0;
-        if ("nightview".equals(it) && p.tags.contains("nightview")) s += 1.0;
-        if ("activity".equals(it) && p.tags.contains("activity")) s += 1.0;
-      }
+        List<String> ints = new ArrayList<>();
+        input.getAsJsonArray("interests").forEach(e -> ints.add(e.getAsString()));
 
-      // 동행 보정
-      if (companions.contains("kids") && p.kidFriendly) s += 0.7;
-      if (companions.contains("parents") && p.seniorFriendly) s += 0.6;
-      if (companions.contains("couple") && p.coupleHot) s += 0.6;
+        JsonObject out = new JsonObject();
+        out.addProperty("city", city);
+        out.addProperty("daysCount", days);
+        out.addProperty("pace", pace);
+        out.add("interests", GSON.toJsonTree(ints));
 
-      out.add(new ScoredPoi(p, s));
+        JsonArray dayArr = new JsonArray();
+        for (int d=1; d<=days; d++) {
+            JsonObject day = new JsonObject();
+            day.addProperty("date", "Day " + d);
+            JsonArray items = new JsonArray();
+            items.add(item("09:00","시작 포인트","spot",37.5665,126.9780,"시청 근처 집결"));
+            items.add(item("12:00","로컬 맛집","food",37.57,126.982,"인기 메뉴 추천"));
+            items.add(item("15:00","카페 브레이크","cafe",37.565,126.99,"디저트 세트"));
+            items.add(item("19:00","야경 포인트","nature",37.5705,126.975,"뷰가 좋아요"));
+            day.add("items", items);
+            dayArr.add(day);
+        }
+        out.add("days", dayArr);
+        return out;
     }
-    out.sort((a,b)-> Double.compare(b.score, a.score));
-    return out;
-  }
 
-  /* 일정 구성: 오전/점심/오후/저녁 패턴 + 식사/카페 자동 삽입 */
-  private static List<Map<String,Object>> buildItinerary(List<ScoredPoi> ranked, int days, int perDay){
-	  List<Map<String,Object>> dayPlans = new ArrayList<>();
-	  int idx = 0;
+    private JsonObject item(String time, String name, String cat, double lat, double lon, String note){
+        JsonObject o = new JsonObject();
+        o.addProperty("time", time);
+        o.addProperty("name", name);
+        o.addProperty("category", cat);
+        o.addProperty("lat", lat);
+        o.addProperty("lon", lon);
+        o.addProperty("note", note);
+        return o;
+    }
 
-	  for (int d=1; d<=days; d++){
-	    List<Map<String,Object>> items = new ArrayList<>();
+    /* ===== 검증/보정 ===== */
+    private JsonObject validateAndFix(JsonObject r, String city, int days) {
+        JsonObject out = new JsonObject();
+        out.addProperty("city", city);
+        out.addProperty("daysCount", days);
+        out.addProperty("pace", sv(r,"pace","normal"));
+        out.add("interests", r.has("interests") ? r.getAsJsonArray("interests") : new JsonArray());
 
-	    // 1) spot 위주로 perDay개 채우기 (food/cafe는 여기서 건너뜀)
-	    int added = 0;
-	    while (added < perDay && idx < ranked.size()){
-	      Poi p = ranked.get(idx++).poi;
-	      if ("food".equals(p.category) || "cafe".equals(p.category)) continue;
-	      items.add(row(timeByIndex(added), p, noteFor(p)));
-	      added++;
-	    }
+        JsonArray daysIn = r.has("days") ? r.getAsJsonArray("days") : new JsonArray();
+        JsonArray daysOut = new JsonArray();
 
-	    // 2) 식사/카페 후보
-	    Poi lunch  = pickFirstOf(ranked, "food");
-	    Poi cafe   = pickFirstOf(ranked, "cafe");
-	    Poi dinner = pickNextOf(ranked, "food", lunch);
+        for (int i=0;i<days;i++){
+            JsonObject dayIn = (i < daysIn.size() && daysIn.get(i).isJsonObject()) ? daysIn.get(i).getAsJsonObject() : new JsonObject();
+            JsonArray itemsIn = dayIn.has("items") ? dayIn.getAsJsonArray("items") : new JsonArray();
+            JsonArray itemsOut = new JsonArray();
 
-	    // 3) 안전한 삽입 인덱스 계산
-	    //    clamp: 0 ~ items.size() 사이로 잘라서 넣기
-	    if (lunch != null) {
-	      int posLunch = clamp(1, 0, items.size());      // 보통 2번째에 넣고 싶지만, 비어있으면 0
-	      items.add(posLunch, row("12:00", lunch, "인기 메뉴 추천"));
-	    }
-	    if (cafe != null) {
-	      int posCafe = clamp(3, 0, items.size());       // 보통 4번째, 부족하면 마지막에
-	      items.add(posCafe, row("15:00", cafe, "디저트/브레이크"));
-	    }
-	    if (dinner != null) {
-	      // 저녁은 보통 맨 끝
-	      items.add(row("19:00", dinner, "현지 맛집"));
-	    }
+            int count = 0;
+            for (JsonElement el : itemsIn){
+                if (!el.isJsonObject()) continue;
+                JsonObject it = el.getAsJsonObject();
+                String time = sv(it,"time","09:00");
+                String name = sv(it,"name","Spot");
+                String cat  = sv(it,"category","spot");
+                double lat  = sd(it,"lat",37.5665);
+                double lon  = sd(it,"lon",126.9780);
+                String note = sv(it,"note","");
 
-	    Map<String,Object> day = new LinkedHashMap<>();
-	    day.put("date", "Day " + d);
-	    day.put("items", items);
-	    dayPlans.add(day);
-	  }
-	  return dayPlans;
-	}
+                if (lat < -90 || lat > 90) lat = 37.5665;
+                if (lon < -180 || lon > 180) lon = 126.9780;
+                if (!Arrays.asList("spot","food","cafe","nature").contains(cat)) cat = "spot";
 
-	private static int clamp(int val, int min, int max){
-	  if (val < min) return min;
-	  if (val > max) return max;
-	  return val;
-	}
-  private static String timeByIndex(int i){
-    switch(i){ case 0: return "09:00"; case 1: return "10:30"; case 2: return "13:30";
-      case 3: return "16:00"; case 4: return "17:30"; default: return "09:00"; }
-  }
-  private static Map<String,Object> row(String time, Poi p, String note){
-    Map<String,Object> m = new LinkedHashMap<>();
-    m.put("time", time); m.put("name", p.name); m.put("category", p.category);
-    m.put("lat", p.lat); m.put("lon", p.lon); m.put("note", note);
-    return m;
-  }
-  private static String noteFor(Poi p){
-    if (p.tags.contains("nightview")) return "야경이 좋아요";
-    if (p.tags.contains("hotplace")) return "요즘 핫플!";
-    if ("culture".equals(p.category)) return "역사/전통을 느껴보세요";
-    if ("nature".equals(p.category)) return "도심 속 힐링";
-    return "";
-  }
-  private static Poi pickFirstOf(List<ScoredPoi> ranked, String cat){
-    for (ScoredPoi s : ranked) if (cat.equals(s.poi.category)) return s.poi;
-    return null;
-  }
-  private static Poi pickNextOf(List<ScoredPoi> ranked, String cat, Poi except){
-    for (ScoredPoi s : ranked) if (cat.equals(s.poi.category) && s.poi != except) return s.poi;
-    return except; // 그래도 없으면 같은 것 재사용
-  }
+                JsonObject fixed = new JsonObject();
+                fixed.addProperty("time", time);
+                fixed.addProperty("name", name);
+                fixed.addProperty("category", cat);
+                fixed.addProperty("lat", lat);
+                fixed.addProperty("lon", lon);
+                if (!note.isEmpty()) fixed.addProperty("note", note);
+                itemsOut.add(fixed);
+                if (++count >= 6) break;
+            }
+
+            if (itemsOut.size()==0){
+                itemsOut.add(item("09:00","시작 포인트","spot",37.5665,126.9780,"집결지"));
+                itemsOut.add(item("12:00","로컬 맛집","food",37.57,126.982,"추천 메뉴"));
+                itemsOut.add(item("15:00","카페 브레이크","cafe",37.565,126.99,"디저트"));
+                itemsOut.add(item("19:00","야경 포인트","nature",37.5705,126.975,"야경"));
+            }
+
+            JsonObject dayOut = new JsonObject();
+            dayOut.addProperty("date", "Day " + (i+1));
+            dayOut.add("items", itemsOut);
+            daysOut.add(dayOut);
+        }
+
+        out.add("days", daysOut);
+        return out;
+    }
+
+    /* ===== 유틸 ===== */
+    private static String nv(String s, String def){ return (s==null||s.trim().isEmpty()) ? def : s.trim(); }
+    private static int parseInt(String s, int def, int min, int max){
+        try { int v = Integer.parseInt(s); return Math.max(min, Math.min(max, v)); }
+        catch (Exception e){ return def; }
+    }
+    private static String sv(JsonObject o, String k, String def){
+        return (o.has(k) && !o.get(k).isJsonNull()) ? o.get(k).getAsString() : def;
+    }
+    private static double sd(JsonObject o, String k, double def){
+        try { return (o.has(k) && !o.get(k).isJsonNull()) ? o.get(k).getAsDouble() : def; }
+        catch (Exception e){ return def; }
+    }
 }

@@ -1,76 +1,63 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%
-  request.setCharacterEncoding("UTF-8");
-  String comps = request.getParameter("companions");
-  if (comps != null) session.setAttribute("w_companions", comps);
-%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>여행 스타일</title>
+  <title>AI 맞춤일정 4/5</title>
   <link rel="stylesheet" href="css/ai.css">
 </head>
 <body>
-  <div class="step-wrap">
-    <div class="step-head">
-      <button class="step-back" onclick="location.href='ai3.jsp'">←</button>
-     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#2563eb" viewBox="0 0 24 24">
-  	 <path d="M20 5h-3.2l-1.6-2H8.8L7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 14a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2.5a2.5 2.5 0 1 0 .001-5.001A2.5 2.5 0 0 0 12 16.5z"/>
-	 </svg>
+<div class="screen">
+  <div class="topbar">
+    <a class="back" href="ai3.jsp?city=<%=request.getParameter("city")%>&days=<%=request.getParameter("days")%>">←</a>
+    <div class="step">4/5</div>
+  </div>
 
-      <h2 class="step-title">내가 선호하는 여행 스타일은?</h2>
-      <p class="step-sub">다중 선택이 가능해요.</p>
-      <div class="step-progress">4/5</div>
+  <form action="ai5.jsp" method="get">
+    <input type="hidden" name="city" value="<%=request.getParameter("city")%>">
+    <input type="hidden" name="days" value="<%=request.getParameter("days")%>">
+    <% String[] withVals = request.getParameterValues("with");
+       if(withVals!=null){ for(String w:withVals){ %>
+      <input type="hidden" name="with" value="<%=w%>">
+    <% }} %>
+
+    <div class="card">
+      <div class="hero">
+        <div class="icon">📸</div>
+        <h1>내가 선호하는 여행 스타일은?</h1>
+        <div class="sub">다중 선택이 가능해요.</div>
+      </div>
+
+      <div class="choices" id="styleChoices">
+        <label class="choice"><input type="checkbox" name="style" value="activity"><span>체험·액티비티</span></label>
+        <label class="choice"><input type="checkbox" name="style" value="sns"><span>SNS 핫플레이스</span></label>
+        <label class="choice"><input type="checkbox" name="style" value="nature"><span>자연과 함께</span></label>
+        <label class="choice"><input type="checkbox" name="style" value="culture"><span>문화·역사</span></label>
+        <label class="choice"><input type="checkbox" name="style" value="healing"><span>여유롭게 힐링</span></label>
+        <label class="choice"><input type="checkbox" name="style" value="shopping"><span>쇼핑 위주</span></label>
+        <label class="choice"><input type="checkbox" name="style" value="foodie"><span>관광보다 먹방</span></label>
+      </div>
     </div>
 
-    <form id="intForm" action="ai5.jsp" method="post">
-      <input type="hidden" name="interests" id="intField">
-      <div class="pill-group">
-        <label class="pill"><input type="checkbox" name="iOpt" value="activity"><span>체험·액티비티</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="hotplace"><span>SNS 핫플</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="nature"><span>자연과 함께</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="mustsee"><span>유명 관광지</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="healing"><span>여유롭게 힐링</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="culture"><span>문화·예술·역사</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="vibes"><span>감성 여행</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="shopping"><span>쇼핑</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="food"><span>먹방</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="cafe"><span>카페</span></label>
-        <label class="pill"><input type="checkbox" name="iOpt" value="nightview"><span>야경</span></label>
-      </div>
-    </form>
-  </div>
+    <div class="bottom">
+      <button class="btn-primary" type="submit">다음</button>
+    </div>
+  </form>
+</div>
 
-  <div class="footer-bar">
-    <button id="nextBtn4" class="btn-next" type="button">다음</button>
-  </div>
-
-  <script>
-    (function(){
-      var form = document.getElementById('intForm');
-      var field = document.getElementById('intField');
-      var next  = document.getElementById('nextBtn4');
-      var checks = document.querySelectorAll('input[name="iOpt"]');
-
-      function update(){
-        var picked = [];
-        checks.forEach(function(c){ if (c.checked) picked.push(c.value); });
-        field.value = picked.join(',');
-        if (picked.length > 0){
-          next.classList.add('enabled'); next.disabled = false;
-        } else {
-          next.classList.remove('enabled'); next.disabled = true;
-        }
-      }
-      checks.forEach(function(c){ c.addEventListener('change', update); });
-      update();
-
-      next.addEventListener('click', function(){
-        if (!field.value) return;
-        form.submit();
-      });
-    })();
-  </script>
+<script>
+(function(){
+  var wrap=document.getElementById('styleChoices');
+  wrap.addEventListener('change',function(e){
+    if(e.target && e.target.name==='style'){
+      e.target.closest('.choice').classList.toggle('selected', e.target.checked);
+    }
+  });
+  wrap.querySelectorAll('.choice').forEach(function(c){
+    c.addEventListener('pointerdown',()=>c.classList.add('active'));
+    c.addEventListener('pointerleave',()=>c.classList.remove('active'));
+  });
+})();
+</script>
 </body>
 </html>
