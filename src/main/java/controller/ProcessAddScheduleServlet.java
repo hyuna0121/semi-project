@@ -38,12 +38,15 @@ public class ProcessAddScheduleServlet extends HttpServlet {
 		    return; 
 		}
 		
+		Part filePart = request.getPart("mainImage");
+		
 		ScheduleDTO schedule = new ScheduleDTO();
 		schedule.setUserId(userId);
 		schedule.setTitle(request.getParameter("title"));
 		schedule.setLocation(request.getParameter("location"));
 		schedule.setDescription(request.getParameter("description"));
-		schedule.setVisibility(request.getParameter("visibility") == null ? "N" : "Y"); // Y : 공개, N : 비공개
+		schedule.setVisibility(request.getParameter("visibility") == null ? "Y" : "N"); // Y : 공개, N : 비공개
+		System.out.println(request.getParameter("visibility"));
         schedule.setTravelBuddies(request.getParameterValues("travelBudies"));
         
         String date = request.getParameter("demo");
@@ -51,7 +54,6 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         schedule.setStartDate(dates[0].trim());
         schedule.setEndDate(dates[1].trim());
         
-        Part filePart = request.getPart("mainImage");
         String uploadPath = "D:/GDJ94/workspace/upload";
         
         long scheduleId = 0;

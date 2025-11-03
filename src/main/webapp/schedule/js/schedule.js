@@ -4,9 +4,11 @@ const labelText = document.getElementById("visibilityText");
 checkbox.addEventListener("change", function() {
    if (checkbox.checked) {
       labelText.textContent = "lock";
-    } else {
+	  this.value = "N";
+  } else {
       labelText.textContent = "lock_open_right";
-        }
+	  this.value = "Y";
+  }
 });	
 
 $('#demo').daterangepicker({
