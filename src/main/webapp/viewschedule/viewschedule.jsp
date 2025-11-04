@@ -2,17 +2,20 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"  %>
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
-  <meta charset="UTF-8" />
-  <title>여행 일정 한눈에 보기</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- CSS 절대경로로 연결 -->
-  <link rel="stylesheet" href="<c:url value='/viewschedule/css/viewschedule.css'/>">
+<title>여행 일정 한눈에 보기</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" href="<c:url value='/viewschedule/css/viewschedule.css'/>">
+
+<!-- Kakao Maps SDK (여기 JavaScript 키로 교체) -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=ff3bef976f88c37cbea42d17e34c311d&libraries=services&autoload=false"></script>
+
+<style>#map.map{min-height:420px}</style>
 </head>
 <body>
-  <!-- 상단 요약 바 -->
   <header class="topbar">
     <div class="trip-title">
       <h1 id="tripTitle">오사카·교토 3박4일</h1>
@@ -37,7 +40,6 @@
     </div>
   </header>
 
-  <!-- 좌측 일정 / 우측 지도 -->
   <main class="layout">
     <section class="left">
       <nav class="day-tabs" id="dayTabs"></nav>
@@ -56,7 +58,7 @@
     </aside>
   </main>
 
-  <!-- 일정 데이터 샘플 -->
+  <!-- 일정 데이터 (샘플) -->
   <script>
     const itinerary = {
       title: "오사카·교토 3박4일",
@@ -118,12 +120,134 @@
     window.__ITINERARY__ = itinerary;
   </script>
 
-  <!-- JS -->
-  <script src="<c:url value='/viewschedule/js/viewschedule.js'/>"></script>
+  <!-- Kakao 지도 + 렌더링 -->
+  <script>
+    let map, info, markers = [];
+    let currentDayIndex = 0;
 
-  <!-- Google Maps API (※ 실제 키로 교체하세요) -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB51GcI3hnltyOrrEqdW2EtfppSGXpR7hw&callback=initMap">
+    const catEmoji = { spot:"🗺️", food:"🍜", cafe:"☕", hotel:"🏨", transport:"🚆" };
+
+    kakao.maps.load(init);
+
+    function init(){
+      // 상단 요약
+      document.getElementById('tripTitle').textContent = itinerary.title;
+      document.getElementById('tripDate').textContent =
+        itinerary.startDate + " ~ " + itinerary.endDate + " (" + (itinerary.days.length-1) + "박" + itinerary.days.length + "일)";
+      document.getElementById('tripCompanions').textContent = "동행: " + itinerary.companions + "명";
+      document.getElementById('tripBudget').textContent = "예산: ₩" + itinerary.budgetKRW.toLocaleString();
+
+      // 지도
+      map = new kakao.maps.Map(document.getElementById('map'), {
+        center: new kakao.maps.LatLng(34.68, 135.50), level: 7
+      });
+      info = new kakao.maps.InfoWindow({removable:false});
+
+      // UI
+      document.getElementById('categoryFilter').addEventListener('change', renderDay);
+      document.getElementById('fitAllBtn').addEventListener('click', fitVisible);
+
+      renderTabs();
+      renderDay(0);
+    }
+
+    function renderTabs(){
+      const tabs = document.getElementById('dayTabs');
+      tabs.innerHTML = '';
+      for (var i=0;i<itinerary.days.length;i++){
+        (function(idx){
+          const d = itinerary.days[idx];
+          const b = document.createElement('button');
+          b.textContent = d.label ? d.label : ("Day " + (idx+1));
+          if(idx===0) b.classList.add('active');
+          b.addEventListener('click', function(){
+            currentDayIndex = idx;
+            document.querySelectorAll('#dayTabs button').forEach(function(x){ x.classList.remove('active'); });
+            b.classList.add('active');
+            renderDay();
+          });
+          tabs.appendChild(b);
+        })(i);
+      }
+    }
+
+    function clearMarkers(){
+      markers.forEach(function(m){ m.setMap(null); });
+      markers = [];
+      info.close();
+    }
+
+    function renderDay(forceIndex){
+      if (typeof forceIndex === 'number') currentDayIndex = forceIndex;
+
+      const day = itinerary.days[currentDayIndex];
+      const filter = document.getElementById('categoryFilter').value;
+
+      // 좌측 리스트
+      const box = document.getElementById('dayContainer');
+      box.innerHTML = '';
+      day.items.forEach(function(it, idx){
+        if (filter !== 'all' && it.category !== filter) return;
+        const row = document.createElement('div');
+        row.className = 'item';
+
+        var html =
+          '<div class="time">' + (it.time || '') + '</div>' +
+          '<div class="title">' + (catEmoji[it.category] || '📍') + ' ' + (idx+1) + '. ' + it.title + '</div>' +
+          '<div class="memo">' + (it.memo || '') + '</div>';
+
+        row.innerHTML = html;
+        row.addEventListener('click', function(){ focusMarker(it, idx+1); });
+        box.appendChild(row);
+      });
+
+      // 마커
+      clearMarkers();
+      const bounds = new kakao.maps.LatLngBounds();
+      day.items.forEach(function(it, idx){
+        if (filter !== 'all' && it.category !== filter) return;
+        if (typeof it.lat !== 'number' || typeof it.lng !== 'number') return;
+
+        const pos = new kakao.maps.LatLng(it.lat, it.lng);
+        const marker = new kakao.maps.Marker({ position: pos });
+        marker.setMap(map);
+        markers.push({ marker: marker, data: it, order: idx+1 });
+        bounds.extend(pos);
+
+        kakao.maps.event.addListener(marker, 'click', function(){ openInfo(marker, it, idx+1); });
+      });
+
+      if (!bounds.isEmpty()) map.setBounds(bounds);
+    }
+
+    function openInfo(marker, it, order){
+      var memoHtml = it.memo ? ('<div style="margin-top:6px">' + it.memo + '</div>') : '';
+      var html =
+        '<div style="min-width:220px">' +
+          '<b>' + order + '. ' + it.title + '</b><br/>' +
+          '<small>' + (it.time || '') + ' · ' + it.category + '</small>' +
+          memoHtml +
+        '</div>';
+      info.setContent(html);
+      info.open(map, marker);
+    }
+
+    function focusMarker(it, order){
+      const found = markers.find(function(m){ return m.data.id === it.id; });
+      if (found){
+        map.panTo(found.marker.getPosition());
+        openInfo(found.marker, found.data, order);
+      }
+    }
+
+    function fitVisible(){
+      const bounds = new kakao.maps.LatLngBounds();
+      markers.forEach(function(m){ bounds.extend(m.marker.getPosition()); });
+      if (!bounds.isEmpty()) map.setBounds(bounds);
+    }
   </script>
+
+  <!-- (필요시) 기존 앱 다른 스크립트 유지 -->
+  <script src="<c:url value='/viewschedule/js/viewschedule.js'/>"></script>
 </body>
 </html>
