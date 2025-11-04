@@ -57,6 +57,7 @@ a {
 	border-radius: 5px;
 	display: block;
 	opacity: 70%;
+	filter: brightness(0.8);
 }
 
 .tripList a p{
@@ -149,7 +150,7 @@ a {
   z-index: 10;
 }
 
-#modal, #imageModal {
+#tripModal, #imageModal {
   position: fixed;
   top: 0;
   left: 0;
@@ -162,10 +163,10 @@ a {
   align-items: center;
   display: none;
 }
-#modal.show {
+#tripModal.show {
   display: flex;
 }
-#modal .modal-content {
+#tripModal .modal-content {
   background-color: #fff;
   border-radius: 8px;
   width: 40%;
@@ -175,7 +176,7 @@ a {
   border-radius: 8px;
 }
 
-#modal .modal-header,
+#tripModal .modal-header,
 #imageModal .modal-header {
   padding: 16px;
   border-radius: 8px 8px 0 0;
@@ -184,16 +185,16 @@ a {
   justify-content: space-between;
   align-items: center;
 }
-#modal .modal-header .btn-close,
+#tripModal .modal-header .btn-close,
 #imageModal .modal-header .btn-close {
   font-size: 30px;
   cursor: pointer;
 }
-#modal .modal-header .btn-close:hover,
+#tripModal .modal-header .btn-close:hover,
 #imageModal .modal-header .btn-close:hover {
   color: #aaa;
 }
-#modal .modal-body,
+#tripModal .modal-body,
 #imageModal .modal-body {
   padding: 16px;
 }
