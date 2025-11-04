@@ -17,6 +17,8 @@
 <script type="text/javascript" src="./js/map.js" defer></script>
 </head>
 <body>
+	<%@ include file="../header.jsp" %>
+	
 	<%
 		Connection conn = null;
 		ScheduleDTO schedule = null;
@@ -75,88 +77,125 @@
 		}
 	%>
 	
-	<div>
-		<h1><%= schedule.getTitle() %></h1>
-	</div>
+	<div class="container">
+		<div class="left">
+			<h1>여행 친구</h1>
+		</div>
 
-	<button type="button" class="modal_btn">일정추가 +</button>
-    <div class="modal">
-        <div id="menu_wrap" class="bg_white" style="width:50%; height: 80%;">
-			<button type="button" class="close_btn">X</button>
-            <div class="option">
-                <div>
-                    <form onsubmit="searchPlaces(); return false;">
-                        키워드 : <input type="text" value="경복궁" id="keyword" size="15"> 
-                        <button type="submit">검색하기</button> 
-                    </form>
-                </div>
-            </div>
-            <hr>
-            <ul id="placesList"></ul>
-            <div id="pagination"></div>
-        </div>
-    </div>
-    <div class="modal_map">
-        <div class="bg_white" style="width:50%; height: 80%;">
-            <div id="map" style="width:80%;height:80%;"></div>
-            <div id="map_info"></div>
-            <div>
-				<button type="button" class="add_schedule_btn">일정에 추가</button>
-				<button type="button" class="close_map_btn">취소하기</button>
-            </div>
-        </div>
-    </div>
-    <div class="modal_add">
-        <div class="bg_white" style="width:50%; height: 80%;">
-            <div>
-			    <form action="">
-					<div>
-						<input type="hidden" value="<%= scheduleId %>">
-					</div>
-					<div>
+		<div class="right">
+			<div class="trip_main_image">
+				<img src="/upload/<%= schedule.getMainImage() %>" alt="여행 대표 이미지">
+			</div>
+
+			<div class="trip_content">
+				<div class="trip_title" style="height: 300px;">
+					<h1>
+						<%= schedule.getTitle() %>
 						<%
-							String startStr = schedule.getStartDate();
-							String endStr = schedule.getEndDate();
-										
-							LocalDate startDate = LocalDate.parse(startStr);
-							LocalDate endDate = LocalDate.parse(endStr);
+							if (schedule.getVisibility().equals("N")) {
+						%>
+								<span class="material-symbols-outlined">lock</span>
+						<%
+							}
+						%> 
+					</h1>
+					<%
+						String startStr = schedule.getStartDate();
+						String endStr = schedule.getEndDate();
+									
+						LocalDate startDate = LocalDate.parse(startStr);
+						LocalDate endDate = LocalDate.parse(endStr);
+	
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
+					%>
+					<p>
+						<span><%= schedule.getLocation() %></span>
+						<%= startDate.format(formatter) %> ~ <%= endDate.format(formatter) %>
+					</p>
+					<p class="desc"><%= schedule.getDescription() %></p>
+				</div>
 
-							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
-										
-							LocalDate currentDate = startDate;
-										
-							while (!currentDate.isAfter(endDate)) {
-								String fullDateStr = currentDate.toString();
-								String displayDateStr = currentDate.format(formatter);
-								String uniqueId = "date_" + fullDateStr;
-						%>
-								<input type="checkbox" id="<%= uniqueId %>" 
-										name="selectedDates" value="<%= fullDateStr %>" />
-								<label for="<%= uniqueId %>"><span><%= displayDateStr %></span></label>
-						<%	
-	            				// 현재 날짜를 하루 증가
-								currentDate = currentDate.plusDays(1);
-								}
-						%>
+				<div>
+					<button type="button" class="modal_btn">일정추가 +</button>
+				</div>
+					<div class="modal">
+							<div id="menu_wrap" class="bg_white" style="width:50%; height: 80%;">
+						<button type="button" class="close_btn">X</button>
+									<div class="option">
+											<div>
+													<form onsubmit="searchPlaces(); return false;">
+															키워드 : <input type="text" value="경복궁" id="keyword" size="15"> 
+															<button type="submit">검색하기</button> 
+													</form>
+											</div>
+									</div>
+									<hr>
+									<ul id="placesList"></ul>
+									<div id="pagination"></div>
+							</div>
 					</div>
-					<div>
-						<select name="category">
-							<option value="관광지" selected="selected">관광지</option>
-							<option value="식당">식당</option>
-							<option value="카페">카페</option>
-							<option value="숙소">숙소</option>
-						</select>
+
+					<div class="modal_map">
+							<div class="bg_white" style="width:50%; height: 80%;">
+									<div id="map" style="width:80%;height:80%;"></div>
+									<div id="map_info"></div>
+									<div>
+							<button type="button" class="add_schedule_btn">일정에 추가</button>
+							<button type="button" class="close_map_btn">취소하기</button>
+									</div>
+							</div>
 					</div>
-					<div>
-						<textarea placeholder="memo"></textarea>
+
+					<div class="modal_add">
+							<div class="bg_white" style="width:50%; height: 80%;">
+									<div>
+								<form action="">
+								<div>
+									<input type="hidden" value="<%= scheduleId %>">
+								</div>
+								<div>
+									<%													
+										LocalDate currentDate = startDate;
+													
+										while (!currentDate.isAfter(endDate)) {
+											String fullDateStr = currentDate.toString();
+											String displayDateStr = currentDate.format(formatter);
+											String uniqueId = "date_" + fullDateStr;
+									%>
+											<input type="checkbox" id="<%= uniqueId %>" 
+													name="selectedDates" value="<%= fullDateStr %>" />
+											<label for="<%= uniqueId %>"><span><%= displayDateStr %></span></label>
+									<%	
+														// 현재 날짜를 하루 증가
+											currentDate = currentDate.plusDays(1);
+											}
+									%>
+								</div>
+								<div>
+									<select name="category">
+										<option value="관광지" selected="selected">관광지</option>
+										<option value="식당">식당</option>
+										<option value="카페">카페</option>
+										<option value="숙소">숙소</option>
+									</select>
+								</div>
+								<div>
+									<textarea placeholder="memo"></textarea>
+								</div>
+								<div>
+									<button type="submit">일정 등록</button>
+									<button type="button" class="close_add_btn">취소 하기</button>
+								</div>
+							</form>
+									</div>
+							</div>
 					</div>
-					<div>
-						<button type="submit">일정 등록</button>
-						<button type="button" class="close_add_btn">취소 하기</button>
-					</div>
-				</form>
-            </div>
-        </div>
-    </div>
+
+			</div>
+		</div>
+
+	</div>
+    
+    <%@ include file="../footer.jsp" %>
 </body>
 </html>

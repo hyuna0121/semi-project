@@ -1,3 +1,54 @@
+.container {
+    display: flex;
+    min-height: calc(100vh - 125px);
+}
+
+.left {
+    width: 10%;
+    background-color: #e7bcbc;
+}
+.right {
+    width: 90%;
+}
+
+.trip_main_image img {
+    width: 100%;
+	height: 300px;
+	object-fit: cover;
+}
+
+.trip_content {
+    margin-left: 80px;
+}
+
+.trip_title {
+    margin-top: 50px;
+}
+
+.trip_title h1 span {
+    font-size: 30px;
+    margin-left: 13px;
+}
+
+.trip_title p {
+	margin: 0px;
+}
+
+.trip_title p span {
+    font-weight: 500;
+    margin-right: 13px;
+    background-color: #E8F0FE;
+    border-radius: 15px;
+    padding: 3px 13px;
+    color: #235baf;
+}
+
+.trip_title .desc {
+    font-size: 13px;
+    color: #5F5F5F;
+    margin: 13px 0px 10px 7px;
+}
+
 .modal {
 	display: none;
     position: fixed;
