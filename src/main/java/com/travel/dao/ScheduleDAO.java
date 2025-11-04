@@ -150,4 +150,52 @@ public class ScheduleDAO {
 		}
     }
 	
+
+
+		public List<ScheduleDTO> getSchedulesByUserId(Connection conn, String userId) {
+			String sql = "SELECT s.*, GROUP_CONCAT(m.user_id) AS buddies " +
+	                "FROM schedules s LEFT JOIN members m ON s.id = m.schedule_id " + 
+	                "WHERE s.user_id = ? " +
+	                "GROUP BY s.id " + 
+	                "ORDER BY s.start_date DESC";
+			
+			List<ScheduleDTO> scheduleList = new ArrayList<>();
+			
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setString(1, userId);
+				
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next()) {
+						ScheduleDTO schedule = new ScheduleDTO();
+						schedule.setId(rs.getLong("id"));
+						schedule.setUserId(rs.getString("user_id"));
+						schedule.setTitle(rs.getString("title"));
+						schedule.setLocation(rs.getString("location"));
+						schedule.setDescription(rs.getString("description"));
+						schedule.setVisibility(rs.getString("visibility"));
+						schedule.setStartDate(rs.getString("start_date"));
+						schedule.setEndDate(rs.getString("end_date"));
+						schedule.setMainImage(rs.getString("main_image"));
+						
+						String buddiesString = rs.getString("buddies");
+						
+						if (buddiesString != null && ! buddiesString.isEmpty()) {
+							schedule.setTravelBuddies(buddiesString.split(","));
+						} else {
+							schedule.setTravelBuddies(new String[0]);
+						}
+						
+						scheduleList.add(schedule);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ArrayList<>();
+			}
+			
+			return scheduleList;
+		}
+		
+	
+	
 }

@@ -45,7 +45,7 @@ public class ProcessAddScheduleServlet extends HttpServlet {
 		schedule.setTitle(request.getParameter("title"));
 		schedule.setLocation(request.getParameter("location"));
 		schedule.setDescription(request.getParameter("description"));
-		schedule.setVisibility(request.getParameter("visibility") == null ? "Y" : "N"); // Y : 공개, N : 비공개
+		schedule.setVisibility(request.getParameter("visibility") == null ? "Y" : "N"); 
 		System.out.println(request.getParameter("visibility"));
         schedule.setTravelBuddies(request.getParameterValues("travelBudies"));
         

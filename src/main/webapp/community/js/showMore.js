@@ -1,6 +1,6 @@
-const modal = document.querySelector('#modal');
+const modal = document.querySelector('#tripModal');
 const modalBtn = document.querySelector('.showMore');
-const closeBtn = document.querySelector('#modal .btn-close');
+const closeBtn = document.querySelector('#tripModal .btn-close');
 
 const imageModal = document.querySelector('#imageModal');
 const imageModalBtnList = document.querySelectorAll('.project .btn-modal-image');

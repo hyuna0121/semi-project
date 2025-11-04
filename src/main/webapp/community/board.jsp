@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,75 +18,105 @@
 		<div class="tripMainImage">
 			<img alt="tripMainImage" src="./images/exam1.jpg">
 		</div>
+		<h1 style="margin-left: 100px;"><c:out value="${selectedSchedule.title}" /></h1>
 		<div class="tripTitle">
 			<h3>일정 선택</h3>
 			<p>일정에 대한 의견을 자유롭게 나눠요😊</p>
-			<div class="tripList">
-				<a href="#">
-					<img alt="exam2" src="./images/exam2.jpg">
-					<p>일정 제목</p>
-				</a>
-				<a href="#">
-					<img alt="exam3" src="./images/exam3.jpg">
-					<p>일정 제목</p>
-				</a>
-				<a href="#">
-					<img alt="exam4" src="./images/exam4.jpg">
-					<p>일정 제목</p>
-				</a>
-				<a href="#">
-					<img alt="exam5" src="./images/exam5.jpg">
-					<p>일정 제목</p>
-				</a>
-			</div>
-			<div class="tripShowMore">
-				<button type="button" class="showMore">더보기</button>
-			</div>
 		</div>
 		<div class="communityMain">
+
+		
 			<div class="tripSchedule">
 				<h2>일정 내용</h2>
-				<p>제목</p>
-				<div class="dbContents">
-					<span>샘플 여행 제목</span>
-				</div>
-				<p>기간</p>
-				<div class="dbContents">
-					<span>샘플 여행 기간</span>
-				</div>
-				<p>지역</p>
-				<div class="dbContents">
-					<span>샘플 여행 지역</span>
-				</div>
-				<p>인원 수</p>
-				<div class="dbContents">
-					<span>2명(샘플)</span>
-				</div>
-				<p>동행인 아이디</p>
-				<div class="dbContents">
-					<span>샘플 동행인 아이디 1</span> <br>
-					<span>샘플 동행인 아이디 2</span>
-				</div>
-				<p>메모</p>
-				<div class="dbContents">
-					<span>입력된 메모 내용</span>
-				</div>
+				
+				<c:if test="${not empty selectedSchedule}">
+					<p>제목</p>
+					<div class="dbContents">
+						<span><c:out value="${selectedSchedule.title}" /></span>
+					</div>
+					<p>기간</p>
+					<div class="dbContents">
+						<span><c:out value="${selectedSchedule.startDate}" /> ~ <c:out value="${selectedSchedule.endDate}" /></span>
+					</div>
+					<p>지역</p>
+					<div class="dbContents">
+						<span><c:out value="${selectedSchedule.location}" /></span>
+					</div>
+					<p>여행일정</p>
+					<div class="dbContents">
+						<c:if test="${not empty selectedSchedule.description}">
+							<span><c:out value="${selectedSchedule.description}" /></span>
+						</c:if>
+						<c:if test="${empty selectedSchedule.description}">
+							<span>작성된 메모가 없습니다.</span>
+						</c:if>
+					</div>
+					<p>인원 수</p>
+					<div class="dbContents">
+						<span><c:out value="${fn:length(selectedSchedule.travelBuddies)}" />명</span>
+					</div>
+					<p>동행인 아이디</p>
+					<div class="dbContents">
+
+						<c:forEach var="buddy" items="${selectedSchedule.travelBuddies}">
+							<span><c:out value="${buddy}" /></span> <br>
+						</c:forEach>
+					</div>
+					<p>메모</p>
+					<div class="dbContents">
+						
+					</div>
+				</c:if>
+				
+				<c:if test="${empty selectedSchedule}">
+					<p>표시할 일정이 없습니다.</p>
+				</c:if>
 			</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			<div class="tripCommunity">
 				<h2>여행 노트</h2>
+				<%@include file="commentList.jsp" %>
 			</div>
 		</div>	
 	</div>
-	<div id="modal">
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div id="tripModal">
 	    <div class="modal-content">
 	    	<div class="modal-header"> 일정 목록
 		        <span class="material-symbols-outlined btn-close">close</span>
 	    	</div>
 	      	<div class="modal-body">
 	      		<ul>
-	      			<li><a href="#">샘플 일정 제목 1</a></li>
-	      			<li><a href="#">샘플 일정 제목 2</a></li>
-	      			<li><a href="#">샘플 일정 제목 3</a></li>
+	      			<c:forEach var="schedule" items="${userSchedules}">
+	      				<li>
+		      				<a href="${pageContext.request.contextPath}/community/board?id=${schedule.id}">
+                            <c:out value="${schedule.title}" />
+	      				</li>     			
+	      			</c:forEach>
+	      			<c:if test="${empty userSchedules}">
+                        <li><p>일정이 없습니다.</p></li>
+                    </c:if>
 	      		</ul>
 	      	</div>
 	    </div>
