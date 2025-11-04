@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 <style>
   :root{
     --line:#eee; 
@@ -89,7 +90,50 @@
   background: rgba(0,0,0,.2);
   backdrop-filter: blur(3px);
   z-index:4; /* 헤더/드로어보다 뒤 */
-}
+  }
+  
+  form {
+	border: none;
+  }
+  
+  .search {
+  	position: relative;
+  	width: 180px;
+  	border: 1px solid #bbb;
+    border-radius: 20px;
+  }
+  .search:has(input:focus) {
+    background-color: #E8F0FE;
+  }
+  
+  .search input {
+  	width: 80%;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 9px 10px 19px;
+    font-size: 13px;
+  }
+  .search input:focus,
+  .search:has(input:not(:placeholder-shown)) {
+    background-color: #E8F0FE;
+    outline: none;
+  }
+  
+  .search button {
+    position: absolute;
+	top: 2px;
+	right: 6px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	color: #555;
+	font-size: 20px;
+	padding: 6px;
+  }
+  .search button:hover {
+	color: #235baf;
+  }
+
 </style>
 
 <header>
@@ -109,6 +153,11 @@
     <a href="<%=ctx%>/login/memberJoin.jsp" class="reservation">회원가입</a>
    <% } else { %>
     <!-- 로그인 O -->
+    <form action="<%=ctx%>/search/searchResult.jsp" method="get" class="search">
+	    <input type="text" name="keyword" placeholder="일정을 검색해보세요">
+	    <button type="submit" class="material-symbols-outlined">search</button>
+    </form>
+    	
     <form action="<%=ctx%>/Logout" method="post" style="display:inline;">
       <button type="submit" class="reservation" 
               style="background:none;border:none;cursor:pointer;font:inherit;">

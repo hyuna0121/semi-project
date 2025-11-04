@@ -1,5 +1,3 @@
-<%@page import="jdk.internal.org.jline.terminal.TerminalBuilder.SystemOutput"%>
-<%@page import="jdk.internal.misc.FileSystemOption"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="java.time.LocalDate"%>
