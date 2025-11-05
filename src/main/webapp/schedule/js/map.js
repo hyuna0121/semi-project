@@ -12,9 +12,11 @@ const addModalClose = document.querySelector('.close_add_btn');
 
 modalOpen.addEventListener('click', function () {
     modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
 });
 modalClose.addEventListener('click', function () {
     modal.classList.remove('show');
+    document.body.style.overflow = '';
 });
 
 mapModalClose.addEventListener('click', function () {
@@ -45,7 +47,11 @@ var mapContainer = document.getElementById('map'), // 지도를 표시할 div
 var map = new kakao.maps.Map(mapContainer, mapOption); 
 
 // 장소 검색 객체를 생성합니다
-var ps = new kakao.maps.services.Places();  
+var ps = new kakao.maps.services.Places();
+
+var searchOptions = {
+    size: 5
+};  
 
 // 검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
 var infowindow = new kakao.maps.InfoWindow({zIndex:1});
@@ -63,7 +69,7 @@ function searchPlaces() {
     }
 
     // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다(비동기식 동작)
-    ps.keywordSearch(keyword, placesSearchCB); 
+    ps.keywordSearch(keyword, placesSearchCB, searchOptions); 
 }
 
 // 장소검색이 완료됐을 때 호출되는 콜백함수 입니다
@@ -145,9 +151,6 @@ function getListItem(index, places) {
         itemStr += '    <span>' +  places.address_name  + '</span>'; 
     }
 
-        itemStr += '  <span class="tel">' + places.phone  + '</span>' +
-                '</div>';           
-
     el.innerHTML = itemStr;
     el.className = 'item';
 
@@ -192,10 +195,12 @@ function displayPagination(pagination) {
     while (paginationEl.hasChildNodes()) {
         paginationEl.removeChild (paginationEl.lastChild);
     }
+	
+	var lastPage = Math.min(pagination.last, 5);
 
-    for (i=1; i<=pagination.last; i++) {
+    for (i=1; i<=lastPage; i++) {
         var el = document.createElement('a');
-        el.href = "#";
+        el.href = "javascript:void(0)";
         el.innerHTML = i;
 
         if (i===pagination.current) {
