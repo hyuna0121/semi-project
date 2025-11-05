@@ -97,7 +97,7 @@
 					<h1>
 						<%= schedule.getTitle() %>
 						<%
-							if (schedule.getVisibility().equals("N")) {
+							if ("N".equals(schedule.getVisibility())) {
 						%>
 								<span class="material-symbols-outlined">lock</span>
 						<%
