@@ -242,14 +242,14 @@ public class ScheduleDAO {
 	            conn.commit();
 	            
 	        } catch (SQLException e) {
-	            // 6. 하나라도 실패하면 모든 삭제 취소 (롤백)
+
 	            if (conn != null) {
 	                conn.rollback();
 	            }
 	            e.printStackTrace();
-	            throw e; // 서블릿으로 예외를 다시 던짐
+	            throw e; 
 	        } finally {
-	            // 7. 트랜잭션 종료
+	           
 	            if (conn != null) {
 	                conn.setAutoCommit(true);
 	            }
