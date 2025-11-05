@@ -196,6 +196,65 @@ public class ScheduleDAO {
 			return scheduleList;
 		}
 		
+		
+		public void updateSchedule(Connection conn, ScheduleDTO schedule) throws SQLException {
+	        String sql = "UPDATE schedules SET title = ?, location = ?, description = ?, main_image = ?, visibility = ? " +
+	                     "WHERE id = ?"; 
+	        
+	        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	            pstmt.setString(1, schedule.getTitle());
+	            pstmt.setString(2, schedule.getLocation());
+	            pstmt.setString(3, schedule.getDescription());
+	            pstmt.setString(4, schedule.getMainImage());
+	            pstmt.setString(5, schedule.getVisibility());
+	            pstmt.setLong(6, schedule.getId());
+
+	            pstmt.executeUpdate();
+	        }
+	    }
+		
+		public void deleteSchedule(Connection conn, long scheduleId) throws SQLException {
+	        
+	        
+	        String deleteMembersSql = "DELETE FROM members WHERE schedule_id = ?";
+	        String deleteScheduleSql = "DELETE FROM schedules WHERE id = ?";
+	        
+	        try {
+
+	            conn.setAutoCommit(false); 
+
+	            
+	            try (PreparedStatement pstmt = conn.prepareStatement(deleteMembersSql)) {
+	                pstmt.setLong(1, scheduleId); 
+	                pstmt.executeUpdate();
+	            }
+
+	           
+	            try (PreparedStatement pstmt = conn.prepareStatement(deleteScheduleSql)) {
+	                pstmt.setLong(1, scheduleId); 
+	                int rowsAffected = pstmt.executeUpdate();
+	                if (rowsAffected == 0) {
+	                    throw new SQLException("Schedule 삭제 실패: ID를 찾을 수 없습니다 - " + scheduleId);
+	                }
+	            }
+	            
+
+	            conn.commit();
+	            
+	        } catch (SQLException e) {
+	            // 6. 하나라도 실패하면 모든 삭제 취소 (롤백)
+	            if (conn != null) {
+	                conn.rollback();
+	            }
+	            e.printStackTrace();
+	            throw e; // 서블릿으로 예외를 다시 던짐
+	        } finally {
+	            // 7. 트랜잭션 종료
+	            if (conn != null) {
+	                conn.setAutoCommit(true);
+	            }
+	        }
+	    }
 	
 	
 }
