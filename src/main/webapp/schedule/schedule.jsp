@@ -22,7 +22,6 @@
 	<%
 		Connection conn = null;
 		ScheduleDTO schedule = null;
-		String[] members = null;
 		String errorMessage = null;
 		long scheduleId = 0;
 		
@@ -58,22 +57,28 @@
 			return;
 		}
 		
+		String visibility = schedule.getVisibility();
 		boolean flag = false;
-		for (String buddy : schedule.getTravelBuddies()) {
-			if (buddy.equals(userId)) {
-				flag = true;
-				break;
-			}
-		}
 		
-		if (flag == false) {
+		if ("N".equals(visibility)) {
+			// if (userId.equals(schedule.getUserId())) flag = true;
+			
+			for (String buddy : schedule.getTravelBuddies()) {
+				if (buddy.equals(userId)) {
+					flag = true;
+					break;
+				}
+			}
+			
+			if (flag == false) {
 	%>
 	<script type="text/javascript">
 			alert("해당일정을 열람할 권한이 없습니다.");
-			location.href = "<%= request.getContextPath() %>/mainpage/mainpage.jsp";
+			history.back();
 	</script>
 	<%
-			return;
+				return;
+			}
 		}
 	%>
 	
