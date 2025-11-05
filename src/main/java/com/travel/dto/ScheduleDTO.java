@@ -1,5 +1,6 @@
 package com.travel.dto;
 
+// 제공된 스키마와 DTO 코드를 기반으로 통합
 public class ScheduleDTO {
 	private long id;
 	private String userId;
@@ -7,12 +8,17 @@ public class ScheduleDTO {
 	private String location;
 	private String description;
 	private String visibility;
-	private String startDate;
-	private String endDate;
+	private String startDate; // DB DATE 타입을 String으로 처리
+	private String endDate;   // DB DATE 타입을 String으로 처리
 	private String mainImage;
-	private String[] travelBuddies;
+	private String[] travelBuddies; // 동행자 목록
+	private String createdAt; // DB TIMESTAMP 타입을 String으로 처리
   
 	public ScheduleDTO() {}
+	
+    // 🚨 스키마에 없지만 DAO에서 JOIN을 위해 사용하는 필드 추가
+	public String getCreatedAt() { return createdAt; }
+	public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 	
 	public long getId() { return id; }
 	public void setId(long id) { this.id = id; }
@@ -32,7 +38,6 @@ public class ScheduleDTO {
 	public String getVisibility() { return visibility; }
 	public void setVisibility(String visibility) { this.visibility = visibility; }
 	
-	
 	public String getStartDate() { return startDate; }
 	public void setStartDate(String startDate) { this.startDate = startDate; }
 
@@ -44,5 +49,4 @@ public class ScheduleDTO {
 	
 	public String[] getTravelBuddies() { return travelBuddies; }
 	public void setTravelBuddies(String[] travelBuddies) { this.travelBuddies = travelBuddies; }
-	
 }
