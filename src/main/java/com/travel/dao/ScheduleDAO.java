@@ -249,7 +249,7 @@ public class ScheduleDAO {
 	            e.printStackTrace();
 	            throw e; 
 	        } finally {
-	           
+	            // 7. 트랜잭션 종료
 	            if (conn != null) {
 	                conn.setAutoCommit(true);
 	            }

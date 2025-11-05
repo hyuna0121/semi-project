@@ -21,7 +21,7 @@
     <div class="main__content">
       <h1 class="main__title">여행 일정을 만들고<br>공유하세요</h1>
 
-      <form class="main__pill" action="schedule/list.jsp" method="get">
+      <form class="main__pill" action="<%=request.getContextPath()%>/schedules" method="get">
         <span class="main__text">당신만의 여행을 계획해보세요</span>
         <button class="main__cta" type="submit">일정 보러가기</button>
       </form>
