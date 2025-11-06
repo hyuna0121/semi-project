@@ -55,3 +55,31 @@ $(function () {
   $start.val(today.format('YYYY-MM-DD'));
   $end.val(today.format('YYYY-MM-DD'));
 });
+// ===== 동행인 추가 기능 =====
+document.addEventListener("DOMContentLoaded", function() {
+  const addBtn = document.getElementById("addBuddyBtn");
+  const buddyList = document.getElementById("buddyList");
+
+  if (!addBtn || !buddyList) return;
+
+  addBtn.addEventListener("click", function() {
+    const wrapper = document.createElement("div");
+    wrapper.className = "buddy-item mb-2 d-flex gap-2 align-items-center";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = "travelBuddies";   // 서블릿에서 배열로 받음
+    input.placeholder = "동행인 이름 또는 아이디 입력";
+    input.className = "form-control soft-input flex-grow-1";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.textContent = "삭제";
+    removeBtn.className = "btn btn-outline-danger btn-sm";
+    removeBtn.addEventListener("click", () => wrapper.remove());
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(removeBtn);
+    buddyList.appendChild(wrapper);
+  });
+});
