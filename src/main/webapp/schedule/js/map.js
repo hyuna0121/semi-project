@@ -99,40 +99,31 @@ function displayPlaces(places) {
     // 지도에 표시되고 있는 마커를 제거합니다
     removeCurrentMarker();
     
-    for (var i = 0; i < places.length; i++) {
-        var place = places[i];
+    for (let i = 0; i < places.length; i++) {
+        const place = places[i];
 
         // 마커를 생성하고 지도에 표시합니다
-        var placePosition = new kakao.maps.LatLng(place.y, place.x),
-            itemEl = getListItem(i, place); // 검색 결과 항목 Element를 생성합니다
+        const placePosition = new kakao.maps.LatLng(place.y, place.x);
+        const itemEl = getListItem(i, place); // 검색 결과 항목 Element를 생성합니다
 
-        // 마커와 검색결과 항목에 mouseover 했을때
-        // 해당 장소에 인포윈도우에 장소명을 표시합니다
-        // mouseout 했을 때는 인포윈도우를 닫습니다
-        (function(placeData, idx) { 
-            var position = new kakao.maps.LatLng(placeData.y, placeData.x);
-            var title = placeData.place_name;
-            
-            itemEl.onclick = function () {
-                document.getElementById('modalPlaceName').value = placeData.place_name;
-                document.getElementById('modalLatitude').value = placeData.y;       // 위도
-                document.getElementById('modalLongitude').value = placeData.x;
+        itemEl.onclick = function () {
+            document.getElementById('modalPlaceName').value = place.place_name;
+            document.getElementById('modalLatitude').value = place.y;       // 위도
+            document.getElementById('modalLongitude').value = place.x;
 
-				mapModalInfo.innerHTML = ''; 
-				var clonedItem = this.cloneNode(true); 
-				mapModalInfo.appendChild(clonedItem);				
+			mapModalInfo.innerHTML = ''; 
+			var clonedItem = this.cloneNode(true); 
+			mapModalInfo.appendChild(clonedItem);				
 				
-                removeCurrentMarker();
-                currentMarker = addMarker(position, idx);
-                mapModal.classList.add('show');
-                map.relayout();
+            removeCurrentMarker();
+            currentMarker = addMarker(placePosition, i);
+            mapModal.classList.add('show');
+            map.relayout();
                 
-                map.setCenter(position);
-                map.setLevel(2, {animate: true});
-                displayInfowindow(currentMarker, title);
-            }
-
-        })(place, i);
+            map.setCenter(placePosition);
+            map.setLevel(2, {animate: true});
+            displayInfowindow(currentMarker, place.place_name);
+        };
 
         fragment.appendChild(itemEl);
     }
