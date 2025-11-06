@@ -8,10 +8,6 @@
 String userId = (String) session.getAttribute("loginId");
 /* String userId = "fasdf"; */ // 🚨 테스트용 ID 설정 (실제 로그인 시 변경 필요)
 
-/*  if (userId == null) {
-	response.sendRedirect("../login/login.jsp");
-	 return;
-}  */
 
 // 🔸 2. DB에서 회원 정보 조회
 MemberDTO users = null;
@@ -31,16 +27,24 @@ try {
 	return;
 }
 
-// 🚨 Base64 저장 방식 유지
-String profileImgDataUrl = null;
-String currentProfileImageBase64 = users.getProfileImage();
+String profileFileName = users.getProfileImage();
 
-if (currentProfileImageBase64 != null && !currentProfileImageBase64.isEmpty()) {
-	profileImgDataUrl = "data:image/png;base64," + currentProfileImageBase64;
-} else {
-	// DB에 Base64 값이 없을 경우, 기본 이미지 파일 경로를 사용합니다.
-	profileImgDataUrl = "image/default_profile.png";
-}
+String cacheBuster = String.valueOf(System.currentTimeMillis());
+
+String profileImgPath = "mypage/image/";
+
+String contextPath = request.getContextPath();
+String fullProfileImgPath = contextPath + "/mypage/image/";
+
+String profileImgUrl = profileFileName != null && !profileFileName.isEmpty()
+		? fullProfileImgPath + profileFileName + "?v=" + cacheBuster
+		: fullProfileImgPath + "default_profile.png" + "?v=" + cacheBuster;
+
+
+String currentProfileFileName = profileFileName != null ? profileFileName : "";
+
+
+int passwordUpdateCount = users.getPasswordUpdateCount();
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -83,7 +87,7 @@ if (currentProfileImageBase64 != null && !currentProfileImageBase64.isEmpty()) {
 					</div>
 
 					<div class="profile-img-area">
-						<img src="<%=profileImgDataUrl%>" class="profile-img" alt="프로필 사진">
+						<img src="<%=profileImgUrl%>" class="profile-img" alt="프로필 사진">
 					</div>
 
 					<div class="info-field-group">
@@ -131,13 +135,12 @@ if (currentProfileImageBase64 != null && !currentProfileImageBase64.isEmpty()) {
 						enctype="multipart/form-data">
 						<input type="hidden" name="id" value="<%=users.getId()%>">
 						<input type="hidden" name="currentProfileImage"
-							value="<%=currentProfileImageBase64 != null ? currentProfileImageBase64 : ""%>">
+							value="<%=currentProfileFileName%>">
 
 						<div class="profile-img-area">
-							<img id="preview" src="<%=profileImgDataUrl%>"
-								class="profile-img" alt="프로필 사진"> <label
-								for="profileImgInput" class="camera-icon"> <span
-								class="material-icons">photo_camera</span>
+							<img id="preview" src="<%=profileImgUrl%>" class="profile-img"
+								alt="프로필 사진"> <label for="profileImgInput"
+								class="camera-icon"> <span class="material-icons">photo_camera</span>
 							</label> <input type="file" id="profileImgInput" name="profileImg"
 								class="profile-file-input" accept="image/*">
 						</div>
@@ -186,7 +189,7 @@ if (currentProfileImageBase64 != null && !currentProfileImageBase64.isEmpty()) {
 							</select>
 						</div>
 
-						<div id="newPasswordGroup"> 
+						<div id="newPasswordGroup">
 							<div class="info-field-group">
 								<label for="newPasswordInput" class="info-field-label">새
 									비밀번호</label> <input type="password" id="newPasswordInput"
@@ -248,15 +251,14 @@ if (currentProfileImageBase64 != null && !currentProfileImageBase64.isEmpty()) {
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-	<script src="js/mypage_profile.js"></script>
 
 	<script>
-    // 🚨🚨🚨 수정: JS 변수 전달 구문 오류 수정
-    const originalSrc = "<%=profileImgDataUrl%>";
+    // 🚨🚨 JS 변수 전달 구문 오류 수정 및 통일 🚨🚨
+    const originalSrc = "<%=profileImgUrl%>";
     const currentUserId = "<%=users.getId()%>";
-    // 🚨🚨 추가: 비밀번호 수정 횟수 변수를 JS로 전달
     const passwordUpdateCount = <%=users.getPasswordUpdateCount()%>;
 	</script>
 
+	<script src="js/mypage_profile.js"></script>
 </body>
 </html>
