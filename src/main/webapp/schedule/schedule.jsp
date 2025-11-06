@@ -219,14 +219,12 @@
 				<div class="modal_map">
 					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
 						<div class="btn-wrap">
-							<button type="button" class="close_map_btn material-symbols-outlined">close</button> 
 						</div>
-						<div id="map" style="width:70%;height:20%; margin: 0 auto; border-radius: 5px;"></div>
-						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
 						
 						<div class="input-container" style="width:70%; margin: 0 auto; margin-top: 35px; text-align: center;">
-							<h3>일정 등록</h3>
 							<form action="${pageContext.request.contextPath}/processAddDetail?schedule_id=<%= scheduleId %>" method="post" id="schedule-form">
+								<button type="reset" class="close_map_btn material-symbols-outlined">close</button> 
+								<h3>일정 등록</h3>
 								<div style="display: none;">
 									<input type="hidden" name="schedule_id" value="<%= scheduleId %>">
 									<input type="hidden" id="modalPlaceName" name="placeName">
@@ -302,11 +300,14 @@
 
 								<div class="button-container">
 									<button type="submit" class="add_schedule">일정등록</button>
-									<button type="button" class="close_add_btn">취소하기</button>
+									<button type="reset" class="close_add_btn">취소하기</button>
 								</div>
 							</form>
 						</div>
-						
+
+						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
+						<div id="map" style="width:70%;height:25%; margin: 0 auto; border-radius: 5px;"></div>
+
 						<div style="display: none;">
 							<button type="button" class="add_schedule_btn">일정에 추가</button>
 							<button type="button" class="close_map_btn">취소하기</button>
