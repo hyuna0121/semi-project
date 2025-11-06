@@ -73,9 +73,16 @@
 	    <input class="form-control form-control-lg soft-input" type="file" id="mainImage" name="mainImage" accept="image/*">
 	  </div>
 	
-	  <!-- (옵션) 동행자 -->
-	  <!-- <input type="text" name="travelBuddies" value="friend1">
-	       <input type="text" name="travelBuddies" value="friend2"> 처럼 name을 동일하게 여러개 전송하면 배열로 들어감 -->
+	 <!-- ✅ 동행인 추가 영역 -->
+	<div class="mb-4" id="buddySection">
+	  <label class="form-label">동행인 추가</label>
+	  <div id="buddyList">
+	    <div class="buddy-item mb-2">
+	      <input type="text" name="travelBuddies" class="form-control soft-input" placeholder="동행인 이름 또는 아이디 입력">
+	    </div>
+	  </div>
+	  <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addBuddyBtn"> + 동행인 추가</button>
+	</div>
 	
 	  <div class="d-flex gap-2">
 	    <button type="submit" class="btn btn-dark btn-lg flex-grow-1">저장</button>
