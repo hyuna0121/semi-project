@@ -197,12 +197,13 @@ tbody tr:hover {
     margin-bottom: 20px;
 }
 
-.close_btn {
+.close_btn, .close_map_btn {
     background: none;
     border: none;
     cursor: pointer;
 }
-.close_btn:hover {
+.close_btn:hover,
+.close_map_btn:hover {
     color: #235baf;
 }
 
@@ -280,4 +281,196 @@ tbody tr:hover {
 	font-weight: bold; 
 	cursor: default;
 	color:#235baf;
+}
+
+li::marker {
+	unicode-bidi: initial;
+    font-variant-numeric: normal;
+    text-transform: none;
+    text-indent: 0;
+    text-align: left;
+    content: '';
+}
+
+/* 날짜 버튼들을 감싸는 컨테이너 */
+.date-selector-container {
+    display: flex; /* 버튼들을 가로로 나열 */
+    overflow-x: auto; /* 날짜가 많아지면 가로 스크롤 */
+    padding: 10px 5px; /* 내부 여백 */
+    white-space: nowrap; /* 버튼들이 줄바꿈되지 않도록 */
+    justify-content: center;
+}
+
+/* 실제 체크박스는 화면에서 숨깁니다 */
+.date-checkbox-hidden {
+    display: none;
+}
+
+/* 날짜 버튼 (label)의 기본 스타일 (선택되지 않은 상태) */
+.date-button {
+    display: inline-flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    
+    height: 33px;          /* ▼ 높이 수정 (예: 60px -> 40px) */
+    padding: 1px 15px;       /* ▼ 좌우 여백 수정 (예: 0 15px -> 0 12px) */
+    margin-right: 8px;     /* ▼ 버튼 사이 간격 수정 (예: 10px -> 8px) */
+    
+    border: 1px solid #ddd; 
+    border-radius: 20px;   /* ▼ 둥글기 수정 (새 높이의 절반) */
+    background-color: #ffffff; 
+    
+    cursor: pointer; 
+    transition: all 0.2s ease-in-out; 
+}
+
+/* 날짜 버튼 (label) 위에 마우스를 올렸을 때 */
+.date-button:hover {
+    background-color: #f5f5f5; /* 살짝 회색으로 변경 */
+}
+
+/* "day1", "day2" ... 텍스트 스타일 */
+.date-button .day-count {
+    font-size: 0.75rem;     /* ▼ 폰트 크기 수정 (예: 1.1rem -> 0.9rem) */
+    font-weight: bold;
+    color: #666; 
+}
+
+/* "11.12/수" 텍스트 스타일 */
+.date-button .day-date {
+    font-size: 0.5rem;    /* ▼ 폰트 크기 수정 (예: 0.9rem -> 0.75rem) */
+    color: #888;
+}
+
+
+/* * ★★★ 핵심 기능 ★★★
+ * 숨겨진 체크박스(.date-checkbox-hidden)가 :checked (선택)되었을 때,
+ * 바로 뒤에 오는(+) 라벨(.date-button)의 스타일을 변경합니다.
+ */
+.date-checkbox-hidden:checked + .date-button {
+    background-color: #4A90E2; /* 이미지와 유사한 파란색 배경 (day1 스타일) */
+    border-color: #4A90E2; /* 테두리 색상 통일 */
+}
+
+/* 선택되었을 때 내부 텍스트 스타일 (흰색으로) */
+.date-checkbox-hidden:checked + .date-button .day-count,
+.date-checkbox-hidden:checked + .date-button .day-date {
+    color: #ffffff;
+}
+
+/* 카테고리 버튼들을 감싸는 컨테이너 */
+.category-selector-container {
+    display: flex; /* 가로로 나열 */
+    flex-wrap: wrap; /* 공간이 부족하면 다음 줄로 */
+    padding: 10px 0; /* 위아래 여백 */
+    justify-content: center;
+}
+
+/* 실제 라디오 버튼은 화면에서 숨깁니다 */
+.category-radio-hidden {
+    display: none;
+}
+
+/* 카테고리 버튼 (label)의 기본 스타일 (선택되지 않은 상태) */
+.category-button {
+    display: inline-block; /* 한 줄 텍스트에 적합 */
+    height: 30px;          /* 버튼 높이 (날짜 버튼보다 살짝 작게) */
+    line-height: 30px;     /* 텍스트를 세로 중앙 정렬 (height와 동일하게) */
+    padding: 0 13px;       /* 좌우 여백 */
+    margin-right: 8px;     /* 버튼 사이 간격 */
+    margin-bottom: 8px;    /* 줄바꿈 시 아래쪽 간격 */
+    
+    border-radius: 18px;   /* 높이의 절반 */
+    background-color: #ffffff;
+    
+    color: #333333;
+    font-size: 0.8rem;
+    font-weight: 400;
+    
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#cat-tour-label {
+    background-color: var(--tag-blue);
+}
+#cat-shopping-label {
+    background-color: var(--tag-red);
+}
+#cat-food-label {
+    background-color: var(--tag-orange);
+}
+#cat-cafe-label {
+    background-color: var(--tag-purple);
+}
+#cat-stay-label {
+    background-color: var(--tag-brown);
+}
+
+/* 카테고리 버튼 위에 마우스를 올렸을 때 */
+.category-button:hover {
+    background-color: #f5f5f5;
+}
+
+/* * ★★★ 핵심 기능 (단일 선택) ★★★
+ * 숨겨진 라디오(.category-radio-hidden)가 :checked (선택)되었을 때,
+ * 바로 뒤에 오는(+) 라벨(.category-button)의 스타일을 변경합니다.
+ */
+.category-radio-hidden:checked + .category-button {
+    color: #333;
+    font-weight: bold;
+}
+.memo-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.time-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.time-container input {
+    width: 200px; 
+    padding: 5px; 
+    border: 1px solid #ddd; 
+    border-radius: 5px;
+}
+
+.time-container input:focus {
+    outline: none;
+}
+
+.input-memo {
+    font-family:'Malgun Gothic',dotum,'돋움',sans-serif;
+    resize: none;
+    border: 1px solid #ddd; 
+    border-radius: 6px;
+    width: 80%;
+    padding: 15px;
+}
+
+.input-memo:focus {
+    outline: none;
+}
+
+.button-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+
+}
+
+.add_schedule,
+.close_add_btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 6px 12px;
+    cursor: pointer;
 }

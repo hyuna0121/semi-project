@@ -14,10 +14,47 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link rel="stylesheet" href="./css/map.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8aaef2cb5fdf5a54c0607c5d2c9935c1&libraries=services"></script>
 <script type="text/javascript" src="./js/map.js" defer></script>
 <script type="text/javascript" src="./js/details.js" defer></script>
 </head>
+
+<script>
+    flatpickr("#schedule-time", {
+        enableTime: true,   // 시간 선택 활성화
+        noCalendar: true,   // 캘린더(날짜) 비활성화
+        dateFormat: "H:i",  // 시간 형식 (24시간제, 예: 14:30)
+        time_24hr: true,    // 24시간제로 표시
+        locale: "ko"        // (선택) 한국어 설정
+    });
+
+		document.getElementById('schedule-form').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            
+            // Enter 키를 누른 요소(element)를 확인
+            const target = event.target;
+
+            // 1. 만약 'textarea' 또는 'button'에서 Enter를 눌렀다면,
+            //    기본 동작(줄바꿈 또는 클릭)을 허용합니다.
+            if (target.tagName.toLowerCase() === 'textarea' || 
+                target.tagName.toLowerCase() === 'button' ||
+                target.type === 'submit' ||
+                target.type === 'button') 
+            {
+                return; // 아무것도 막지 않음
+            }
+
+            // 2. 그 외의 모든 요소(예: #schedule-time 입력창)에서
+            //    Enter를 누르면 폼 제출을 막습니다.
+            event.preventDefault();
+        }
+    });
+</script>
+
 <body>
 	<%@ include file="../header.jsp" %>
 	
@@ -181,62 +218,101 @@
 				
 				<div class="modal_map">
 					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
-								<div class="btn-wrap">
-									<button type="button" class="close_map_btn material-symbols-outlined">close</button> 
-								</div>
-									<div id="map" style="width:80%;height:80%;"></div>
-									<div id="map_info"></div>
-									<div>
-							<button type="button" class="add_schedule_btn">일정에 추가</button>
-							<button type="button" class="close_map_btn">취소하기</button>
-									</div>
-							</div>
-					</div>
-
-					<div class="modal_add">
-							<div class="bg_white" style="width:40%; height: 70%;">
-									<div>
-								<form action="">
-								<div>
-									<input type="hidden" value="<%= scheduleId %>">
+						<div class="btn-wrap">
+							<button type="button" class="close_map_btn material-symbols-outlined">close</button> 
+						</div>
+						<div id="map" style="width:70%;height:20%; margin: 0 auto; border-radius: 5px;"></div>
+						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
+						
+						<div class="input-container" style="width:70%; margin: 0 auto; margin-top: 35px; text-align: center;">
+							<h3>일정 등록</h3>
+							<form action="${pageContext.request.contextPath}/processAddDetail?schedule_id=<%= scheduleId %>" method="post" id="schedule-form">
+								<div style="display: none;">
+									<input type="hidden" name="schedule_id" value="<%= scheduleId %>">
+									<input type="hidden" id="modalPlaceName" name="placeName">
+                  <input type="hidden" id="modalLatitude" name="latitude">
+                  <input type="hidden" id="modalLongitude" name="longitude">
 								</div>
 								<div>
-									<%													
-										LocalDate currentDate = startDate;
+									<div class="date-selector-container">
+										<%                    
+											LocalDate currentDate = startDate;
+											
+											DateTimeFormatter dateShorthand = DateTimeFormatter.ofPattern("MM.dd");
+											DateTimeFormatter dayOfWeekFormatter = DateTimeFormatter.ofPattern("E", java.util.Locale.KOREAN);
+											int dayCount = 1;
 													
-										while (!currentDate.isAfter(endDate)) {
-											String fullDateStr = currentDate.toString();
-											String displayDateStr = currentDate.format(formatter);
-											String uniqueId = "date_" + fullDateStr;
-									%>
+											while (!currentDate.isAfter(endDate)) {
+												String fullDateStr = currentDate.toString();
+												String displayDateStr = currentDate.format(dateShorthand); 
+												String dayOfWeek = currentDate.format(dayOfWeekFormatter);
+												String uniqueId = "date_" + fullDateStr;
+										%>
 											<input type="checkbox" id="<%= uniqueId %>" 
-													name="selectedDates" value="<%= fullDateStr %>" />
-											<label for="<%= uniqueId %>"><span><%= displayDateStr %></span></label>
-									<%	
-														// 현재 날짜를 하루 증가
+															name="selectedDates" value="<%= fullDateStr %>" class="date-checkbox-hidden" />
+											
+											<label for="<%= uniqueId %>" class="date-button">
+												<span class="day-count">day<%= dayCount %></span>
+												<span class="day-date"><%= displayDateStr %>/<%= dayOfWeek %></span>
+											</label>
+										<%    
+											// 다음 날짜로 이동
 											currentDate = currentDate.plusDays(1);
+											dayCount++;
 											}
-									%>
+										%>
+									</div>
 								</div>
+
 								<div>
-									<select name="category">
-										<option value="관광지" selected="selected">관광지</option>
-										<option value="식당">식당</option>
-										<option value="카페">카페</option>
-										<option value="숙소">숙소</option>
-									</select>
+									<div class="category-selector-container">
+		
+										<input type="radio" id="cat-tour" name="category" value="관광지" 
+												class="category-radio-hidden" checked>
+										<label for="cat-tour" id="cat-tour-label" class="category-button">관광지</label>
+
+										<input type="radio" id="cat-shopping" name="category" value="쇼핑" 
+												class="category-radio-hidden" checked>
+										<label for="cat-shopping" id="cat-shopping-label" class="category-button">쇼핑</label>
+
+										<input type="radio" id="cat-food" name="category" value="식당" 
+												class="category-radio-hidden">
+										<label for="cat-food" id="cat-food-label" class="category-button">식당</label>
+
+										<input type="radio" id="cat-cafe" name="category" value="카페" 
+												class="category-radio-hidden">
+										<label for="cat-cafe" id="cat-cafe-label" class="category-button">카페</label>
+
+										<input type="radio" id="cat-stay" name="category" value="숙소" 
+												class="category-radio-hidden">
+										<label for="cat-stay" id="cat-stay-label" class="category-button">숙소</label>
+		
+									</div>
 								</div>
-								<div>
-									<textarea placeholder="memo"></textarea>
+
+								<div class="time-container">
+                  <label for="schedule-time" style="font-weight: bold; margin-right: 10px;">시작 시간</label>
+                  <input type="text" id="schedule-time" name="scheduleTime" 
+													class="input-time" placeholder="HH:MM (예: 09:30 또는 14:00)">
+                </div>
+
+								<div class="memo-container">
+									<textarea class="input-memo" name="memo" placeholder="MEMO"></textarea>
 								</div>
-								<div>
-									<button type="submit">일정 등록</button>
-									<button type="button" class="close_add_btn">취소 하기</button>
+
+								<div class="button-container">
+									<button type="submit" class="add_schedule">일정등록</button>
+									<button type="button" class="close_add_btn">취소하기</button>
 								</div>
 							</form>
-									</div>
-							</div>
+						</div>
+						
+						<div style="display: none;">
+							<button type="button" class="add_schedule_btn">일정에 추가</button>
+							<button type="button" class="close_map_btn">취소하기</button>
+						</div>
 					</div>
+				</div>
 
 			</div>
 		</div>

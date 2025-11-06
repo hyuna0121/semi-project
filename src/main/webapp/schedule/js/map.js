@@ -6,9 +6,7 @@ const mapModal = document.querySelector('.modal_map');
 const mapModalClose = document.querySelector('.close_map_btn');
 const mapModalInfo = document.querySelector('#map_info');
 
-const addModal = document.querySelector('.modal_add');
-const addModalOpen = document.querySelector('.add_schedule_btn');
-const addModalClose = document.querySelector('.close_add_btn');
+const addCancel = document.querySelector('.close_add_btn');
 
 modalOpen.addEventListener('click', function () {
     modal.classList.add('show');
@@ -24,15 +22,12 @@ mapModalClose.addEventListener('click', function () {
     removeCurrentMarker();
 });
 
-addModalOpen.addEventListener('click', function() {
-	addModal.classList.add('show');
-});
-
-addModalClose.addEventListener('click', function() {
-	addModal.classList.remove('show');
-	mapModal.classList.remove('show');
-	removeCurrentMarker();
-});
+addCancel.addEventListener('click', function() {
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    mapModal.classList.remove('show');
+    removeCurrentMarker();
+}) 
 
 
 var currentMarker = null;
@@ -105,15 +100,24 @@ function displayPlaces(places) {
     removeCurrentMarker();
     
     for (var i = 0; i < places.length; i++) {
+        var place = places[i];
+
         // 마커를 생성하고 지도에 표시합니다
-        var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
-            itemEl = getListItem(i, places[i]); // 검색 결과 항목 Element를 생성합니다
+        var placePosition = new kakao.maps.LatLng(place.y, place.x),
+            itemEl = getListItem(i, place); // 검색 결과 항목 Element를 생성합니다
 
         // 마커와 검색결과 항목에 mouseover 했을때
         // 해당 장소에 인포윈도우에 장소명을 표시합니다
         // mouseout 했을 때는 인포윈도우를 닫습니다
-        (function(position, idx, title) {            
+        (function(placeData, idx) { 
+            var position = new kakao.maps.LatLng(placeData.y, placeData.x);
+            var title = placeData.place_name;
+            
             itemEl.onclick = function () {
+                document.getElementById('modalPlaceName').value = placeData.place_name;
+                document.getElementById('modalLatitude').value = placeData.y;       // 위도
+                document.getElementById('modalLongitude').value = placeData.x;
+
 				mapModalInfo.innerHTML = ''; 
 				var clonedItem = this.cloneNode(true); 
 				mapModalInfo.appendChild(clonedItem);				
@@ -128,7 +132,7 @@ function displayPlaces(places) {
                 displayInfowindow(currentMarker, title);
             }
 
-        })(placePosition, i, places[i].place_name);
+        })(place, i);
 
         fragment.appendChild(itemEl);
     }
