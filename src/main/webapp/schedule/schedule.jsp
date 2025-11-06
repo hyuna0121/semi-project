@@ -1,3 +1,4 @@
+<%@page import="java.time.temporal.ChronoUnit"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="java.time.LocalDate"%>
@@ -15,6 +16,7 @@
 <link rel="stylesheet" href="./css/map.css">
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8aaef2cb5fdf5a54c0607c5d2c9935c1&libraries=services"></script>
 <script type="text/javascript" src="./js/map.js" defer></script>
+<script type="text/javascript" src="./js/details.js" defer></script>
 </head>
 <body>
 	<%@ include file="../header.jsp" %>
@@ -120,28 +122,68 @@
 					<p class="desc"><%= schedule.getDescription() %></p>
 				</div>
 
-				<div>
-					<button type="button" class="modal_btn">일정추가 +</button>
-				</div>
-					<div class="modal">
-							<div id="menu_wrap" class="bg_white" style="width:50%; height: 80%;">
-						<button type="button" class="close_btn">X</button>
-									<div class="option">
-											<div>
-													<form onsubmit="searchPlaces(); return false;">
-															키워드 : <input type="text" value="경복궁" id="keyword" size="15"> 
-															<button type="submit">검색하기</button> 
-													</form>
-											</div>
-									</div>
-									<hr>
-									<ul id="placesList"></ul>
-									<div id="pagination"></div>
-							</div>
-					</div>
+				<div class="details">
+					<%
+						long totalDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+					%>
+					<h1>일정 타임라인</h1>
 
-					<div class="modal_map">
-							<div class="bg_white" style="width:50%; height: 80%;">
+					<nav class="tabs">
+						<ul>
+                  		<%
+                  			for (int day = 1; day <= totalDays; day++) {
+                  				String activeClass = (day == 1) ? "active" : "";
+		                %>
+                        	<li class="tab-link <%= activeClass %>" data-day="<%= day %>">
+                        <%= day %>일차
+                        	</li>
+                  		<%
+                      		} 
+                  		%>
+              			</ul>
+						<button type="button" class="new-item-btn modal_btn">일정추가 +</button>
+					</nav>
+
+					<div class="table-container">
+							<table>
+									<thead>
+											<tr>
+													<th>여행지</th>
+													<th>도시</th>
+													<th>태그</th>
+													<th>운영시간</th>
+											</tr>
+									</thead>
+									<tbody id="itinerary-board">
+											</tbody>
+							</table>
+					</div>
+				</div>
+
+				<div class="modal">
+					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
+						<div class="btn-wrap">
+							<button type="submit" class="close_btn material-symbols-outlined">close</button> 
+						</div>
+						<div class="option">
+							<div>
+								<form onsubmit="searchPlaces(); return false;" class="search" style="width: 250px;">
+									<input type="text" value="<%= schedule.getLocation() %>" id="keyword" size="15"> 
+									<button type="submit" class="material-symbols-outlined">search</button> 
+								</form>
+							</div>
+						</div>
+						<hr>
+						<ul id="placesList"></ul>
+						<div id="pagination"></div>
+					</div>
+				</div>
+				
+				<div class="modal_map">
+					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
+								<div class="btn-wrap">
+									<button type="button" class="close_map_btn material-symbols-outlined">close</button> 
+								</div>
 									<div id="map" style="width:80%;height:80%;"></div>
 									<div id="map_info"></div>
 									<div>
@@ -152,7 +194,7 @@
 					</div>
 
 					<div class="modal_add">
-							<div class="bg_white" style="width:50%; height: 80%;">
+							<div class="bg_white" style="width:40%; height: 70%;">
 									<div>
 								<form action="">
 								<div>
