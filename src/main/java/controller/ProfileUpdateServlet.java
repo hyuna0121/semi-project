@@ -1,166 +1,163 @@
 package controller;
 
-import com.travel.dao.MemberDAO;
-import com.travel.dto.MemberDTO;
+import java.io.*;
+import java.nio.file.*;
+import java.sql.SQLException;
+import java.util.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
+import jakarta.servlet.http.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Base64; 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.travel.dao.MemberDAO;
+import com.travel.dto.MemberDTO;
 
+@WebServlet("/ProfileUpdateServlet")
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 1, 
-    maxFileSize = 1024 * 1024 * 10,      
-    maxRequestSize = 1024 * 1024 * 15    
+    fileSizeThreshold = 1024 * 1024,
+    maxFileSize       = 1024 * 1024 * 30,  // 30MB
+    maxRequestSize    = 1024 * 1024 * 40
 )
-@WebServlet("/mypage/ProfileUpdateServlet") 
 public class ProfileUpdateServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(ProfileUpdateServlet.class.getName());
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
-        
-        String userId = null;
-        String name = null;
-        String address = null;
-        String phone = null;
-        String email = null;
-        String gender = null; 
-        String newPassword = null;
-        String newPasswordConfirm = null; 
-        String currentPassword = null; 
-        String currentProfileImage = null; 
-        String newProfileImageBase64 = null; 
-        Part profileImgPart = null;        
+    private static final String WEB_PATH_PREFIX = "uploads/profile/"; // DB 저장 경로 접두
+    private static final Set<String> ALLOWED_EXT =
+            Set.of(".jpg",".jpeg",".png",".gif",".webp",".bmp",".heic");
 
-        // 1. 폼 데이터 추출
+    private final MemberDAO memberDAO = new MemberDAO();
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        req.setCharacterEncoding("UTF-8");
+
+        String id      = trim(req.getParameter("id"));
+        String name    = trim(req.getParameter("name"));
+        String address = trim(req.getParameter("address"));
+        String phone   = trim(req.getParameter("phone"));
+        String email   = trim(req.getParameter("email"));
+        String gender  = trim(req.getParameter("gender"));
+        String oldRel  = normalizeOldPath(trim(req.getParameter("oldImagePath"))); // 과거 경로 호환
+
+        MemberDTO before;
         try {
-            for (Part part : request.getParts()) {
-                String partName = part.getName();
-                
-                if (part.getSubmittedFileName() == null) {
-                    String value = request.getParameter(partName);
-                    
-                    switch (partName) {
-                        case "id": userId = value; break;
-                        case "name": name = value; break;
-                        case "address": address = value; break;
-                        case "phone": phone = value; break;
-                        case "email": email = value; break;
-                        case "gender": gender = value; break;
-                        case "newPassword": newPassword = value; break;
-                        case "newPasswordConfirm": newPasswordConfirm = value; break; 
-                        case "currentPassword": currentPassword = value; break;
-                        case "currentProfileImage": currentProfileImage = value; break;
-                    }
-                } else {
-                    if (partName.equals("profileImg") && part.getSize() > 0) {
-                        profileImgPart = part;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Form data processing error", e);
-            response.getWriter().println("<script>alert('폼 데이터 처리 중 오류 발생.'); history.back();</script>");
+            before = memberDAO.getMemberById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            flash(req, resp, "사용자 조회 중 오류");
             return;
         }
+        if (before == null) { flash(req, resp, "존재하지 않는 사용자"); return; }
 
-        MemberDAO dao = new MemberDAO();
-        try {
-            // 0. 현재 사용자 정보를 조회하여 카운트를 확인
-            MemberDTO currentUser = dao.getMemberById(userId);
-           
-            // 🚨🚨 수정: 입력된 현재 비밀번호 공백 제거
-            if (currentPassword != null) {
-                 currentPassword = currentPassword.trim();
-            }
-            
-            if (currentPassword == null || currentPassword.isEmpty()) {
-                 response.getWriter().println("<script>alert('정보 수정을 위해 현재 비밀번호를 입력해주세요.'); history.back();</script>");
-                 return;
-            }
-            
-            // 1. DB에 저장된 평문 비밀번호를 가져와 검증
-            String storedPassword = dao.getPasswordHash(userId);
-            
-            // 🚨🚨 수정: DB에서 가져온 비밀번호 공백 제거
-            if (storedPassword != null) {
-                 storedPassword = storedPassword.trim();
-            }
+        name    = pick(name, before.getName());
+        address = pick(address, before.getAddress());
+        phone   = pick(phone, before.getPhone());
+        email   = pick(email, before.getEmail()); // NOT NULL 보호
+        gender  = pick(gender, before.getGender());
 
-            if (storedPassword == null || !storedPassword.equals(currentPassword)) { 
-               
-                 response.getWriter().println("<script>alert('비밀번호가 일치하지 않습니다.'); history.back();</script>");
-                 return;
-            }
-            
-            // 2. 새 비밀번호 처리
-            if (newPassword != null && !newPassword.isEmpty()) {
-                 // 🚨🚨 수정: 비밀번호 수정 횟수 제한 (3회부터 차단)
-                if (currentUser.getPasswordUpdateCount() >= 3) { 
-                    response.getWriter().println("<script>alert('비밀번호는 최대 3회만 수정 가능합니다. 수정되지 않았습니다.'); location.href='mypage_profile.jsp';</script>");
-                    return;
-                }
-                 
-                 if (!newPassword.equals(newPasswordConfirm)) {
-                     response.getWriter().println("<script>alert('새 비밀번호와 확인 비밀번호가 일치하지 않습니다.'); history.back();</script>");
-                     return;
-                 }
-                
-                // 🚨🚨 수정: DB에 저장될 새 비밀번호 공백 제거
-                newPassword = newPassword.trim(); 
-                
-            } else {
-                 newPassword = null; 
+        String currentRel = (oldRel!=null && !oldRel.isBlank())
+                ? oldRel
+                : normalizeOldPath(pick(before.getProfileImage(), "mypage/image/default_profile.png"));
+
+        // 업로드 베이스(물리경로) 결정: JVM 옵션 → 환경변수 → web.xml → 기본값
+        Path baseDir = resolveUploadBase(getServletContext());
+        Files.createDirectories(baseDir);
+        System.out.println("[Upload] baseDir = " + baseDir.toAbsolutePath());
+
+        Part filePart = null;
+        try { filePart = req.getPart("profileImg"); } catch (Exception ignore) {}
+        String finalRel = currentRel;
+
+        if (filePart != null && filePart.getSize() > 0) {
+            String contentType = Optional.ofNullable(filePart.getContentType()).orElse("").toLowerCase();
+            if (!contentType.startsWith("image/")) {
+                flash(req, resp, "이미지 파일만 업로드 가능합니다.");
+                return;
             }
 
-            // 3. 프로필 이미지 처리
-            if (profileImgPart != null && profileImgPart.getSize() > 0) {
-                
-                try (InputStream input = profileImgPart.getInputStream()) {
-                    byte[] imageBytes = input.readAllBytes();
-                    newProfileImageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-                } 
-                
-            } else {
-                newProfileImageBase64 = currentProfileImage; 
+            String ext = extFromFilename(filePart.getSubmittedFileName());
+            if (ext.isEmpty()) ext = extFromMime(contentType);
+            if (ext.isEmpty() || !ALLOWED_EXT.contains(ext)) {
+                flash(req, resp, "허용되지 않는 확장자: " + ext);
+                return;
             }
 
-            // 4. DB 업데이트 DTO 설정
-            MemberDTO updatedUser = new MemberDTO();
-            updatedUser.setId(userId);
-            updatedUser.setName(name);
-            updatedUser.setAddress(address);
-            updatedUser.setPhone(phone);
-            updatedUser.setEmail(email);
-            updatedUser.setGender(gender); 
-            updatedUser.setProfileImage(newProfileImageBase64); 
-
-            String finalPasswordToSave = newPassword; 
-
-            // 5. DAO 호출 (DAO 내부에서 트랜잭션 및 카운트 증가 처리)
-            int result = dao.updateMember(updatedUser, finalPasswordToSave);
-
-            if (result > 0) {
-                response.getWriter().println("<script>alert('프로필 정보가 성공적으로 수정되었습니다.'); location.href='mypage_profile.jsp';</script>");
-            } else {
-                response.getWriter().println("<script>alert('프로필 업데이트에 실패했습니다. (DB 오류)'); history.back();</script>");
+            String newFile = id + "_" + UUID.randomUUID() + ext;
+            Path savePath = baseDir.resolve(newFile);
+            try (InputStream in = filePart.getInputStream()) {
+                Files.copy(in, savePath, StandardCopyOption.REPLACE_EXISTING);
             }
+            System.out.println("[Upload] saved -> " + savePath);
 
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Database error during profile update for user: " + userId, e);
-            response.getWriter().println("<script>alert('데이터베이스 처리 중 오류가 발생했습니다.'); history.back();</script>");
+            // DB에는 항상 웹 경로(상대) 저장
+            finalRel = WEB_PATH_PREFIX + newFile;
+
+            // 기존 파일 삭제 (기본이미지 제외)
+            if (currentRel != null && !currentRel.endsWith("default_profile.png")) {
+                try {
+                    Path oldPath = baseDir.resolve(Paths.get(currentRel).getFileName());
+                    Files.deleteIfExists(oldPath);
+                    System.out.println("[Upload] old deleted -> " + oldPath);
+                } catch (Exception ignore) {}
+            }
+        } else {
+            System.out.println("[Upload] no file -> keep = " + currentRel);
+        }
+
+        boolean ok = memberDAO.updateProfileInfo(id, name, address, phone, email, gender, finalRel);
+        req.getSession().setAttribute("msg", ok ? "프로필이 수정되었습니다." : "수정 실패");
+        resp.sendRedirect(req.getContextPath() + "/mypage/mypage_profile.jsp");
+    }
+
+    /* ===== util ===== */
+
+    private static Path resolveUploadBase(jakarta.servlet.ServletContext ctx) {
+        String p = System.getProperty("upload.base");
+        if (isBlank(p)) p = System.getenv("UPLOAD_BASE");
+        if (isBlank(p)) p = ctx.getInitParameter("uploadBase");
+        if (isBlank(p)) {
+            String home = System.getProperty("user.home");
+            p = home + File.separator + "semi-uploads" + File.separator + "profile";
+        }
+        return Paths.get(p);
+    }
+
+    // 과거 값(mypage/image/...)을 현재 체계(uploads/profile/...)로 치환
+    private static String normalizeOldPath(String path) {
+        if (isBlank(path)) return null;
+        String v = path.trim();
+        if (v.startsWith("/")) v = v.substring(1);
+        if (v.startsWith("mypage/image/")) {
+            v = "uploads/profile/" + Paths.get(v).getFileName().toString();
+        }
+        return v;
+    }
+
+    private static void flash(HttpServletRequest req, HttpServletResponse resp, String msg) throws IOException {
+        req.getSession().setAttribute("msg", msg);
+        resp.sendRedirect(req.getContextPath() + "/mypage/mypage_profile.jsp");
+    }
+
+    private static String pick(String v, String fb){ return (v!=null && !v.isBlank()) ? v : fb; }
+    private static boolean isBlank(String s){ return s==null || s.trim().isEmpty(); }
+    private static String trim(String s){ return s==null? null : s.trim(); }
+
+    private static String extFromFilename(String filename){
+        if (filename==null) return "";
+        int dot = filename.lastIndexOf('.');
+        return (dot<0) ? "" : filename.substring(dot).toLowerCase(Locale.ROOT);
+    }
+    private static String extFromMime(String mime){
+        if (mime==null) return "";
+        switch (mime) {
+            case "image/jpeg": return ".jpg";
+            case "image/png":  return ".png";
+            case "image/gif":  return ".gif";
+            case "image/webp": return ".webp";
+            case "image/bmp":  return ".bmp";
+            case "image/heic": return ".heic";
+            default: return "";
         }
     }
 }

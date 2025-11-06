@@ -167,6 +167,26 @@ public class MemberDAO {
         return result;
     }
     
+    public boolean updateProfileInfo(String id, String name, String address, String phone,
+            String email, String gender, String profileImagePath) {
+		String sql = "UPDATE users SET name=?, address=?, phone=?, email=?, gender=?, profile_image=? WHERE id=?";
+			try (Connection con = DBUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+				ps.setString(1, name);
+				ps.setString(2, address);
+				ps.setString(3, phone);
+				ps.setString(4, email);
+				ps.setString(5, gender);
+				ps.setString(6, profileImagePath);
+				ps.setString(7, id);
+				return ps.executeUpdate() == 1;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+		}
+}
+
+    
     /**
      * 회원가입 시 ID 중복을 체크합니다. (기존 로직 유지)
      */
