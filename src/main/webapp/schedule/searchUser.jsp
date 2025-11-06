@@ -10,7 +10,7 @@
 <%
     String query = request.getParameter("query");
 
-    if (query != null) {
+    if (query != null) { 
         query = URLDecoder.decode(query, "UTF-8");
     } else {
         query = "";
