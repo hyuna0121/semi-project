@@ -27,7 +27,7 @@ public class ProfileUpdateServlet extends HttpServlet {
 
     /** 소스폴더 미러링 경로 (본인 프로젝트 경로로 맞춰두었습니다) */
     private static final Path MIRROR_SRC_DIR = Paths.get(
-        "D:\\GDJ94\\workspace\\semi-project\\src\\main\\webapp\\mypage\\image"
+        "C:\\GD94\\workspace\\semi-project\\src\\main\\webapp\\mypage\\image"
     );
 
     /** 확장자/타입 허용 */
