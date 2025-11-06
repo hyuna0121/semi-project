@@ -1,31 +1,57 @@
-const checkbox = document.getElementById("visibility");
-const labelText = document.getElementById("visibilityText");
-      
-checkbox.addEventListener("change", function() {
-   if (checkbox.checked) {
-      labelText.textContent = "lock";
-    } else {
-      labelText.textContent = "lock_open_right";
-        }
-});	
+// 공개/비공개 토글 (값은 항상 value="N", 존재 유무로 판단)
+(function () {
+  const cb = document.getElementById('visibility');
+  const icon = document.getElementById('visibilityIcon');
+  const text = document.getElementById('visibilityText');
+  if (!cb) return;
 
-$('#demo').daterangepicker({
-	"locale": {
-		"format": "YYYY-MM-DD",
-		"separator": " ~ ",
-		"applyLabel": "확인",
-		"cancelLabel": "취소",
-		"fromLabel": "From",
-		"toLabel": "To",
-		"customRangeLabel": "Custom",
-		"weekLabel": "W",
-		"daysOfWeek": ["일", "월", "화", "수", "목", "금", "토"],
-		"monthNames": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-		},
-	"startDate": new Date(),
-	"endDate": new Date(),
-	"drops": "auto"
-}, function (start, end, label) {
-	console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+  const sync = () => {
+    if (cb.checked) {          // 비공개 (파라미터 존재)
+      icon.textContent = 'lock';
+      text.textContent = '비공개';
+    } else {                   // 공개 (파라미터 없음)
+      icon.textContent = 'lock_open_right';
+      text.textContent = '공개';
+    }
+  };
+  cb.addEventListener('change', sync);
+  sync(); // 초기 표시
+})();
+
+// 날짜 범위 선택기 (서블릿 호환: name="demo" 에 "YYYY-MM-DD ~ YYYY-MM-DD")
+$(function () {
+  const $view = $('#demoView');      // 화면에 보이는 입력
+  const $demo = $('#demoHidden');    // 실제 전송(name="demo")
+  const $start = $('#startDate');    // 옵션
+  const $end = $('#endDate');        // 옵션
+  if (!$view.length) return;
+
+  const today = moment();
+
+  $view.daterangepicker({
+    locale: {
+      format: 'YYYY-MM-DD',
+      separator: ' ~ ',
+      applyLabel: '확인',
+      cancelLabel: '취소',
+      daysOfWeek: ['일','월','화','수','목','금','토'],
+      monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
+    },
+    startDate: today,
+    endDate: today,
+    autoUpdateInput: true
+  }, function (start, end) {
+    const pretty = `${start.format('YYYY-MM-DD')} ~ ${end.format('YYYY-MM-DD')}`;
+    $view.val(pretty);
+    $demo.val(pretty);               // ✅ 서블릿이 읽는 값
+    $start.val(start.format('YYYY-MM-DD'));
+    $end.val(end.format('YYYY-MM-DD'));
+  });
+
+  // 초기값 셋팅
+  const initPretty = `${today.format('YYYY-MM-DD')} ~ ${today.format('YYYY-MM-DD')}`;
+  $view.val(initPretty);
+  $demo.val(initPretty);
+  $start.val(today.format('YYYY-MM-DD'));
+  $end.val(today.format('YYYY-MM-DD'));
 });
-
