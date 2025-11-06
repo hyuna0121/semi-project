@@ -48,7 +48,16 @@
 									<div class="card">
 										<img src="/upload/<%= sc.getMainImage() %>" alt="여행 대표 이미지">
 									  	<div class="card-content">
-									  		<h3><%= sc.getTitle() %></h3>
+									  		<div class="visibility">
+										  		<h3><%= sc.getTitle() %></h3>
+										  		<%
+										  			if("N".equals(sc.getVisibility())) {		
+												%>
+													<span class="material-symbols-outlined lockcolor">lock</span>
+												<%
+													}													
+												%>
+											</div>
 									    	<p><%= sc.getStartDate() %></p>
 									  	</div>
 									</div>
