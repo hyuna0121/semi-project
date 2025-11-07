@@ -37,17 +37,18 @@
                     <div class="sc">
                         <a href="<%= request.getContextPath() %>/schedule/schedule.jsp?schedule_id=<%= sc.getId() %>" class="card-link">
                             <div class="card">
-                            <%
-								String file = sc.getMainImage();
-								if (file != null && !file.isBlank()) {
-								  int ps = Math.max(file.lastIndexOf('/'), file.lastIndexOf('\\'));
-								  if (ps >= 0) file = file.substring(ps + 1); // 혹시 경로가 섞여 들어와도 안전
-								}
-								String imgSrc = (file==null || file.isBlank())
-								  ? request.getContextPath()+"/image/placeholder.jpg"
-								  : request.getContextPath()+"/upload/"+java.net.URLEncoder.encode(file,"UTF-8").replace("+","%20");	
-							%>
-                                <img src="<%= imgSrc %>" alt="여행 대표 이미지">
+                            	<%
+                            		String mainImage = sc.getMainImage();
+                            		if (mainImage == null || mainImage.isEmpty()) {
+                            	%>
+		                                <img src="<%= request.getContextPath() %>/schedule/image/basic.png" alt="여행 대표 이미지">
+                            	<%
+                            		} else {
+                            	%>
+		                                <img src="/upload/<%= mainImage %>" alt="여행 대표 이미지">
+                            	<%
+                            		}
+                            	%>
                                 <div class="card-content">
                                     <div class="visibility">
                                         <h3><%= sc.getTitle() %></h3>
