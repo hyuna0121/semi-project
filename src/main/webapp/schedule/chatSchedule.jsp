@@ -10,6 +10,10 @@
 <%@page import="java.sql.Connection"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
+<!-- 추가 -->
+<%@page import="java.text.SimpleDateFormat"%>
+<!-- 추가 끝 -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,7 +23,7 @@
 <script type="text/javascript" src="./js/map.js" defer></script>
 <!-- 추가 -->
 <link rel="stylesheet" href="./css/chatSchedule.css">
-<script type="text/javascript" src="./js/editComment.js" defer></script>
+<!-- script type="text/javascript" src="./js/editComment.js" defer></script> -->
 <!-- 추가 끝 -->
 </head>
 <body>
@@ -65,6 +69,11 @@
 		}
 		
 		String userId = (String) session.getAttribute("loginId");
+		
+		/* 추가 */
+		ChatDAO profileDao = new ChatDAO();
+		String currentUserProfileImg = profileDao.getProfileImageByUserId(userId);
+		/* 추가 끝 */
 		
 		if (schedule == null) {
 	%>
@@ -223,33 +232,54 @@
 	
 				<div id="comment-List">
 				    <% 
-					    if (comments != null && !comments.isEmpty()) {
+				    
+					    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+				    	if (comments != null && !comments.isEmpty()) {
 					    for (ChatDTO c : comments) {    
 				    %>
 				            <div class="comment-item">
-				                <strong><%= c.getUser_id() %></strong>:
-				                <%= c.getcomment() %>
-				                <div class="subContent">
-						        	<div class="comment-timestamp">
-							        	<small style="font-size: 0.7em;">(작성: <%= c.getCreatedAt() %>)</small>
-							        </div>
-							        <div class="comment-actions">
-										<% if (userId != null && userId.equals(c.getUser_id())){ %>
-						            
-						            
-									
-						            
-						            <form action="<%= request.getContextPath() %>/commentAction" method="post" style="display:inline;">
-						            	<input type="hidden" name="action" value="delete" />
-						                <input type="hidden" name="commentId" value="<%= c.getComment_id()  %>" />
-						                <input type="hidden" name="scheduleId" value="<%= scheduleId %>" />
-						                <button type="submit" class="btn-gray" onclick="return confirm('정말 삭제할까요?');">삭제</button>
-						            </form>
-						            <%
-										}
-						            %>
-						            </div>
-						    	</div>
+				                <div class="comment-left">
+				                	<%
+				                		String profileImg = c.getProfile_image();
+				                	
+				                		if(profileImg != null && !profileImg.isEmpty()){
+				                	%>
+				                	<img alt="profileimg" 
+				            				 src="<%= request.getContextPath() %>/mypage/image/<%= profileImg %>" 
+				            				 class="profileImg">				                	<%
+				                		}else{
+				                	%>
+				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+
+									<%
+				                		}
+									%>				                
+				                
+				                </div>
+				                <div class="comment-right">
+					                <strong><%= c.getUser_id() %></strong>
+					                
+					                <div class="comment-content-text">
+					                	<%= c.getcomment() %>
+					                </div>
+					                
+					                <div class="subContent">
+										<div class="comment-timestamp">
+								        	<small>(작성: <%= sdf.format(c.getCreatedAt()) %>)</small>
+								        </div>
+								        <div class="comment-actions">
+											<% if (userId != null && userId.equals(c.getUser_id())){ %>
+								            <form action="<%= request.getContextPath() %>/commentAction" method="post" style="display:inline;">
+								            	<input type="hidden" name="action" value="delete" />
+								                <input type="hidden" name="commentId" value="<%= c.getComment_id()  %>" />
+								                <input type="hidden" name="scheduleId" value="<%= scheduleId %>" />
+								                <button type="submit" class="btn-gray" onclick="return confirm('정말 삭제할까요?');">삭제</button>
+								            </form>
+								            <% } %>
+							            </div> 
+							    	</div> 
+						    	</div> 
 				            </div>
 				    <%  }
 				      } else { %>
@@ -260,12 +290,35 @@
 				<hr>
 				
 				<h3>댓글 등록</h3>
-				<form action="<%= request.getContextPath() %>/commentAction" method="post">
+				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post">
 				    <input type="hidden" name="action" value="insert">
 				    <input type="hidden" name="scheduleId" value="<%= scheduleId %>">
-				
-				    <textarea name="content" rows="3" cols="50" required></textarea><br>
-				    <button type="submit" class="btn-gray-sumit">등록</button>
+				    
+				    <div class="form-left">
+				    	<%
+				                		
+				                	
+				                		if(currentUserProfileImg != null && !currentUserProfileImg.isEmpty()){
+				                	%>
+				                	<img alt="profileimg" 
+				            				 src="<%= request.getContextPath() %>/mypage/image/<%= currentUserProfileImg %>" 
+				            				 class="profileImg">				                	<%
+				                		}else{
+				                	%>
+				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+
+									<%
+				                		}
+									%>
+				    </div>
+				    
+				    <div class="form-right">
+				    	<div class="form-user-id"><%= userId %></div>
+				    	<textarea name="content" rows="3" placeholder="댓글을 입력하세요."></textarea>
+					    <div class="btn-gray-submit">
+					    	<button type="submit" class="btn-gray">등록</button>
+					    </div>
+				    </div>
 				</form>					
 			</div>
 			<!-- 추가 끝 -->

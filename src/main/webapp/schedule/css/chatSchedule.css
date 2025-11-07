@@ -164,79 +164,93 @@ input{
     margin-left: 80px; 
     margin-top: 50px; 
     margin-bottom: 50px;
-    border: 1px solid #ccc;
-    padding: 20px;
     width: 80%;
+    border: 0.5px solid gray;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 25px; 
     border-radius: 20px;
-    height: auto;
-    max-height: 600px; 
+    max-height: 700px;
     display: flex;
     flex-direction: column; 
 }
 
 
+
 #comment-List {
-	margin-top: 20px;
-    flex-grow: 1;
-    overflow-y: auto;
+    flex-grow: 1; 
+    overflow-y: auto; 
     margin-bottom: 20px; 
     padding-right: 10px; 
 }
 
 
-
 .comment-item {
-     margin-bottom: 10px;
+     margin-bottom: 15px;
      border-bottom: 1px solid #eee;
-     padding-bottom: 10px; 
+     padding-bottom: 15px;
+     display: flex;
+     align-items: flex-start; 
 }
 
-.comment-item strong {
+.profile-icon {
+    font-size: 36px;
+    color: #ccc;
+    margin-right: 12px;
+}
+.comment-right {
+    flex-grow: 1;
+}
+
+
+.comment-right strong {
     font-weight: 600;
     margin-right: 8px;
+    font-size: 0.9rem;
 }
 
-.comment-item div {
+.comment-content-text {
     line-height: 1.5; 
+    margin-top: 4px;
+    font-size: 0.95rem;
+    color: #333;
 }
+
 
 
 .subContent{
      display: flex;
-     justify-content: flex-end; 
+     justify-content: flex-start; 
      align-items: center; 
-     margin-top: 5px;
+     margin-top: 8px;
      color: #888;
-     
+     font-size: 0.85rem;
 }
-
 .comment-timestamp {
-    min-width: 150px; 
-    text-align: right;
-}
 
+	order: 1; 
+}
 .comment-actions {
-    width: 50px; 
-    text-align: left; 
+	order: 2;
+	margin-left: 10px;
 }
 
 
 .btn-gray {
     background: none;
-     color: #000;
-     border: none;
-     padding: 3px 8px;
-     cursor: pointer;
-     margin-bottom: 0px;
-     transition: color 0.2s; 
-
+    color: #555; 
+    border: none;
+    padding: 0; 
+    cursor: pointer;
+    font-size: 0.85rem; 
+    font-weight: 600;
 }
 .btn-gray:hover{
-    color: #d9534f; 
+    color: #d9534f;
 }
 
+
+
 .chat hr {
-    
     border: 0;
     height: 1px;
     background-color: #eee;
@@ -245,39 +259,76 @@ input{
 .chat h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-.chat form {
-    margin-top: 10px;
+.comment-form-new {
+	display: flex;
+	align-items: flex-start;
 }
+.form-left {
+	
+	margin-top: 5px; 
+}
+.form-right {
+	flex-grow: 1;
+}
+.form-user-id {
+	font-weight: 600;
+	font-size: 0.9rem;
+	margin-bottom: 5px;
+}
+
+
 .chat form textarea {
-    width: 97%; 
+    width: 100%; 
     border-radius: 12px; 
-    border: none;
-    background-color: #f7f7f7;
-    margin-left: 20px;
-    
+    border: 1px solid #ddd;
+    background-color: #fff;
     padding: 12px 15px;
     box-sizing: border-box; 
     font-size: 0.95rem;
     resize: none; 
-    min-height: 80px; 
+    min-height: 80px;
 }
 .chat form textarea:focus {
     outline: none;
-    background-color: #fff;
-    border: 1px solid #007bff; 
+    border: 1px solid #007bff;
 }
 
 
-.btn-gray-sumit {
+.btn-gray-submit {
 	text-align: right;
 	width: 100%; 
 	margin-top: 10px;
-	transition: 0.2s;
 }
 
-.btn-gray-sumit:hover {
-	color: rgb(0, 116, 0);
+.profileImg{
+	font-size: 36px;
+    width: 36px;  
+    height: 36px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    margin-right: 12px;
+}
+
+.comment-left span{
+	font-size: 36px;
+	width: 36px;
+	height: 36px;
+}
+
+
+.btn-gray-submit .btn-gray {
+    font-size: 0.9rem;
+    font-weight: 600;
+    background-color: #222;
+    color: #fff; 
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: background-color 0.2s;
+}
+.btn-gray-submit .btn-gray:hover {
+    background-color: #555; 
+    color: #fff;
 }
