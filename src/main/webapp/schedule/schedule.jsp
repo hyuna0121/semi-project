@@ -17,7 +17,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>상세일정</title>
 <link rel="stylesheet" href="./css/map.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <!-- <link rel="stylesheet" href="./css/chatSchedule.css"> -->
@@ -116,8 +116,8 @@
 		String visibility = schedule.getVisibility();
 		boolean flag = false;
 		
-		if ("N".equals(visibility)) {
-			// if (userId.equals(schedule.getUserId())) flag = true;
+		if (userId != null) {
+			if (userId.equals(schedule.getUserId())) flag = true;
 			
 			for (String buddy : schedule.getTravelBuddies()) {
 				if (buddy.equals(userId)) {
@@ -125,7 +125,9 @@
 					break;
 				}
 			}
-			
+		}
+				
+		if ("N".equals(visibility)) {
 			if (flag == false) {
 	%>
 	<script type="text/javascript">
@@ -406,8 +408,18 @@
 				
 				<hr>
 				
+				<script type="text/javascript">
+					const isBuddy = <%= flag %>;
+					const isLoggedIn = <%= (userId != null) %>;
+				</script>
+				
+				
+				<%
+					if(flag == true)	{			
+				%>
+				
 				<h3>댓글 등록</h3>
-				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post">
+				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post"  onsubmit="return Comment();">
 				    <input type="hidden" name="action" value="insert">
 				    <input type="hidden" name="scheduleId" value="<%= scheduleId %>">
 				    
@@ -436,7 +448,36 @@
 					    	<button type="submit" class="btn-gray">등록</button>
 					    </div>
 				    </div>
-				</form>					
+				</form>
+				
+				<%
+					} else if(userId != null && flag == false) {
+				%>
+					<div class="prompt">
+					<p>이 일정의 동행인만 댓글을 작성할 수 있습니다.</p>
+					</div>
+				<%
+					} else{
+				%>	
+					<div class="prompt">
+					<p><a href="<%= request.getContextPath() %>/login/login.jsp">로그인</a> 후 댓글을 작성할 수 있습니다.</p>
+					</div>
+				<%
+					}
+				%>			
+				<script type="text/javascript">
+					function Comment() {
+						if (!isLoggedIn) {
+							alert("로그인 후 댓글을 작성할 수 있습니다.");
+							return false; 
+						}
+						if (!isBuddy) {
+							alert("이 일정의 동행인(작성자)만 댓글을 등록할 수 있습니다.");
+							return false;
+						}					
+						return true;
+					}
+				</script>			
 			</div>
 		</div>
 
