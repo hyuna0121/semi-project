@@ -158,5 +158,76 @@ input[type="date"].has-value::before {content:attr(data-placeholder); width:100%
   padding-right:44px;
 }
 
+.companion-section{
+	margin-top:16px
+}
+.companion-row{
+	display:flex;
+	gap:8px;
+	margin-top:8px
+}
+.companion-row input{
+	flex:1;
+	padding:10px;
+	border:1px solid #ddd;
+	border-radius:8px
+}
+.companion-row button{
+	padding:10px 14px;
+	border:1px solid #1e40af;
+	background:#1e40af;
+	color:#fff;
+	border-radius:8px;
+	cursor:pointer
+}
+.companion-msg{
+	margin-top:8px;
+	font-size:14px;
+	color:#b91c1c
+}
+.companion-list{
+	list-style:none;
+	margin:12px 0 0;
+	padding:0;
+	display:flex;
+	flex-direction:column;
+	gap:8px
+}
+.companion-item{
+	display:flex;
+	align-items:center;
+	gap:12px;
+	border:1px solid #e5e7eb;
+	border-radius:10px;
+	padding:10px
+}
+.companion-item .avatar{
+	width:36px;
+	height:36px;
+	border-radius:50%;
+	object-fit:cover;
+	border:1px solid #eee
+}
+.companion-item .meta{
+	flex:1
+}
+.companion-item .meta strong{
+	display:block;
+	font-size:14px
+}
+.companion-item .meta span{
+	display:block;
+	font-size:12px;
+	color:#6b7280
+}
+.companion-item .remove{
+	border:1px solid #ef4444;
+	background:#ef4444;
+	color:#fff;
+	border-radius:8px;
+	padding:6px 10px;
+	cursor:pointer
+}
+
 /* 기존 파일에 있던 잘못된 클래스명 오타(참고)
 .contauner { ... } -> container로 통일. 이 라인은 제거됨 */

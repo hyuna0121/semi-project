@@ -73,20 +73,22 @@
 	    <input class="form-control form-control-lg soft-input" type="file" id="mainImage" name="mainImage" accept="image/*">
 	  </div>
 	
-	 <!-- ✅ 동행인 추가 영역 -->
-	<div class="mb-4" id="buddySection">
-	  <label class="form-label">동행인 추가</label>
-	  <div id="buddyList">
-	    <div class="buddy-item mb-2">
-	      <input type="text" name="travelBuddies" class="form-control soft-input" placeholder="동행인 이름 또는 아이디 입력">
+	  <!-- 동행인 추가 영역 -->
+	  <div class="companion-section">
+	    <label for="companionInput">동행인 추가</label>
+	    <div class="companion-row">
+	      <input type="text" id="companionInput" placeholder="아이디 또는 닉네임을 입력" />
+	      <button type="button" id="companionAddBtn">추가</button>
 	    </div>
+	    <p id="companionMsg" class="companion-msg" style="display:none;"></p>
+	
+	    <!-- 추가된 동행인 리스트가 여기에 쌓임 -->
+	    <ul id="companionList" class="companion-list"></ul>
 	  </div>
-	  <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addBuddyBtn"> + 동행인 추가</button>
-	</div>
 	
 	  <div class="d-flex gap-2">
 	    <button type="submit" class="btn btn-dark btn-lg flex-grow-1">저장</button>
-	    <a href="<%=request.getContextPath()%>/mainpage/mainpage.jsp" class="btn btn-outline-secondary btn-lg flex-grow-1">취소</a>
+	    <a href="../mainpage/mainpage.jsp" class="btn btn-outline-secondary btn-lg flex-grow-1">취소</a>
 
 	  </div>
 	</form>
@@ -104,6 +106,7 @@
   <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
   <!-- 페이지 전용 스크립트 -->
-  <script src="<%=ctx%>/schedule/js/schedule.js"></script>
+  <script>window.CTX = '<%=request.getContextPath()%>';</script>
+  <script src="<%=request.getContextPath()%>/schedule/js/schedule.js"></script>
 </body>
 </html>
