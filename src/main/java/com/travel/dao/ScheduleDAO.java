@@ -218,25 +218,25 @@ public class ScheduleDAO {
 	/**
 	 * 일정 생성 시, 동행인 목록을 members 테이블에 추가
 	 */
-	public void insertMembers(Connection conn, long scheduleId, String creatorId, String[] travelBuddies)
-			throws SQLException {
-		String sql = "INSERT INTO members(schedule_id, user_id) VALUES (?, ?)";
-		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setLong(1, scheduleId);
-			pstmt.setString(2, creatorId);
-			pstmt.addBatch();
-			if (travelBuddies != null) {
-				for (String buddyId : travelBuddies) {
-					pstmt.setLong(1, scheduleId);
-					pstmt.setString(2, buddyId);
-					pstmt.addBatch();
-				}
-			}
-			pstmt.executeBatch();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	public void insertMembers(Connection conn, long scheduleId, String ownerId, String[] userIds) throws SQLException {
+	    String sql = "INSERT IGNORE INTO members (schedule_id, user_id) VALUES (?, ?)";
+	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+	        if (ownerId != null && !ownerId.isBlank()) {
+	            ps.setLong(1, scheduleId);
+	            ps.setString(2, ownerId.trim());
+	            ps.executeUpdate();
+	        }
+	        if (userIds != null) {
+	            for (String uid : userIds) {
+	                if (uid == null || uid.isBlank()) continue;
+	                ps.setLong(1, scheduleId);
+	                ps.setString(2, uid.trim());
+	                ps.executeUpdate();
+	            }
+	        }
+	    }
 	}
+
 
 	/**
 	 * 특정 사용자 ID가 '생성한' 모든 일정을 조회합니다. (Connection을 매개변수로 받음)
