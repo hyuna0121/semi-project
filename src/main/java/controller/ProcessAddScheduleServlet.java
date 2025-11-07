@@ -69,17 +69,7 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         // 1) web.xml 의 uploadBaseDir
         // 2) 웹앱 내부 /upload (realPath)
         // 3) 폴백: D:/GDJ94/workspace/upload
-        String uploadPath = getServletContext().getInitParameter("uploadBaseDir");
-        if (uploadPath == null || uploadPath.isBlank()) {
-            String real = getServletContext().getRealPath("/upload");
-            if (real != null && !real.isBlank()) {
-                uploadPath = real;
-            } else {
-                uploadPath = "D:/GDJ94/workspace/upload";
-            }
-        }
-        Files.createDirectories(Path.of(uploadPath));
-        System.out.println("[ProcessAddSchedule] uploadBaseDir = " + uploadPath);
+        String uploadPath = "D:/GDJ94/workspace/upload";
 
         long scheduleId;
         try {
