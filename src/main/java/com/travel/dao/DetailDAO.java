@@ -2,7 +2,9 @@ package com.travel.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.travel.dto.DetailDTO;
@@ -51,5 +53,43 @@ public class DetailDAO {
 				}
 			}
 		}
+	}
+	
+	public List<DetailDTO> selectDetails(Connection conn, long scheduleId) throws SQLException {
+		List<DetailDTO> detailList = new ArrayList<>();
+		String sql = "SELECT id, schedule_id, date, place, start_time, memo, category, " +
+                "ST_X(position) AS longitude, " +  // 경도 (X)
+                "ST_Y(position) AS latitude " +   // 위도 (Y)
+                "FROM details WHERE schedule_id = ? ORDER BY date, start_time";
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setLong(1, scheduleId);
+			
+			try (ResultSet rs = pstmt.executeQuery()){
+				while (rs.next()) {
+					DetailDTO detail = new DetailDTO();
+					
+					detail.setId(rs.getLong("id"));
+					detail.setScheduleId(rs.getLong("schedule_id"));
+					detail.setDate(rs.getString("date"));
+					detail.setPlace(rs.getString("place"));
+					detail.setStartTime(rs.getString("start_time"));
+					detail.setMemo(rs.getString("memo"));
+					detail.setCategory(rs.getString("category"));
+					detail.setLongitude(rs.getDouble("longitude")); 
+					detail.setLatitude(rs.getDouble("latitude")); 
+					
+					detailList.add(detail);
+				}
+			} catch (SQLException e) {
+				System.out.println("ResultSet 처리 중 오류");
+				e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			System.out.println("PreparedStatement 생성 또는 실행 중 오류");
+			e.printStackTrace();
+		}
+		
+		return detailList;
 	}
 }

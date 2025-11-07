@@ -24,6 +24,7 @@
 </head>
 
 <script>
+	const CONTEXT_PATH = "<%= request.getContextPath() %>";
     flatpickr("#schedule-time", {
         enableTime: true,   // 시간 선택 활성화
         noCalendar: true,   // 캘린더(날짜) 비활성화
@@ -32,7 +33,7 @@
         locale: "ko"        // (선택) 한국어 설정
     });
 
-		document.getElementById('schedule-form').addEventListener('keydown', function(event) {
+/* 		document.getElementById('schedule-form').addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             
             // Enter 키를 누른 요소(element)를 확인
@@ -52,7 +53,7 @@
             //    Enter를 누르면 폼 제출을 막습니다.
             event.preventDefault();
         }
-    });
+    }); */
 </script>
 
 <body>
@@ -185,14 +186,14 @@
 							<table>
 									<thead>
 											<tr>
+													<th>시간</th>
 													<th>여행지</th>
-													<th>도시</th>
 													<th>태그</th>
-													<th>운영시간</th>
+													<th>메모</th>
 											</tr>
 									</thead>
 									<tbody id="itinerary-board">
-											</tbody>
+									</tbody>
 							</table>
 					</div>
 				</div>
@@ -219,16 +220,14 @@
 				<div class="modal_map">
 					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
 						<div class="btn-wrap">
-							<button type="button" class="close_map_btn material-symbols-outlined">close</button> 
 						</div>
-						<div id="map" style="width:70%;height:20%; margin: 0 auto; border-radius: 5px;"></div>
-						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
 						
 						<div class="input-container" style="width:70%; margin: 0 auto; margin-top: 35px; text-align: center;">
-							<h3>일정 등록</h3>
 							<form action="${pageContext.request.contextPath}/processAddDetail?schedule_id=<%= scheduleId %>" method="post" id="schedule-form">
+								<button type="reset" class="close_map_btn material-symbols-outlined">close</button> 
+								<h3>일정 등록</h3>
 								<div style="display: none;">
-									<input type="hidden" name="schedule_id" value="<%= scheduleId %>">
+									<input type="hidden" id="schedule-id-input" name="schedule_id" value="<%= scheduleId %>">
 									<input type="hidden" id="modalPlaceName" name="placeName">
                   <input type="hidden" id="modalLatitude" name="latitude">
                   <input type="hidden" id="modalLongitude" name="longitude">
@@ -302,11 +301,14 @@
 
 								<div class="button-container">
 									<button type="submit" class="add_schedule">일정등록</button>
-									<button type="button" class="close_add_btn">취소하기</button>
+									<button type="reset" class="close_add_btn">취소하기</button>
 								</div>
 							</form>
 						</div>
-						
+
+						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
+						<div id="map" style="width:70%;height:25%; margin: 0 auto; border-radius: 5px;"></div>
+
 						<div style="display: none;">
 							<button type="button" class="add_schedule_btn">일정에 추가</button>
 							<button type="button" class="close_map_btn">취소하기</button>

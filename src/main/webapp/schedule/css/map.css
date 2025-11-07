@@ -137,12 +137,29 @@ tbody tr:hover {
 }
 
 /* 태그 색상 변수 (JavaScript에서 사용한 tagColor와 매칭) */
+.tag[data-category="관광지"] {
+    background-color: var(--tag-blue);
+}
+.tag[data-category="쇼핑"] {
+    background-color: var(--tag-red);
+}
+.tag[data-category="식당"] {
+    background-color: var(--tag-orange);
+}
+.tag[data-category="카페"] {
+    background-color: var(--tag-purple);
+}
+.tag[data-category="숙소"] {
+    background-color: var(--tag-green);
+}
+
 :root {
     --tag-brown: #f3e9e0;
     --tag-blue: #deeafc;
     --tag-orange: #faebdd;
     --tag-purple: #e9e3f8;
     --tag-red: #fde5e5;
+    --tag-green: #e0f3e7;
 }
 
 .modal {
@@ -405,7 +422,7 @@ li::marker {
     background-color: var(--tag-purple);
 }
 #cat-stay-label {
-    background-color: var(--tag-brown);
+    background-color: var(--tag-green);
 }
 
 /* 카테고리 버튼 위에 마우스를 올렸을 때 */
