@@ -145,7 +145,18 @@
 
 		<div class="right">
 			<div class="trip_main_image">
-				<img src="/upload/<%= schedule.getMainImage() %>" alt="여행 대표 이미지">
+				<%
+					String mainImage = schedule.getMainImage();
+                    if (mainImage == null || mainImage.isEmpty()) {
+                %>
+		        		<img src="<%= request.getContextPath() %>/schedule/image/basic.png" alt="여행 대표 이미지">
+                <%
+                    } else {
+                %>
+		                <img src="/upload/<%= mainImage %>" alt="여행 대표 이미지">
+                <%
+                    }
+                %>
 			</div>
 
 			<div class="trip_content">
