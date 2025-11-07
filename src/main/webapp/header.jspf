@@ -138,12 +138,12 @@
 
 <header>
   <!-- 로고: 메인으로 이동 (경로 필요시 조정) -->
-  <a href="../mainpage/mainpage.jsp" class="logo">로고</a>
+  <% String ctx = request.getContextPath(); %>
+  <a href="<%=ctx%>/mainpage/mainpage.jsp" class="logo">로고</a>
 
   <div class="nav-right">
   	<%
   		String loginId = (String) session.getAttribute("loginId");
-  		String ctx = request.getContextPath();
   		String nickname = (String) session.getAttribute("nickname");
   		String displayName = (nickname != null && !nickname.isEmpty()) ? nickname : (loginId != null ? loginId : "게스트");
   	%>
