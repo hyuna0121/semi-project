@@ -627,6 +627,10 @@ li::marker {
     resize: none; 
     min-height: 80px;
 }
+
+.prompt p{
+	font-family:'Malgun Gothic',dotum,'돋움',sans-serif;	
+}
 .chat form textarea:focus {
     outline: none;
     border: 1px solid #007bff;
