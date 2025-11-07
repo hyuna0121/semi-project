@@ -1,3 +1,6 @@
+<%@page import="java.util.List"%>
+<%@page import="com.travel.dao.ChatDAO"%>
+<%@page import="com.travel.dto.ChatDTO"%>
 <%@page import="java.time.temporal.ChronoUnit"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
@@ -8,6 +11,8 @@
 <%@page import="java.sql.Connection"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
+<%@page import="java.text.SimpleDateFormat"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +20,7 @@
 <title>Insert title here</title>
 <link rel="stylesheet" href="./css/map.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- <link rel="stylesheet" href="./css/chatSchedule.css"> -->
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
@@ -62,6 +68,7 @@
 	<%
 		Connection conn = null;
 		ScheduleDTO schedule = null;
+		List<ChatDTO> comments = null;
 		String errorMessage = null;
 		long scheduleId = 0;
 		
@@ -75,6 +82,11 @@
 				ScheduleDAO dao = new ScheduleDAO();
 				
 				schedule = dao.selectSchedule(conn, scheduleId);
+				if(schedule != null){
+					ChatDAO chatdao = new ChatDAO();
+					
+					comments = chatdao.getCommentsByScheduleId((int) scheduleId);
+				}			
 			} else {
 				errorMessage = "유효한 schedule_id가 없습니다.";
 			}
@@ -86,6 +98,10 @@
 		}
 		
 		String userId = (String) session.getAttribute("loginId");
+		
+		ChatDAO profileDao = new ChatDAO();
+		String currentUserProfileImg = profileDao.getProfileImageByUserId(userId);
+
 		
 		if (schedule == null) {
 	%>
@@ -316,6 +332,100 @@
 					</div>
 				</div>
 
+			</div>
+						<div class="chat" id="comment-section">
+				<h3>댓글 목록 (<%= comments != null ? comments.size() : 0 %>)</h3>
+	
+				<div id="comment-List">
+				    <% 
+				    
+					    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+				    	if (comments != null && !comments.isEmpty()) {
+					    for (ChatDTO c : comments) {    
+				    %>
+				            <div class="comment-item">
+				                <div class="comment-left">
+				                	<%
+				                		String profileImg = c.getProfile_image();
+				                	
+				                		if(profileImg != null && !profileImg.isEmpty()){
+				                	%>
+				                	<img alt="profileimg" 
+				            				 src="<%= request.getContextPath() %>/mypage/image/<%= profileImg %>" 
+				            				 class="profileImg">				                	<%
+				                		}else{
+				                	%>
+				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+
+									<%
+				                		}
+									%>				                
+				                
+				                </div>
+				                <div class="comment-right">
+					                <strong><%= c.getUser_id() %></strong>
+					                
+					                <div class="comment-content-text">
+					                	<%= c.getcomment() %>
+					                </div>
+					                
+					                <div class="subContent">
+										<div class="comment-timestamp">
+								        	<small>(작성: <%= sdf.format(c.getCreatedAt()) %>)</small>
+								        </div>
+								        <div class="comment-actions">
+											<% if (userId != null && userId.equals(c.getUser_id())){ %>
+								            <form action="<%= request.getContextPath() %>/commentAction" method="post" style="display:inline;">
+								            	<input type="hidden" name="action" value="delete" />
+								                <input type="hidden" name="commentId" value="<%= c.getComment_id()  %>" />
+								                <input type="hidden" name="scheduleId" value="<%= scheduleId %>" />
+								                <button type="submit" class="btn-gray" onclick="return confirm('정말 삭제할까요?');">삭제</button>
+								            </form>
+								            <% } %>
+							            </div> 
+							    	</div> 
+						    	</div> 
+				            </div>
+				    <%  }
+				      } else { %>
+				        <p>등록된 댓글이 없습니다.</p>
+				    <% } %>
+				</div>
+				
+				<hr>
+				
+				<h3>댓글 등록</h3>
+				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post">
+				    <input type="hidden" name="action" value="insert">
+				    <input type="hidden" name="scheduleId" value="<%= scheduleId %>">
+				    
+				    <div class="form-left">
+				    	<%
+				                		
+				                	
+				                		if(currentUserProfileImg != null && !currentUserProfileImg.isEmpty()){
+				                	%>
+				                	<img alt="profileimg" 
+				            				 src="<%= request.getContextPath() %>/mypage/image/<%= currentUserProfileImg %>" 
+				            				 class="profileImg">				                	<%
+				                		}else{
+				                	%>
+				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+
+									<%
+				                		}
+									%>
+				    </div>
+				    
+				    <div class="form-right">
+				    	<div class="form-user-id"><%= userId %></div>
+				    	<textarea name="content" rows="3" placeholder="댓글을 입력하세요."></textarea>
+					    <div class="btn-gray-submit">
+					    	<button type="submit" class="btn-gray">등록</button>
+					    </div>
+				    </div>
+				</form>					
 			</div>
 		</div>
 

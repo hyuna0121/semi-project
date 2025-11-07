@@ -69,6 +69,6 @@ public class CommentActionServlet extends HttpServlet {
         }
 
 
-        response.sendRedirect(request.getContextPath() + "/schedule/chatSchedule.jsp?schedule_id=" + scheduleId + "#comment-section");
+        response.sendRedirect(request.getContextPath() + "/schedule/schedule.jsp?schedule_id=" + scheduleId + "#comment-section");
     }
 }

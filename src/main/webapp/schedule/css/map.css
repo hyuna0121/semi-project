@@ -491,3 +491,180 @@ li::marker {
     padding: 6px 12px;
     cursor: pointer;
 }
+
+
+
+
+.chat {
+    margin-left: 80px; 
+    margin-top: 50px; 
+    margin-bottom: 50px;
+    width: 70%;
+    border: 1px solid #37352f29;
+/*     box-shadow: 0 4px 12px rgba(0,0,0,0.05); */
+    padding: 25px; 
+    border-radius: 20px;
+    max-height: 700px;
+    display: flex;
+    flex-direction: column; 
+}
+
+
+
+#comment-List {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    margin-bottom: 20px; 
+    padding-right: 10px; 
+}
+
+
+.comment-item {
+     margin-bottom: 15px;
+     border-bottom: 1px solid #eee;
+     padding-bottom: 15px;
+     display: flex;
+     align-items: flex-start; 
+}
+
+.profile-icon {
+    font-size: 36px;
+    color: #ccc;
+    margin-right: 12px;
+}
+.comment-right {
+    flex-grow: 1;
+}
+
+
+.comment-right strong {
+    font-weight: 600;
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.comment-content-text {
+    line-height: 1.5; 
+    margin-top: 4px;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+
+
+.subContent{
+     display: flex;
+     justify-content: flex-start; 
+     align-items: center; 
+     margin-top: 8px;
+     color: #888;
+     font-size: 0.85rem;
+}
+.comment-timestamp {
+
+	order: 1; 
+}
+.comment-actions {
+	order: 2;
+	margin-left: 10px;
+}
+
+
+.btn-gray {
+    background: none;
+    color: #555; 
+    border: none;
+    padding: 0; 
+    cursor: pointer;
+    font-size: 0.85rem; 
+    font-weight: 600;
+}
+.btn-gray:hover{
+    color: #d9534f;
+}
+
+
+
+.chat hr {
+    border: 0;
+    height: 1px;
+    background-color: #eee;
+    margin: 15px 0;
+}
+.chat h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.comment-form-new {
+	display: flex;
+	align-items: flex-start;
+}
+.form-left {
+	
+	margin-top: 5px; 
+}
+.form-right {
+	flex-grow: 1;
+}
+.form-user-id {
+	font-weight: 600;
+	font-size: 0.9rem;
+	margin-bottom: 5px;
+}
+
+
+.chat form textarea {
+	font-family:'Malgun Gothic',dotum,'돋움',sans-serif;
+    width: 100%; 
+    border-radius: 12px; 
+    border: 1px solid #ddd;
+    background-color: #fff;
+    padding: 12px 15px;
+    box-sizing: border-box; 
+    font-size: 0.95rem;
+    resize: none; 
+    min-height: 80px;
+}
+.chat form textarea:focus {
+    outline: none;
+    border: 1px solid #007bff;
+}
+
+
+.btn-gray-submit {
+	text-align: right;
+	width: 100%; 
+	margin-top: 10px;
+}
+
+.profileImg{
+	font-size: 36px;
+    width: 36px;  
+    height: 36px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    margin-right: 12px;
+}
+
+.comment-left span{
+	font-size: 36px;
+	width: 36px;
+	height: 36px;
+}
+
+
+.btn-gray-submit .btn-gray {
+    font-size: 0.9rem;
+    font-weight: 600;
+    background-color: #222;
+    color: #fff; 
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: background-color 0.2s;
+}
+.btn-gray-submit .btn-gray:hover {
+    background-color: #555; 
+    color: #fff;
+}

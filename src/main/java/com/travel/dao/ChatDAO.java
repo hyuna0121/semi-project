@@ -45,7 +45,11 @@ public class ChatDAO {
         List<ChatDTO> list = new ArrayList<>();
         
 
-        String sql = "SELECT * FROM chat WHERE schedule_id = ? ORDER BY created_at ASC";
+        String sql = "SELECT c.*, SUBSTRING_INDEX(u.profile_image, '/', -1) AS profile_image " +
+                "FROM chat c " +
+                "LEFT JOIN users u ON c.user_id = u.id " + 
+                "WHERE c.schedule_id = ? " +
+                "ORDER BY c.created_at ASC";
         
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -61,6 +65,7 @@ public class ChatDAO {
                     dto.setcomment(rs.getString("comment")); 
                     dto.setCreatedAt(rs.getTimestamp("created_at"));
                     dto.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    dto.setProfile_image(rs.getString("profile_image"));
                     list.add(dto);
                 }
             }
@@ -108,5 +113,27 @@ public class ChatDAO {
         return null;
     }
     
+    
+    
+    public String getProfileImageByUserId(String userId){
+		String sql ="SELECT SUBSTRING_INDEX(profile_image, '/', -1) AS profile_image " +
+                "FROM users WHERE id = ?";
+		String profileImg = null;
+		
+		try (Connection conn = DBUtil.getConnection();
+	             PreparedStatement ps = conn.prepareStatement(sql)) {
+	            
+	            ps.setString(1, userId);
+	            
+	            try (ResultSet rs = ps.executeQuery()) {
+	                if (rs.next()) {
+	                    profileImg = rs.getString("profile_image");
+	                }
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+		return profileImg;
+	}
 
 }

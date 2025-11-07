@@ -9,6 +9,7 @@ public class ChatDTO {
     private String comment;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String profile_image;
     
     
     
@@ -48,7 +49,15 @@ public class ChatDTO {
 	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+	public String getProfile_image() {
+		return profile_image;
+	}
+	public void setProfile_image(String profile_image) {
+		this.profile_image = profile_image;
+	}
 
+	
+	
    
     
    
