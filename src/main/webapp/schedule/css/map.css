@@ -451,8 +451,8 @@ li::marker {
 }
 
 .time-container input {
-    width: 200px; 
-    padding: 5px; 
+    width: 73%; 
+    padding: 7px; 
     border: 1px solid #ddd; 
     border-radius: 5px;
 }
@@ -466,7 +466,7 @@ li::marker {
     resize: none;
     border: 1px solid #ddd; 
     border-radius: 6px;
-    width: 80%;
+    width: 70%;
     padding: 15px;
 }
 
@@ -479,7 +479,7 @@ li::marker {
     display: flex;
     justify-content: flex-end;
     gap: 20px;
-
+	padding: 0 50px 0 0;
 }
 
 .add_schedule,

@@ -208,7 +208,13 @@
                       		} 
                   		%>
               			</ul>
-						<button type="button" class="new-item-btn modal_btn">일정추가 +</button>
+              			<%
+              				if (flag == true) {
+              			%>
+								<button type="button" class="new-item-btn modal_btn">일정추가 +</button>
+              			<%
+              				}
+              			%>
 					</nav>
 
 					<div class="table-container">
@@ -248,13 +254,10 @@
 				
 				<div class="modal_map">
 					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
-						<div class="btn-wrap">
-						</div>
 						
 						<div class="input-container" style="width:70%; margin: 0 auto; margin-top: 35px; text-align: center;">
 							<form action="${pageContext.request.contextPath}/processAddDetail?schedule_id=<%= scheduleId %>" method="post" id="schedule-form">
-								<button type="reset" class="close_map_btn material-symbols-outlined">close</button> 
-								<h3>일정 등록</h3>
+								<h1 style="margin-bottom: 23px;">일정 등록</h1>
 								<div style="display: none;">
 									<input type="hidden" id="schedule-id-input" name="schedule_id" value="<%= scheduleId %>">
 									<input type="hidden" id="modalPlaceName" name="placeName">
@@ -300,7 +303,7 @@
 										<label for="cat-tour" id="cat-tour-label" class="category-button">관광지</label>
 
 										<input type="radio" id="cat-shopping" name="category" value="쇼핑" 
-												class="category-radio-hidden" checked>
+												class="category-radio-hidden">
 										<label for="cat-shopping" id="cat-shopping-label" class="category-button">쇼핑</label>
 
 										<input type="radio" id="cat-food" name="category" value="식당" 
@@ -319,9 +322,8 @@
 								</div>
 
 								<div class="time-container">
-                  <label for="schedule-time" style="font-weight: bold; margin-right: 10px;">시작 시간</label>
                   <input type="text" id="schedule-time" name="scheduleTime" 
-													class="input-time" placeholder="HH:MM (예: 09:30 또는 14:00)">
+													class="input-time" placeholder="시작 시간 (HH:MM)">
                 </div>
 
 								<div class="memo-container">
@@ -335,8 +337,8 @@
 							</form>
 						</div>
 
-						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
-						<div id="map" style="width:70%;height:25%; margin: 0 auto; border-radius: 5px;"></div>
+						<div id="map_info" style="width:60%; margin: 0 auto; margin-bottom: 15px;"></div>
+						<div id="map" style="width:60%;height:25%; margin: 0 auto; border-radius: 5px;"></div>
 
 						<div style="display: none;">
 							<button type="button" class="add_schedule_btn">일정에 추가</button>
