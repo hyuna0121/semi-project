@@ -52,12 +52,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 태그 스타일을 동적으로 적용
             const tagHtml = `<span class="tag" data-category="${item.category}">${item.category}</span>`;
+			
+			let deleteBtn = '<td></td>'
+			
+			if (userCanDelete) {
+				deleteBtn = '<td><a href="">삭제</a></td>';
+			}
             
             row.innerHTML = `
                 <td>${item.startTime}</td>
                 <td>${item.place}</td>
                 <td>${tagHtml}</td>
                 <td>${item.memo}</td>
+				${deleteBtn}
             `;
             itineraryBoard.appendChild(row);
         });
