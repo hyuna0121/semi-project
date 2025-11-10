@@ -1,182 +1,208 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
 <style>
-  :root{
-    --line:#eee; 
-    --muted:#666; 
-    --fg:#111; 
-    --accent:#2d6a4f;
-    --chip:#e8f3ff; 
-    --chip-fg:#1769aa;
-  }
-  /* 기본 헤더 스타일 */
-  header {
-    display:flex; 
-    justify-content:space-between; 
-    align-items:center;
-    padding:15px 20px; 
-    border-bottom:1px solid var(--line);
-    background:#fff; 
-    box-sizing:border-box; 
-    position:relative; 
-    z-index:5;
-  }
-  .logo { font-weight:700; font-size:20px; letter-spacing:2px; color:#000; text-decoration:none; }
-  .nav-right { display:flex; align-items:center; gap:25px; font-size:14px; color:var(--muted); }
-  .nav-right a { color:#000; font-weight:500; text-decoration:none; }
-  .nav-right a:hover { color:#ff385c; }
-  .menu-icon { width:22px; height:16px; position:relative; cursor:pointer; }
-  .menu-icon span {
-    background:#000; display:block; height:2px; width:100%;
-    border-radius:1px; position:absolute; left:0;
-    transition:transform .2s ease, opacity .2s ease, top .2s ease;
-  }
-  .menu-icon span:nth-child(1){ top:0; }
-  .menu-icon span:nth-child(2){ top:7px; }
-  .menu-icon span:nth-child(3){ top:14px; }
-  .notification-dot {
-    position:absolute; top:-4px; right:-2px; width:7px; height:7px;
-    background:#ff385c; border-radius:50%; box-shadow:0 0 2px rgba(255,56,92,.5);
-  }
+:root{
+  --brand:#6ea3f7;
+  --brand-strong:#5c8fe0;
+  --bg-light:#f4f7ff;
+  --text:#0f172a;
+  --muted:#667085;
+  --line:#e2e8f0;
+  --chip:#eaf4ff;
+  --chip-fg:#1769aa;
+}
 
-  /* 햄버거→X (패널 열렸을 때) */
-  body.drawer-open .menu-icon span:nth-child(1){ top:7px; transform:rotate(45deg); }
-  body.drawer-open .menu-icon span:nth-child(2){ opacity:0; }
-  body.drawer-open .menu-icon span:nth-child(3){ top:7px; transform:rotate(-45deg); }
+/* ===== Header ===== */
+header{
+  position:sticky; top:0; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 22px;
+  background:rgba(255,255,255,.8);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 2px 12px rgba(15,23,42,.05);
+  font-family:'Noto Sans KR', sans-serif;
+}
 
-  /* 오버레이 */
-  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s; }
-  body.drawer-open .overlay { opacity:1; pointer-events:auto; }
+.logo{
+  display:flex; align-items:center; gap:8px;
+  font-weight:800; font-size:22px; color:#3b6edc; text-decoration:none;
+}
+.logo::before{
+  content:'✈'; width:34px; height:34px;
+  border-radius:50%;
+  background:linear-gradient(180deg,#9ec3ff,#79a8ff);
+  color:#fff; display:grid; place-items:center;
+  font-size:18px; font-weight:800;
+  box-shadow:0 6px 14px rgba(121,168,255,.35);
+}
 
-  /* 우측 드로어 */
-  .drawer {
-    position:fixed; top:0; right:0; height:100vh; width:min(420px, 92vw);
-    background:#fff; box-shadow:-10px 0 30px rgba(0,0,0,.08);
-    transform:translateX(100%); transition:transform .25s; z-index:6; display:flex; flex-direction:column;
-  }
-  body.drawer-open .drawer { transform:translateX(0); }
+.nav-right{ display:flex; align-items:center; gap:20px; }
+.nav-right a{ color:var(--text); font-weight:600; text-decoration:none; }
+.nav-right a:hover{ color:var(--brand-strong); }
 
-  .drawer__header { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--line); }
-  .drawer__title { font-weight:700; font-size:18px; color:#000; }
-  .drawer__close { border:none; background:transparent; font-size:24px; line-height:1; cursor:pointer; }
+/* 검색 */
+form{border:none;margin:0;}
+.search{
+  position:relative;width:220px;border-radius:999px;
+  background:rgba(255,255,255,.9);
+  border:1px solid var(--line);
+  box-shadow:0 2px 6px rgba(15,23,42,.05);
+  transition:box-shadow .15s,background .15s;
+}
+.search:has(input:focus){background:#f5f9ff;box-shadow:0 0 0 4px rgba(110,163,247,.15);}
+.search input{
+  width:100%;border:none;background:transparent;
+  border-radius:999px;padding:10px 44px 10px 18px;font-size:14px;color:var(--text);
+}
+.search input::placeholder{color:#94a3b8;}
+.search input:focus{outline:none;}
+.search button{
+  position:absolute;top:50%;right:6px;transform:translateY(-50%);
+  border:none;background:none;cursor:pointer;color:#5a6aa1;font-size:22px;padding:6px;
+}
+.search button:hover{color:var(--brand-strong);}
 
-  .profile { display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--line); }
-  .avatar { width:44px; height:44px; border-radius:50%; background:#ffe49c; display:inline-block; }
-  .nickname { font-weight:700; color:#111; }
-  .grade { font-size:12px; color:#999; margin-top:2px; }
+/* 햄버거 */
+.menu-icon{width:22px;height:16px;position:relative;cursor:pointer;}
+.menu-icon span{
+  background:#1e293b;display:block;height:2px;width:100%;
+  border-radius:1px;position:absolute;left:0;
+  transition:transform .18s ease,opacity .18s ease,top .18s ease;
+}
+.menu-icon span:nth-child(1){top:0;}
+.menu-icon span:nth-child(2){top:7px;}
+.menu-icon span:nth-child(3){top:14px;}
+body.drawer-open .menu-icon span:nth-child(1){top:7px;transform:rotate(45deg);}
+body.drawer-open .menu-icon span:nth-child(2){opacity:0;}
+body.drawer-open .menu-icon span:nth-child(3){top:7px;transform:rotate(-45deg);}
+.notification-dot{
+  position:absolute;top:-4px;right:-2px;width:8px;height:8px;
+  background:#ff385c;border-radius:50%;box-shadow:0 0 2px rgba(255,56,92,.5);
+}
 
-  .menu { padding:8px 10px; overflow:auto; flex:1; }
-  .menu a, .menu button {
-    width:100%; text-align:left; padding:14px 12px; border:none; background:#fff; cursor:pointer;
-    border-radius:10px; color:#111; text-decoration:none; display:flex; align-items:center; justify-content:space-between;
-  }
-  .menu a:hover, .menu button:hover { background:#fafafa; }
-  .chip { background:var(--chip); color:var(--chip-fg); padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; }
-  .group { margin:14px 10px; }
-  .group__title { font-size:13px; color:#666; margin:6px 2px 8px; }
-  .submenu { margin-top:6px; border-left:2px solid #f1f1f1; margin-left:6px; }
-  .submenu a { padding-left:18px; }
+/* ===== Drawer ===== */
+.overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.28);
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;
+  backdrop-filter:blur(2px);
+}
+body.drawer-open .overlay{opacity:1;pointer-events:auto;}
 
-  .drawer__footer { padding:16px 20px; border-top:1px solid var(--line); }
-  .btn-outline { width:100%; padding:12px 14px; background:#fff; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-weight:600; }
-  .btn-outline:hover { background:#fafafa; }
-  
-  .page-content { transition: filter .3s ease; }
-  
-  body.drawer-open .page-content { filter: blur(5px); pointer-events: none; }
-  
-  body.drawer-open::before{
-  content:""; position:fixed; inset:0;
-  background: rgba(0,0,0,.2);
-  backdrop-filter: blur(3px);
-  z-index:4; /* 헤더/드로어보다 뒤 */
-  }
-  
-  form {
-	border: none;
-  }
-  
-  .search {
-  	position: relative;
-  	width: 180px;
-  	border: 1px solid #bbb;
-    border-radius: 20px;
-  }
-  .search:has(input:focus) {
-    background-color: #E8F0FE;
-  }
-  
-  .search input {
-  	width: 80%;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 9px 10px 19px;
-    font-size: 13px;
-  }
-  .search input:focus,
-  .search:has(input:not(:placeholder-shown)) {
-    background-color: #E8F0FE;
-    outline: none;
-  }
-  
-  .search button {
-    position: absolute;
-	top: 2px;
-	right: 6px;
-	border: none;
-	background: none;
-	cursor: pointer;
-	color: #555;
-	font-size: 20px;
-	padding: 6px;
-  }
-  .search button:hover {
-	color: #235baf;
-  }
+.drawer{
+  position:fixed;top:0;right:0;height:100vh;width:min(420px,94vw);
+  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+  border-left:1px solid var(--line);
+  box-shadow:-14px 0 50px rgba(15,23,42,.08);
+  border-top-left-radius:16px;
+  border-bottom-left-radius:16px;
+  transform:translateX(100%);
+  transition:transform .22s ease;z-index:70;
+  display:flex;flex-direction:column;
+}
+body.drawer-open .drawer{transform:translateX(0);}
 
+.drawer__header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;background:rgba(246,250,255,.6);backdrop-filter:blur(6px);
+}
+.drawer__title{font-weight:800;font-size:18px;color:#0b1220;}
+.drawer__close{border:none;background:transparent;font-size:28px;cursor:pointer;color:#475569;}
+
+.profile{
+  display:flex;align-items:center;gap:14px;padding:16px 20px;
+  background:#fff;border-bottom:1px solid var(--line);
+}
+.avatar{
+  width:48px;height:48px;border-radius:50%;
+  background:conic-gradient(from 220deg,#ffd89b,#fdbb2d,#ffd89b);
+  box-shadow:0 8px 16px rgba(253,187,45,.25);
+}
+.nickname{font-weight:800;color:#0f172a;}
+.grade{font-size:12px;color:#94a3b8;margin-top:2px;}
+
+.menu{padding:14px 12px 8px;flex:1;overflow:auto;}
+.menu a,.menu button{
+  position:relative;display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:12px;border:1px solid transparent;
+  transition:background .15s,border-color .15s,transform .05s;
+  text-decoration:none;color:var(--text);font-weight:700;
+}
+.menu a:hover,.menu button:hover{background:#f6f9ff;border-color:#e7eef9;}
+.item-icon{
+  width:28px;height:28px;border-radius:10px;
+  display:grid;place-items:center;
+  background:#eef6ff;color:#1769aa;font-size:18px;
+}
+.item-label{font-weight:700;color:#0f172a;}
+.item-right{margin-left:auto;display:flex;align-items:center;gap:10px;color:#64748b;font-size:12px;}
+.chev{font-family:'Material Symbols Outlined';font-size:20px;color:#94a3b8;transition:transform .15s,color .15s;}
+.menu a:hover .chev{transform:translateX(2px);color:#5c8fe0;}
+
+.chip{background:var(--chip);color:var(--chip-fg);font-weight:800;font-size:12px;padding:6px 10px;border-radius:999px;}
+
+.drawer__footer{
+  background:linear-gradient(180deg,#fbfdff 0%,#f5f9ff 100%);
+  border-top:1px solid var(--line);
+  padding:16px 20px;
+}
+.btn-outline{
+  width:100%;padding:12px 14px;background:#fff;border:1px solid #dbe5f3;
+  border-radius:12px;cursor:pointer;font-weight:800;color:#0f172a;
+  transition:background .15s,border-color .15s;
+}
+.btn-outline:hover{background:#f6f9ff;border-color:#cfe0fb;}
+
+/* 드로어 열릴 때 헤더 숨김 */
+body.drawer-open header {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+/* 닫힐 때 자연스럽게 복귀 */
+header {
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+body.drawer-open .page-content{filter:blur(3px);pointer-events:none;}
 </style>
 
 <header>
-  <!-- 로고: 메인으로 이동 (경로 필요시 조정) -->
   <% String ctx = request.getContextPath(); %>
-  <a href="<%=ctx%>/mainpage/mainpage.jsp" class="logo">로고</a>
+  <a href="<%=ctx%>/mainpage/mainpage.jsp" class="logo">Travel</a>
 
   <div class="nav-right">
-  	<%
-  		String loginId = (String) session.getAttribute("loginId");
-  		String nickname = (String) session.getAttribute("nickname");
-  		String displayName = (nickname != null && !nickname.isEmpty()) ? nickname : (loginId != null ? loginId : "게스트");
-  	%>
-   <% if (loginId == null) { %>
-    <!-- 로그인 X -->
-    <a href="<%=ctx%>/login/login.jsp" class="reservation">로그인</a>
-    <a href="<%=ctx%>/login/memberJoin.jsp" class="reservation">회원가입</a>
-   <% } else { %>
-    <!-- 로그인 O -->
-    <form action="<%=ctx%>/search/searchResult.jsp" method="get" class="search">
-	    <input type="text" name="keyword" placeholder="일정을 검색해보세요">
-	    <button type="submit" class="material-symbols-outlined">search</button>
-    </form>
-    	
-    <form action="<%=ctx%>/Logout" method="post" style="display:inline;">
-      <button type="submit" class="reservation" 
-              style="background:none;border:none;cursor:pointer;font:inherit;">
-        로그아웃
-      </button>
-    </form>
-   <% } %>
+    <%
+      String loginId = (String) session.getAttribute("loginId");
+      String nickname = (String) session.getAttribute("nickname");
+      String displayName = (nickname != null && !nickname.isEmpty()) ? nickname : (loginId != null ? loginId : "게스트");
+    %>
 
-    <!-- 햄버거 버튼 -->
+    <% if (loginId == null) { %>
+      <a href="<%=ctx%>/login/login.jsp">로그인</a>
+      <a href="<%=ctx%>/login/memberJoin.jsp">회원가입</a>
+    <% } else { %>
+      <form action="<%=ctx%>/search/searchResult.jsp" method="get" class="search" role="search">
+        <input type="text" name="keyword" placeholder="일정을 검색해보세요" aria-label="일정 검색">
+        <button type="submit" class="material-symbols-outlined" aria-label="검색">search</button>
+      </form>
+
+      <form action="<%=ctx%>/Logout" method="post" style="display:inline;">
+        <button type="submit" class="btn-outline" style="padding:8px 14px;border-radius:999px;">로그아웃</button>
+      </form>
+    <% } %>
+
     <div class="menu-icon" id="menuBtn" aria-label="메뉴 열기" role="button" tabindex="0">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
       <div class="notification-dot"></div>
     </div>
   </div>
 </header>
 
-<!-- 오버레이 & 드로어 -->
 <div class="overlay" id="overlay"></div>
 
 <aside class="drawer" id="drawer" aria-hidden="true">
@@ -194,58 +220,70 @@
   </div>
 
   <nav class="menu">
-    <div class="group">
- 
-      <a href="<%=request.getContextPath()%>/mypage/mypage_profile.jsp">내 프로필</a>
-      <a href="<%=request.getContextPath()%>/mypage/travel_schedule.jsp"><span>여행 일정</span> <span class="chip">간편한 확인!</span></a>
-      <a href="#">내 댓글</a>
-      <a href="<%=request.getContextPath()%>/schedule/addSchedule.jsp">일정 추가</a>
-    </div>
+    <a href="<%=ctx%>/mypage/mypage_profile.jsp">
+      <span class="item-icon material-symbols-outlined">person</span>
+      <span class="item-label">내 프로필</span>
+      <span class="item-right"><span class="chev">chevron_right</span></span>
+    </a>
+
+    <a href="<%=ctx%>/mypage/travel_schedule.jsp">
+      <span class="item-icon material-symbols-outlined">calendar_month</span>
+      <span class="item-label">여행 일정</span>
+      <span class="item-right">
+        <span class="chip">간편한 확인!</span>
+        <span class="chev">chevron_right</span>
+      </span>
+    </a>
+
+    <a href="#">
+      <span class="item-icon material-symbols-outlined">mode_comment</span>
+      <span class="item-label">내 댓글</span>
+      <span class="item-right"><span class="chev">chevron_right</span></span>
+    </a>
+
+    <a href="<%=ctx%>/schedule/addSchedule.jsp">
+      <span class="item-icon material-symbols-outlined">add_circle</span>
+      <span class="item-label">일정 추가</span>
+      <span class="item-right"><span class="chev">chevron_right</span></span>
+    </a>
   </nav>
 
   <div class="drawer__footer">
-  <!-- 로그인 -->
-  <% if (loginId == null) { %>
-    <a href="<%=ctx%>/login/login.jsp"><button class="btn-outline">로그인</button></a>
-  <% } else { %>
-    <form action="<%=ctx%>/Logout" method="post" style="margin:0;">
-      <!-- 로그아웃 -->
-      <button type="submit" class="btn-outline">로그아웃</button>
-    </form>
-  <% } %>
+    <% if (loginId == null) { %>
+      <a href="<%=ctx%>/login/login.jsp"><button class="btn-outline">로그인</button></a>
+    <% } else { %>
+      <form action="<%=ctx%>/Logout" method="post" style="margin:0;">
+        <button type="submit" class="btn-outline">로그아웃</button>
+      </form>
+    <% } %>
   </div>
 </aside>
 
 <script>
-  (function(){
-    const body = document.body;
-    const menuBtn = document.getElementById('menuBtn');
-    const overlay = document.getElementById('overlay');
-    const drawer  = document.getElementById('drawer');
-    const closeBtn = document.getElementById('closeBtn');
+(function(){
+  const body = document.body;
+  const menuBtn = document.getElementById('menuBtn');
+  const overlay = document.getElementById('overlay');
+  const drawer  = document.getElementById('drawer');
+  const closeBtn = document.getElementById('closeBtn');
 
-    const open = () => { body.classList.add('drawer-open'); drawer.setAttribute('aria-hidden','false'); };
-    const close = () => { body.classList.remove('drawer-open'); drawer.setAttribute('aria-hidden','true'); };
+  const open = () => { body.classList.add('drawer-open'); drawer.setAttribute('aria-hidden','false'); };
+  const close = () => { body.classList.remove('drawer-open'); drawer.setAttribute('aria-hidden','true'); };
 
-    menuBtn.addEventListener('click', open);
-    menuBtn.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); }});
-    overlay.addEventListener('click', close);
-    closeBtn.addEventListener('click', close);
-    window.addEventListener('keydown', e => { if(e.key==='Escape') close(); });
-    
-    //  drawer 내부 클릭시 닫히게 
-    drawer.addEventListener('click', (e) => e.stopPropagation());
+  menuBtn.addEventListener('click', open);
+  menuBtn.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); }});
+  overlay.addEventListener('click', close);
+  closeBtn.addEventListener('click', close);
+  window.addEventListener('keydown', e => { if(e.key==='Escape') close(); });
 
-    // 2) 문서 어디든 클릭/터치하면(드로어/버튼 제외) 닫기
-    const outsideHandler = (e) => {
-      if (!body.classList.contains('drawer-open')) return;
-
-      const isInsideDrawer = drawer.contains(e.target);
-      const isMenuBtn = menuBtn.contains(e.target);
-
-      if (!isInsideDrawer && !isMenuBtn) close();
-    };
-    document.addEventListener('click', outsideHandler);
-    document.addEventListener('touchstart', outsideHandler, { passive: true });
-  })();
+  drawer.addEventListener('click', (e) => e.stopPropagation());
+  const outsideHandler = (e) => {
+    if (!body.classList.contains('drawer-open')) return;
+    const isInsideDrawer = drawer.contains(e.target);
+    const isMenuBtn = menuBtn.contains(e.target);
+    if (!isInsideDrawer && !isMenuBtn) close();
+  };
+  document.addEventListener('click', outsideHandler);
+  document.addEventListener('touchstart', outsideHandler, { passive: true });
+})();
 </script>

@@ -95,7 +95,7 @@
 
 
       <div class="text-center mt-3 small text-muted">
-        목록으로 돌아가려면 상단 메뉴를 이용하세요
+        목록으로 돌아가려면 취소 버튼을 이용하세요
       </div>
     </div>
   </main>
