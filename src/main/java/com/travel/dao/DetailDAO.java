@@ -85,11 +85,59 @@ public class DetailDAO {
 				System.out.println("ResultSet 처리 중 오류");
 				e.printStackTrace();
 			}
+			
 		} catch (SQLException e) {
 			System.out.println("PreparedStatement 생성 또는 실행 중 오류");
 			e.printStackTrace();
 		}
 		
 		return detailList;
+	}
+	
+	public Long selectScheduleIdByDetailId(Connection conn, Long detailId) {
+		String sql = "SELECT * FROM details WHERE id = ?";
+		long scheduleId = 0;
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setLong(1, detailId);
+			
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					scheduleId = rs.getLong("schedule_id");
+				}
+			} catch (Exception e) {
+				System.out.println("ResultSet 처리 중 오류");
+				e.printStackTrace();
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("PreparedStatement 생성 또는 실행 중 오류");
+			e.printStackTrace();
+		}
+		
+		return scheduleId;
+	}
+
+	public long deleteDetail(Connection conn, Long detailId) {
+		long scheduleId = this.selectScheduleIdByDetailId(conn, detailId);
+		
+		String sql = "DELETE FROM details WHERE id = ?";
+		long success = 0;
+		int result = 0;
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setLong(1, detailId);
+			
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("PreparedStatement 생성 또는 실행 중 오류");
+			e.printStackTrace();
+		}
+		
+		if (result == 1) {
+			success = scheduleId;
+		}
+
+		return success;
 	}
 }
