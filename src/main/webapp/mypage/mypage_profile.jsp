@@ -21,7 +21,6 @@ try {
     out.println("<script>alert('데이터베이스 오류가 발생했습니다.');</script>");
     return;
 }
-
 // ▶ 기본/표시 경로를 /mypage/image 로 통일
 String rawImagePath = (users.getProfileImage()!=null && !users.getProfileImage().isEmpty())
         ? users.getProfileImage()
