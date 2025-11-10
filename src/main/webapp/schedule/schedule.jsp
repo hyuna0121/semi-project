@@ -1,3 +1,4 @@
+<%@page import="java.util.TimeZone"%>
 <%@page import="java.util.List"%>
 <%@page import="com.travel.dao.ChatDAO"%>
 <%@page import="com.travel.dto.ChatDTO"%>
@@ -38,28 +39,6 @@
         time_24hr: true,    // 24시간제로 표시
         locale: "ko"        // (선택) 한국어 설정
     });
-
-/* 		document.getElementById('schedule-form').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            
-            // Enter 키를 누른 요소(element)를 확인
-            const target = event.target;
-
-            // 1. 만약 'textarea' 또는 'button'에서 Enter를 눌렀다면,
-            //    기본 동작(줄바꿈 또는 클릭)을 허용합니다.
-            if (target.tagName.toLowerCase() === 'textarea' || 
-                target.tagName.toLowerCase() === 'button' ||
-                target.type === 'submit' ||
-                target.type === 'button') 
-            {
-                return; // 아무것도 막지 않음
-            }
-
-            // 2. 그 외의 모든 요소(예: #schedule-time 입력창)에서
-            //    Enter를 누르면 폼 제출을 막습니다.
-            event.preventDefault();
-        }
-    }); */
 </script>
 
 <body>
@@ -139,6 +118,9 @@
 			}
 		}
 	%>
+	<script type="text/javascript">
+		const userCanDelete = <%= flag %>;
+	</script>
 	
 	<div class="container">
 		<div class="left">
@@ -162,7 +144,7 @@
 			</div>
 
 			<div class="trip_content">
-				<div class="trip_title" style="height: 300px;">
+				<div class="trip_title" style="height: 200px;">
 					<h1>
 						<%= schedule.getTitle() %>
 						<%
@@ -225,6 +207,7 @@
 													<th>여행지</th>
 													<th>태그</th>
 													<th>메모</th>
+													<th></th>
 											</tr>
 									</thead>
 									<tbody id="itinerary-board">
@@ -343,6 +326,7 @@
 						<div style="display: none;">
 							<button type="button" class="add_schedule_btn">일정에 추가</button>
 							<button type="button" class="close_map_btn">취소하기</button>
+							<a href="">삭제</a>
 						</div>
 					</div>
 				</div>
@@ -355,6 +339,7 @@
 				    <% 
 				    
 					    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				    	sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
 
 				    	if (comments != null && !comments.isEmpty()) {
 					    for (ChatDTO c : comments) {    
