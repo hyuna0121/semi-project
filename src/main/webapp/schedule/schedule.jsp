@@ -1,3 +1,4 @@
+<%@page import="java.util.TimeZone"%>
 <%@page import="java.util.List"%>
 <%@page import="com.travel.dao.ChatDAO"%>
 <%@page import="com.travel.dto.ChatDTO"%>
@@ -338,6 +339,7 @@
 				    <% 
 				    
 					    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				    	sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
 
 				    	if (comments != null && !comments.isEmpty()) {
 					    for (ChatDTO c : comments) {    

@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			let deleteBtn = '<td></td>'
 			
 			if (userCanDelete) {
-				deleteBtn = '<td><a href="">삭제</a></td>';
+				deleteBtn = `<td><a href="${CONTEXT_PATH}/DeleteDetails?detail_id=${item.id}">삭제</a></td>`;
 			}
             
             row.innerHTML = `
