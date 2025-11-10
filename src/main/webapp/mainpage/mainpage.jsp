@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>여행일정공유</title>
   <link rel="stylesheet" href="css/mainpage.css" />
+  <script defer src="js/mainpage.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- 헤더 -->
@@ -31,6 +33,5 @@
   <!-- footer -->
   <%@ include file="../footer.jsp" %>
   
-  <script src="js/mainpage.js"></script>
 </body>
 </html>

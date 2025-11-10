@@ -1,116 +1,124 @@
-/* Reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-html, body {
-  height: 100%;
-}
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-  color: #fff;
-  background: #000;
+/* ===== Base ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans KR',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:#0f172a;
+  background:#eaf0fb;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow:hidden;
 }
 
-/* main section */
-.main {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
+/* 색상 토큰 – 밝은 앱톤 */
+:root{
+  --brand:#6ea3f7;
+  --brand-strong:#5c8fe0;
+  --glass:rgba(255,255,255,.65);
+  --glass-stroke:rgba(255,255,255,.6);
+  --shadow:0 20px 50px rgba(15,23,42,.18);
 }
 
-/* ✅ background.jpg 경로 수정 */
-.main__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-}	
-.main__bg.active{
-	opacity: 1;
+/* ===== Stage ===== */
+.main{
+  position:relative;
+  height:100vh;
+  overflow:hidden;
 }
 
-.main__bg.bg1{ background-image: url("../image/background.jpg");}
-.main__bg.bg2{ background-image: url("../image/background2.jpg");}
-.main__bg.bg3{ background-image: url("../image/background3.jpg");}
-
-.main__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.35) 100%);
-  z-index: 1;
+/* 배경(기존 구조 유지, 페이드 전환) */
+.main__bg{
+  position:absolute; inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:0; transition:opacity 1.2s ease-in-out;
 }
+.main__bg.active{opacity:1}
 
-.main__content {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  text-align: center;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 0 16px;
-}
+/* 👉 경로는 프로젝트 기준으로 조정 */
+.main__bg.bg1{background-image:url("/image/background.jpg")}
+.main__bg.bg2{background-image:url("/image/background2.jpg")}
+.main__bg.bg3{background-image:url("/image/background3.jpg")}
 
-.main__title {
-  font-weight: 800;
-  letter-spacing: .2px;
-  line-height: 1.2;
+/* 밝은 오버레이: 사진 색감 살리고 대비는 확보 */
+.main__overlay{
+  position:absolute; inset:0; z-index:1;
+  background:linear-gradient(180deg,
+    rgba(255,255,255,.18) 0%,
+    rgba(255,255,255,.12) 35%,
+    rgba(15,23,42,.20) 100%);
 }
 
-/* 반응형 제목 */
-@media (min-width: 480px) {
-  .main__title { font-size: 42px; }
-}
-@media (min-width: 768px) {
-  .main__title { font-size: 64px; }
-}
-@media (min-width: 1024px) {
-  .main__title { font-size: 84px; }
+/* ===== Content ===== */
+.main__content{
+  position:relative; z-index:2;
+  top:50%; transform:translateY(-50%);
+  text-align:center; padding:0 16px;
+  max-width:880px; margin:0 auto;
 }
 
-.main__pill {
-  margin: 1rem auto 0; 
-  display: inline-flex; 
-  align-items: center; 
-  gap: 12px;
-  background: #fff; 
-  color: #000; 
-  border-radius: 9999px; 
-  padding: 12px 14px 12px 22px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+/* 상단 브랜드 (아이콘/텍스트) */
+.brand{
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  margin-bottom:18px; user-select:none;
 }
-.main__text {
-  font-size: 18px;
-  font-weight: 600;
-  white-space: nowrap;
+.brand__mark{
+  width:64px;height:64px;border-radius:50%;
+  display:grid;place-items:center;
+  background:linear-gradient(180deg,#9ec3ff,#79a8ff);
+  color:#fff;font-size:30px;font-weight:800;
+  box-shadow:0 8px 20px rgba(121,168,255,.35);
 }
-.main__cta {
-  border: none;
-  background: #2d6a4f;
-  color: #fff;
-  font-weight: 700;
-  padding: 12px 18px;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: filter .2s;
-}
-.main__cta:hover {
-  background: #1b4332;
-  filter: brightness(.95);
+.brand__text{
+  font-weight:800;font-size:40px;letter-spacing:.6px;color:#6f9fe9;
 }
 
-/* 모바일 대응 */
-@media (max-width: 540px) {
-  .main__pill {
-    padding: 10px 10px 10px 18px;
-  }
-  .main__text {
-    font-size: 15px;
-  }
-  .main__cta {
-    padding: 10px 16px;
-  }
+/* 타이틀 */
+.main__title{
+  color:#0b1220; font-weight:800; letter-spacing:.2px; line-height:1.12;
+  text-wrap:balance; text-shadow:0 1px 0 rgba(255,255,255,.4);
+}
+
+/* 반응형 사이즈 */
+@media (min-width:480px){ .main__title{font-size:42px} }
+@media (min-width:768px){ .main__title{font-size:64px} }
+@media (min-width:1024px){ .main__title{font-size:84px} }
+
+/* 설명 + 버튼 묶음 (유리 pill) */
+.main__pill{
+  margin:18px auto 0;
+  display:inline-flex; align-items:center; gap:14px;
+  background:var(--glass); color:#0f172a;
+  border-radius:1000px; padding:12px 14px 12px 22px;
+  box-shadow:var(--shadow); outline:1px solid var(--glass-stroke);
+  backdrop-filter:blur(8px);
+}
+.main__text{font-size:16px;font-weight:600;white-space:nowrap;opacity:.92}
+
+/* CTA 버튼 – 둥근, 그라데이션, 강조 */
+.main__cta{
+  border:0; border-radius:999px; cursor:pointer;
+  background:linear-gradient(180deg,var(--brand),var(--brand-strong));
+  color:#fff; font-weight:800; font-size:16px;
+  padding:12px 18px;
+  box-shadow:0 10px 30px rgba(110,163,247,.35);
+  transition:filter .15s, transform .05s;
+}
+.main__cta:hover{filter:brightness(1.03)}
+.main__cta:active{transform:translateY(1px)}
+.main__cta:focus-visible{outline:3px solid rgba(110,163,247,.35);outline-offset:2px}
+
+/* 모바일 최적화 */
+@media (max-width:540px){
+  .brand__mark{width:56px;height:56px;font-size:26px}
+  .brand__text{font-size:34px}
+  .main__pill{padding:10px 10px 10px 16px;gap:10px}
+  .main__text{font-size:14px}
+  .main__cta{padding:10px 16px;font-size:15px}
+}
+
+/* 모션 민감 옵션 */
+@media (prefers-reduced-motion:reduce){
+  .main__bg{transition:none}
+  .main__cta{transition:none}
 }
