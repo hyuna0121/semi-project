@@ -46,7 +46,18 @@
 							<div class="sc">
 								<a href="<%= request.getContextPath() %>/schedule/schedule.jsp?schedule_id=<%= sc.getId() %>" class="card-link">
 									<div class="card">
-										<img src="/upload/<%= sc.getMainImage() %>" alt="여행 대표 이미지">
+		                            	<%
+		                            		String mainImage = sc.getMainImage();
+		                            		if (mainImage == null || mainImage.isEmpty()) {
+		                            	%>
+				                                <img src="<%= request.getContextPath() %>/schedule/image/basic.png" alt="여행 대표 이미지">
+		                            	<%
+		                            		} else {
+		                            	%>
+				                                <img src="/upload/<%= mainImage %>" alt="여행 대표 이미지">
+		                            	<%
+		                            		}
+		                            	%>									
 									  	<div class="card-content">
 									  		<div class="visibility">
 										  		<h3><%= sc.getTitle() %></h3>

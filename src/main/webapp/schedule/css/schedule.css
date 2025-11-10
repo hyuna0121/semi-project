@@ -1,0 +1,233 @@
+/* 캘린더 */
+/* input[type="date"] {position:relative; padding:14px; width:150px; height:30px; font-size:14px; color:#999; border:none; border-bottom:1px solid #e0e0e0;}
+input[type="date"]::-webkit-calendar-picker-indicator {position:absolute; top:0; left:0; right:0; bottom:0; width:auto; height:auto; color:transparent; background:transparent;}
+input[type="date"].has-value::before {content:attr(data-placeholder); width:100%;} */
+
+
+
+/* ===== 공통 배경(회원가입 카드 느낌) ===== */
+.auth-like-bg{
+  background:#e9effa; /* 아주 연한 파랑/그레이 */
+}
+
+/* ===== 카드 박스 ===== */
+.schedule-card{
+  width:100%;
+  max-width:720px;            /* 중앙 카드 폭 */
+  background:#fff;
+  border-radius:16px;
+  padding:32px 28px;
+  box-shadow:0 12px 28px rgba(0,0,0,.06);
+}
+
+/* 타이틀 */
+.schedule-title{
+  margin:0;
+  font-size:22px;
+  font-weight:800;
+  text-align:center;
+  color:#0f172a;
+}
+
+/* ===== 인풋(회원가입 폼 느낌의 부드러운 필드) ===== */
+.soft-input{
+  background:#f5f7fb;
+  border:1px solid #e6eaf3;
+  border-radius:12px;
+  padding:14px 16px;
+  outline:none;
+  transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  font-size:16px;
+}
+.soft-input::placeholder{ color:#a3acc2; }
+.soft-input:focus{
+  background:#fff;
+  border-color:#b9c4e0;
+  box-shadow:0 0 0 4px rgba(59,130,246,.12);
+}
+
+/* 라벨 */
+.form-label{
+  font-weight:700;
+  color:#0f172a;
+  margin-bottom:8px;
+}
+
+/* 버튼 */
+.btn-dark{
+  border-radius:12px;
+  padding:12px 16px;
+  font-weight:700;
+}
+.btn-outline-secondary{
+  border-radius:12px;
+  padding:12px 16px;
+  font-weight:700;
+}
+
+/* ===== 공개/비공개 토글 (아이콘 + 스위치 느낌) ===== */
+.toggle-label{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* 실제 스위치 */
+.toggle-label input[type="checkbox"]{
+  appearance:none;
+  position:relative;
+  width:48px;
+  height:28px;
+  border-radius:999px;
+  border:2px solid #c6cee2;
+  background:#e8edf8;
+  transition:all .2s ease;
+}
+.toggle-label input[type="checkbox"]::before{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:4px;
+  transform:translateY(-50%);
+  width:20px;height:20px;border-radius:50%;
+  background:#8fa1c7;
+  transition:left .2s ease, background .2s ease;
+}
+.toggle-label input[type="checkbox"]:checked{
+  background:#2563eb;
+  border-color:#2563eb;
+}
+.toggle-label input[type="checkbox"]:checked::before{
+  left:24px;
+  background:#fff;
+}
+/* 아이콘/텍스트 */
+.material-symbols-outlined{ font-size:22px; color:#64748b; }
+.toggle-label input[type="checkbox"]:checked ~ .material-symbols-outlined{
+  color:#2563eb;
+}
+.toggle-text{ color:#0f172a; font-weight:600; }
+
+/* ===== daterangepicker(모던 테마) ===== */
+:root{
+  --main-color:#2563eb;
+  --main-color-light:#e7f1ff;
+}
+.daterangepicker{
+  border:1px solid #eef1f7;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  padding:12px;
+  font-family:inherit;
+}
+.daterangepicker .drp-calendar .calendar-table th{ font-weight:600; color:#111827; }
+.daterangepicker .month{ font-weight:700; color:#374151; }
+.daterangepicker .calendar-table td{
+  border:none;
+  border-radius:50%;
+  width:36px;height:36px;line-height:36px;
+  transition:.12s all ease;
+}
+.daterangepicker td.today{ background:#f3f4f6; }
+.daterangepicker td.available:hover{ background:#eef2ff; color:#111827; }
+.daterangepicker td.in-range{ background:var(--main-color-light); color:#111827; border-radius:0; }
+.daterangepicker td.active,
+.daterangepicker td.active:hover{ background:var(--main-color); color:#fff; }
+.daterangepicker td.start-date{ border-radius:50% 0 0 50%; }
+.daterangepicker td.end-date{ border-radius:0 50% 50% 0; }
+.daterangepicker td.start-date.end-date{ border-radius:50%; }
+.daterangepicker .drp-buttons{
+  border-top:1px solid #eef1f7; padding:12px; text-align:right;
+}
+.daterangepicker .drp-buttons .btn{
+  border:none; border-radius:10px; padding:8px 14px; font-weight:700;
+}
+.daterangepicker .cancelBtn{ background:#f3f4f6; color:#374151; }
+.daterangepicker .cancelBtn:hover{ background:#e5e7eb; }
+.daterangepicker .applyBtn{ background:var(--main-color); color:#fff; margin-left:6px; }
+.daterangepicker .applyBtn:hover{ background:#1d4ed8; }
+
+/* 날짜 입력창 오른쪽 캘린더 아이콘 느낌 */
+#demo{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%238fa1c7' viewBox='0 0 16 16'%3E%3Cpath d='M3 1a1 1 0 0 1 1-1h.5a.5.5 0 0 1 0 1H4v1h8V1h-.5a.5.5 0 0 1 0-1H12a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h1V1zM1 6v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6H1z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  background-size:20px 20px;
+  padding-right:44px;
+}
+
+.companion-section{
+	margin-top:16px
+}
+.companion-row{
+	display:flex;
+	gap:8px;
+	margin-top:8px
+}
+.companion-row input{
+	flex:1;
+	padding:10px;
+	border:1px solid #ddd;
+	border-radius:8px
+}
+.companion-row button{
+	padding:10px 14px;
+	border:1px solid #1e40af;
+	background:#1e40af;
+	color:#fff;
+	border-radius:8px;
+	cursor:pointer
+}
+.companion-msg{
+	margin-top:8px;
+	font-size:14px;
+	color:#b91c1c
+}
+.companion-list{
+	list-style:none;
+	margin:12px 0 0;
+	padding:0;
+	display:flex;
+	flex-direction:column;
+	gap:8px
+}
+.companion-item{
+	display:flex;
+	align-items:center;
+	gap:12px;
+	border:1px solid #e5e7eb;
+	border-radius:10px;
+	padding:10px
+}
+.companion-item .avatar{
+	width:36px;
+	height:36px;
+	border-radius:50%;
+	object-fit:cover;
+	border:1px solid #eee
+}
+.companion-item .meta{
+	flex:1
+}
+.companion-item .meta strong{
+	display:block;
+	font-size:14px
+}
+.companion-item .meta span{
+	display:block;
+	font-size:12px;
+	color:#6b7280
+}
+.companion-item .remove{
+	border:1px solid #ef4444;
+	background:#ef4444;
+	color:#fff;
+	border-radius:8px;
+	padding:6px 10px;
+	cursor:pointer
+}
+
+/* 기존 파일에 있던 잘못된 클래스명 오타(참고)
+.contauner { ... } -> container로 통일. 이 라인은 제거됨 */

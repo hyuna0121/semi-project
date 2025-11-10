@@ -8,6 +8,8 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.travel.dto.ScheduleDTO;
 import com.travel.service.ScheduleService;
@@ -38,15 +40,18 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         // 폼 파라미터 매핑
         ScheduleDTO schedule = new ScheduleDTO();
         schedule.setUserId(userId);
-        schedule.setTitle(request.getParameter("title"));
-        schedule.setLocation(request.getParameter("location"));
-        schedule.setDescription(request.getParameter("description"));
+        schedule.setTitle(nvl(request.getParameter("title")));
+        schedule.setLocation(nvl(request.getParameter("location")));
+        schedule.setDescription(nvl(request.getParameter("description")));
 
         // 체크박스: 체크됨=비공개(N), 체크안됨=공개(Y)
         schedule.setVisibility(request.getParameter("visibility") == null ? "Y" : "N");
 
-        // travelBuddies 배열(name="travelBuddies" 로 보내기)
-        schedule.setTravelBuddies(request.getParameterValues("travelBuddies"));
+        // ✅ 동행인 배열: 두 이름 모두 지원 (companions[] | travelBuddies)
+        String[] companionsA = request.getParameterValues("companions[]");   // 최신 JS가 넣는 이름
+        String[] companionsB = request.getParameterValues("travelBuddies");  // 예전 이름(텍스트 인풋 방식)
+        String[] mergedCompanions = mergeUnique(companionsA, companionsB);
+        schedule.setTravelBuddies(mergedCompanions);
 
         // 날짜(예: "2025-11-05 ~ 2025-11-07")
         String date = request.getParameter("demo");
@@ -60,14 +65,11 @@ public class ProcessAddScheduleServlet extends HttpServlet {
 
         Part filePart = request.getPart("mainImage");
 
-        // ✅ 업로드 경로: web.xml 의 uploadBaseDir(UNC 경로)
-        String uploadPath = getServletContext().getInitParameter("uploadBaseDir");
-        if (uploadPath == null || uploadPath.isBlank()) {
-            // 비상시 앱 내부 폴백
-            uploadPath = getServletContext().getRealPath("/upload");
-        }
-        Files.createDirectories(Path.of(uploadPath));
-        System.out.println("[ProcessAddSchedule] uploadBaseDir = " + uploadPath);
+        // ✅ 업로드 경로 선택 우선순위:
+        // 1) web.xml 의 uploadBaseDir
+        // 2) 웹앱 내부 /upload (realPath)
+        // 3) 폴백: D:/GDJ94/workspace/upload
+        String uploadPath = "D:/GDJ94/workspace/upload";
 
         long scheduleId;
         try {
@@ -81,5 +83,31 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         }
 
         response.sendRedirect(request.getContextPath() + "/schedule/schedule.jsp?schedule_id=" + scheduleId);
+    }
+
+    private static String nvl(String s) {
+        return (s == null) ? "" : s.trim();
+    }
+
+    /** 두 배열을 합쳐 중복 제거 + 공백 제거 + 빈 값 제거 */
+    private static String[] mergeUnique(String[] a, String[] b) {
+        Set<String> set = new LinkedHashSet<>();
+        if (a != null) {
+            for (String v : a) {
+                if (v != null) {
+                    String t = v.trim();
+                    if (!t.isEmpty()) set.add(t);
+                }
+            }
+        }
+        if (b != null) {
+            for (String v : b) {
+                if (v != null) {
+                    String t = v.trim();
+                    if (!t.isEmpty()) set.add(t);
+                }
+            }
+        }
+        return set.toArray(new String[0]);
     }
 }

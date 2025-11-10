@@ -1,3 +1,6 @@
+<%@page import="java.util.List"%>
+<%@page import="com.travel.dao.ChatDAO"%>
+<%@page import="com.travel.dto.ChatDTO"%>
 <%@page import="java.time.temporal.ChronoUnit"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
@@ -8,22 +11,64 @@
 <%@page import="java.sql.Connection"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
+<%@page import="java.text.SimpleDateFormat"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>상세일정</title>
 <link rel="stylesheet" href="./css/map.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- <link rel="stylesheet" href="./css/chatSchedule.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8aaef2cb5fdf5a54c0607c5d2c9935c1&libraries=services"></script>
 <script type="text/javascript" src="./js/map.js" defer></script>
 <script type="text/javascript" src="./js/details.js" defer></script>
 </head>
+
+<script>
+	const CONTEXT_PATH = "<%= request.getContextPath() %>";
+    flatpickr("#schedule-time", {
+        enableTime: true,   // 시간 선택 활성화
+        noCalendar: true,   // 캘린더(날짜) 비활성화
+        dateFormat: "H:i",  // 시간 형식 (24시간제, 예: 14:30)
+        time_24hr: true,    // 24시간제로 표시
+        locale: "ko"        // (선택) 한국어 설정
+    });
+
+/* 		document.getElementById('schedule-form').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            
+            // Enter 키를 누른 요소(element)를 확인
+            const target = event.target;
+
+            // 1. 만약 'textarea' 또는 'button'에서 Enter를 눌렀다면,
+            //    기본 동작(줄바꿈 또는 클릭)을 허용합니다.
+            if (target.tagName.toLowerCase() === 'textarea' || 
+                target.tagName.toLowerCase() === 'button' ||
+                target.type === 'submit' ||
+                target.type === 'button') 
+            {
+                return; // 아무것도 막지 않음
+            }
+
+            // 2. 그 외의 모든 요소(예: #schedule-time 입력창)에서
+            //    Enter를 누르면 폼 제출을 막습니다.
+            event.preventDefault();
+        }
+    }); */
+</script>
+
 <body>
 	<%@ include file="../header.jsp" %>
 	
 	<%
 		Connection conn = null;
 		ScheduleDTO schedule = null;
+		List<ChatDTO> comments = null;
 		String errorMessage = null;
 		long scheduleId = 0;
 		
@@ -37,6 +82,11 @@
 				ScheduleDAO dao = new ScheduleDAO();
 				
 				schedule = dao.selectSchedule(conn, scheduleId);
+				if(schedule != null){
+					ChatDAO chatdao = new ChatDAO();
+					
+					comments = chatdao.getCommentsByScheduleId((int) scheduleId);
+				}			
 			} else {
 				errorMessage = "유효한 schedule_id가 없습니다.";
 			}
@@ -48,6 +98,10 @@
 		}
 		
 		String userId = (String) session.getAttribute("loginId");
+		
+		ChatDAO profileDao = new ChatDAO();
+		String currentUserProfileImg = profileDao.getProfileImageByUserId(userId);
+
 		
 		if (schedule == null) {
 	%>
@@ -62,8 +116,8 @@
 		String visibility = schedule.getVisibility();
 		boolean flag = false;
 		
-		if ("N".equals(visibility)) {
-			// if (userId.equals(schedule.getUserId())) flag = true;
+		if (userId != null) {
+			if (userId.equals(schedule.getUserId())) flag = true;
 			
 			for (String buddy : schedule.getTravelBuddies()) {
 				if (buddy.equals(userId)) {
@@ -71,7 +125,9 @@
 					break;
 				}
 			}
-			
+		}
+				
+		if ("N".equals(visibility)) {
 			if (flag == false) {
 	%>
 	<script type="text/javascript">
@@ -91,7 +147,18 @@
 
 		<div class="right">
 			<div class="trip_main_image">
-				<img src="/upload/<%= schedule.getMainImage() %>" alt="여행 대표 이미지">
+				<%
+					String mainImage = schedule.getMainImage();
+                    if (mainImage == null || mainImage.isEmpty()) {
+                %>
+		        		<img src="<%= request.getContextPath() %>/schedule/image/basic.png" alt="여행 대표 이미지">
+                <%
+                    } else {
+                %>
+		                <img src="/upload/<%= mainImage %>" alt="여행 대표 이미지">
+                <%
+                    }
+                %>
 			</div>
 
 			<div class="trip_content">
@@ -148,14 +215,14 @@
 							<table>
 									<thead>
 											<tr>
+													<th>시간</th>
 													<th>여행지</th>
-													<th>도시</th>
 													<th>태그</th>
-													<th>운영시간</th>
+													<th>메모</th>
 											</tr>
 									</thead>
 									<tbody id="itinerary-board">
-											</tbody>
+									</tbody>
 							</table>
 					</div>
 				</div>
@@ -181,63 +248,236 @@
 				
 				<div class="modal_map">
 					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
-								<div class="btn-wrap">
-									<button type="button" class="close_map_btn material-symbols-outlined">close</button> 
-								</div>
-									<div id="map" style="width:80%;height:80%;"></div>
-									<div id="map_info"></div>
-									<div>
-							<button type="button" class="add_schedule_btn">일정에 추가</button>
-							<button type="button" class="close_map_btn">취소하기</button>
-									</div>
-							</div>
-					</div>
-
-					<div class="modal_add">
-							<div class="bg_white" style="width:40%; height: 70%;">
-									<div>
-								<form action="">
-								<div>
-									<input type="hidden" value="<%= scheduleId %>">
+						<div class="btn-wrap">
+						</div>
+						
+						<div class="input-container" style="width:70%; margin: 0 auto; margin-top: 35px; text-align: center;">
+							<form action="${pageContext.request.contextPath}/processAddDetail?schedule_id=<%= scheduleId %>" method="post" id="schedule-form">
+								<button type="reset" class="close_map_btn material-symbols-outlined">close</button> 
+								<h3>일정 등록</h3>
+								<div style="display: none;">
+									<input type="hidden" id="schedule-id-input" name="schedule_id" value="<%= scheduleId %>">
+									<input type="hidden" id="modalPlaceName" name="placeName">
+                  <input type="hidden" id="modalLatitude" name="latitude">
+                  <input type="hidden" id="modalLongitude" name="longitude">
 								</div>
 								<div>
-									<%													
-										LocalDate currentDate = startDate;
+									<div class="date-selector-container">
+										<%                    
+											LocalDate currentDate = startDate;
+											
+											DateTimeFormatter dateShorthand = DateTimeFormatter.ofPattern("MM.dd");
+											DateTimeFormatter dayOfWeekFormatter = DateTimeFormatter.ofPattern("E", java.util.Locale.KOREAN);
+											int dayCount = 1;
 													
-										while (!currentDate.isAfter(endDate)) {
-											String fullDateStr = currentDate.toString();
-											String displayDateStr = currentDate.format(formatter);
-											String uniqueId = "date_" + fullDateStr;
-									%>
+											while (!currentDate.isAfter(endDate)) {
+												String fullDateStr = currentDate.toString();
+												String displayDateStr = currentDate.format(dateShorthand); 
+												String dayOfWeek = currentDate.format(dayOfWeekFormatter);
+												String uniqueId = "date_" + fullDateStr;
+										%>
 											<input type="checkbox" id="<%= uniqueId %>" 
-													name="selectedDates" value="<%= fullDateStr %>" />
-											<label for="<%= uniqueId %>"><span><%= displayDateStr %></span></label>
-									<%	
-														// 현재 날짜를 하루 증가
+															name="selectedDates" value="<%= fullDateStr %>" class="date-checkbox-hidden" />
+											
+											<label for="<%= uniqueId %>" class="date-button">
+												<span class="day-count">day<%= dayCount %></span>
+												<span class="day-date"><%= displayDateStr %>/<%= dayOfWeek %></span>
+											</label>
+										<%    
+											// 다음 날짜로 이동
 											currentDate = currentDate.plusDays(1);
+											dayCount++;
 											}
-									%>
+										%>
+									</div>
 								</div>
+
 								<div>
-									<select name="category">
-										<option value="관광지" selected="selected">관광지</option>
-										<option value="식당">식당</option>
-										<option value="카페">카페</option>
-										<option value="숙소">숙소</option>
-									</select>
+									<div class="category-selector-container">
+		
+										<input type="radio" id="cat-tour" name="category" value="관광지" 
+												class="category-radio-hidden" checked>
+										<label for="cat-tour" id="cat-tour-label" class="category-button">관광지</label>
+
+										<input type="radio" id="cat-shopping" name="category" value="쇼핑" 
+												class="category-radio-hidden" checked>
+										<label for="cat-shopping" id="cat-shopping-label" class="category-button">쇼핑</label>
+
+										<input type="radio" id="cat-food" name="category" value="식당" 
+												class="category-radio-hidden">
+										<label for="cat-food" id="cat-food-label" class="category-button">식당</label>
+
+										<input type="radio" id="cat-cafe" name="category" value="카페" 
+												class="category-radio-hidden">
+										<label for="cat-cafe" id="cat-cafe-label" class="category-button">카페</label>
+
+										<input type="radio" id="cat-stay" name="category" value="숙소" 
+												class="category-radio-hidden">
+										<label for="cat-stay" id="cat-stay-label" class="category-button">숙소</label>
+		
+									</div>
 								</div>
-								<div>
-									<textarea placeholder="memo"></textarea>
+
+								<div class="time-container">
+                  <label for="schedule-time" style="font-weight: bold; margin-right: 10px;">시작 시간</label>
+                  <input type="text" id="schedule-time" name="scheduleTime" 
+													class="input-time" placeholder="HH:MM (예: 09:30 또는 14:00)">
+                </div>
+
+								<div class="memo-container">
+									<textarea class="input-memo" name="memo" placeholder="MEMO"></textarea>
 								</div>
-								<div>
-									<button type="submit">일정 등록</button>
-									<button type="button" class="close_add_btn">취소 하기</button>
+
+								<div class="button-container">
+									<button type="submit" class="add_schedule">일정등록</button>
+									<button type="reset" class="close_add_btn">취소하기</button>
 								</div>
 							</form>
-									</div>
-							</div>
-					</div>
+						</div>
 
+						<div id="map_info" style="width:70%; margin: 0 auto;"></div>
+						<div id="map" style="width:70%;height:25%; margin: 0 auto; border-radius: 5px;"></div>
+
+						<div style="display: none;">
+							<button type="button" class="add_schedule_btn">일정에 추가</button>
+							<button type="button" class="close_map_btn">취소하기</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+						<div class="chat" id="comment-section">
+				<h3>댓글 목록 (<%= comments != null ? comments.size() : 0 %>)</h3>
+	
+				<div id="comment-List">
+				    <% 
+				    
+					    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+				    	if (comments != null && !comments.isEmpty()) {
+					    for (ChatDTO c : comments) {    
+				    %>
+				            <div class="comment-item">
+				                <div class="comment-left">
+				                	<%
+				                		String profileImg = c.getProfile_image();
+				                	
+				                		if(profileImg != null && !profileImg.isEmpty()){
+				                	%>
+				                	<img alt="profileimg" 
+				            				 src="<%= request.getContextPath() %>/mypage/image/<%= profileImg %>" 
+				            				 class="profileImg">				                	<%
+				                		}else{
+				                	%>
+				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+
+									<%
+				                		}
+									%>				                
+				                
+				                </div>
+				                <div class="comment-right">
+					                <strong><%= c.getUser_id() %></strong>
+					                
+					                <div class="comment-content-text">
+					                	<%= c.getcomment() %>
+					                </div>
+					                
+					                <div class="subContent">
+										<div class="comment-timestamp">
+								        	<small>(작성: <%= sdf.format(c.getCreatedAt()) %>)</small>
+								        </div>
+								        <div class="comment-actions">
+											<% if (userId != null && userId.equals(c.getUser_id())){ %>
+								            <form action="<%= request.getContextPath() %>/commentAction" method="post" style="display:inline;">
+								            	<input type="hidden" name="action" value="delete" />
+								                <input type="hidden" name="commentId" value="<%= c.getComment_id()  %>" />
+								                <input type="hidden" name="scheduleId" value="<%= scheduleId %>" />
+								                <button type="submit" class="btn-gray" onclick="return confirm('정말 삭제할까요?');">삭제</button>
+								            </form>
+								            <% } %>
+							            </div> 
+							    	</div> 
+						    	</div> 
+				            </div>
+				    <%  }
+				      } else { %>
+				        <p>등록된 댓글이 없습니다.</p>
+				    <% } %>
+				</div>
+				
+				<hr>
+				
+				<script type="text/javascript">
+					const isBuddy = <%= flag %>;
+					const isLoggedIn = <%= (userId != null) %>;
+				</script>
+				
+				
+				<%
+					if(flag == true)	{			
+				%>
+				
+				<h3>댓글 등록</h3>
+				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post"  onsubmit="return Comment();">
+				    <input type="hidden" name="action" value="insert">
+				    <input type="hidden" name="scheduleId" value="<%= scheduleId %>">
+				    
+				    <div class="form-left">
+				    	<%
+				                		
+				                	
+				                		if(currentUserProfileImg != null && !currentUserProfileImg.isEmpty()){
+				                	%>
+				                	<img alt="profileimg" 
+				            				 src="<%= request.getContextPath() %>/mypage/image/<%= currentUserProfileImg %>" 
+				            				 class="profileImg">				                	<%
+				                		}else{
+				                	%>
+				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+
+									<%
+				                		}
+									%>
+				    </div>
+				    
+				    <div class="form-right">
+				    	<div class="form-user-id"><%= userId %></div>
+				    	<textarea name="content" rows="3" placeholder="댓글을 입력하세요."></textarea>
+					    <div class="btn-gray-submit">
+					    	<button type="submit" class="btn-gray">등록</button>
+					    </div>
+				    </div>
+				</form>
+				
+				<%
+					} else if(userId != null && flag == false) {
+				%>
+					<div class="prompt">
+					<p>이 일정의 동행인만 댓글을 작성할 수 있습니다.</p>
+					</div>
+				<%
+					} else{
+				%>	
+					<div class="prompt">
+					<p><a href="<%= request.getContextPath() %>/login/login.jsp">로그인</a> 후 댓글을 작성할 수 있습니다.</p>
+					</div>
+				<%
+					}
+				%>			
+				<script type="text/javascript">
+					function Comment() {
+						if (!isLoggedIn) {
+							alert("로그인 후 댓글을 작성할 수 있습니다.");
+							return false; 
+						}
+						if (!isBuddy) {
+							alert("이 일정의 동행인(작성자)만 댓글을 등록할 수 있습니다.");
+							return false;
+						}					
+						return true;
+					}
+				</script>			
 			</div>
 		</div>
 

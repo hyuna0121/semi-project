@@ -138,12 +138,12 @@
 
 <header>
   <!-- 로고: 메인으로 이동 (경로 필요시 조정) -->
-  <a href="../mainpage/mainpage.jsp" class="logo">로고</a>
+  <% String ctx = request.getContextPath(); %>
+  <a href="<%=ctx%>/mainpage/mainpage.jsp" class="logo">로고</a>
 
   <div class="nav-right">
   	<%
   		String loginId = (String) session.getAttribute("loginId");
-  		String ctx = request.getContextPath();
   		String nickname = (String) session.getAttribute("nickname");
   		String displayName = (nickname != null && !nickname.isEmpty()) ? nickname : (loginId != null ? loginId : "게스트");
   	%>
@@ -199,7 +199,7 @@
       <a href="<%=request.getContextPath()%>/mypage/mypage_profile.jsp">내 프로필</a>
       <a href="<%=request.getContextPath()%>/mypage/travel_schedule.jsp"><span>여행 일정</span> <span class="chip">간편한 확인!</span></a>
       <a href="#">내 댓글</a>
-      <a href="<%=request.getContextPath()%>/ai/ai0.jsp">AI 추천 일정</a>
+      <a href="<%=request.getContextPath()%>/schedule/addSchedule.jsp">일정 추가</a>
     </div>
   </nav>
 
