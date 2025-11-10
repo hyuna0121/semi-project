@@ -2,20 +2,14 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // JSP에서 선언된 전역 컨텍스트 경로 변수를 사용합니다.
     const CONTEXT_PATH = window.CTX; 
-    
-    // 🚨 JSP에서 전역 변수 window.jsonEventsData에 JSON 배열이 저장되어 있다고 가정합니다.
     let eventsData = [];
     const jsonString = window.jsonEventsData; 
-    
-    // 🚨🚨🚨 상세 정보 조회 URL 정의 (오타 수정됨) 🚨🚨🚨
     const DETAIL_URL = CONTEXT_PATH + '/schedule/details'; 
 
 
     if (jsonString && typeof jsonString === 'string') {
         try {
-            // JSON 문자열을 객체로 파싱 시도. 실패 시 catch 블록으로 이동.
             eventsData = JSON.parse(jsonString);
         } catch (e) {
             console.error('FullCalendar JSON 파싱 오류: 데이터가 유효하지 않습니다.', e);
@@ -25,40 +19,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 🚨🚨🚨 모달 관련 요소 정의 🚨🚨🚨
-    const modalElement = document.getElementById('eventModal'); // 모달 요소 자체
+    const modalElement = document.getElementById('eventModal');
     const modal = new bootstrap.Modal(modalElement);
     const titleEl = document.getElementById('modalTitle');
     const startEl = document.getElementById('modalStart');
     const endEl = document.getElementById('modalEnd');
     const locationEl = document.getElementById('modalLocation');
     const descEl = document.getElementById('modalDesc');
-    const detailListArea = document.getElementById('detailedScheduleList'); // 상세 일정 목록 영역
     
-    // 🚨🚨🚨 [핵심]: 상세 일정 보기 버튼 요소 (DOMContentLoaded 시점에 찾음) 🚨🚨🚨
+    // 🚨🚨🚨 [핵심]: 새 탭 관련 요소 정의 🚨🚨🚨
+    const scheduleTabs = document.getElementById('scheduleTabs');
+    const scheduleTabContent = document.getElementById('scheduleTabContent'); 
+    
+    // 🚨🚨🚨 [핵심]: 상세 일정 보기 버튼 요소
     const goToDetailsBtn = document.getElementById('goToDetailsBtn');
 
 
-    // 🚨🚨🚨 [최종 해결 로직]: 모달이 완전히 표시된 후 리스너를 붙여 안정성 확보 🚨🚨🚨
+    // 🚨🚨🚨 모달 이벤트 리스너 (생략) 🚨🚨🚨
     modalElement.addEventListener('shown.bs.modal', function () {
-        
-        // 이전에 리스너가 연결되지 않았을 때만 연결하여 중복 방지
         if (goToDetailsBtn && !goToDetailsBtn.hasAttribute('data-listener-attached')) {
             goToDetailsBtn.addEventListener('click', function() {
                 const scheduleId = this.getAttribute('data-schedule-id');
                 if (scheduleId) {
-                    // 페이지 이동
                     window.location.href = `${CONTEXT_PATH}/schedule/schedule.jsp?schedule_id=${scheduleId}`;
                 } else {
                     console.warn('일정 ID를 가져올 수 없습니다.');
                 }
             });
-            // 리스너가 연결되었음을 표시
             goToDetailsBtn.setAttribute('data-listener-attached', 'true');
         }
     });
 
     
-    // 🔸 캘린더 설정
+    // 🔸 캘린더 설정 (생략)
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
@@ -67,142 +60,168 @@ document.addEventListener('DOMContentLoaded', function() {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        // 🚨🚨🚨 [수정]: 'timeGridWeek'와 'listWeek' 제거 🚨🚨🚨
         right: 'dayGridMonth,listMonth' 
       },
       events: eventsData,
 
-      // 🚨 캘린더 이벤트 클릭 시 모달 표시 및 상세 정보 로드
       eventClick: function(info) {
         const scheduleId = info.event.id;
-        
-        // 🚨🚨🚨 [ID 유효성 체크]: scheduleId가 없으면 경고 후 조용히 종료 🚨🚨🚨
-        if (!scheduleId) {
-             console.warn("경고: FullCalendar 초기 이벤트에서 유효한 일정 ID를 가져올 수 없습니다. 작업을 건너뜁니다.");
-             return; 
-        }
+        if (!scheduleId) { console.warn("ID 없음."); return; }
 
-        // 1. 기본 정보 표시
         titleEl.textContent = info.event.title;
         startEl.textContent = moment(info.event.start).format('YYYY-MM-DD'); 
-
-        // 🚨🚨🚨 [종료일 -1일 처리] 🚨🚨🚨
-        let displayEndDate = '';
-        if (info.event.end) {
-            // FullCalendar의 end 날짜에서 하루를 뺌
-            displayEndDate = moment(info.event.end).subtract(1, 'days').format('YYYY-MM-DD');
-        } else {
-            // 종료일이 없는 경우 (하루짜리 일정) 시작일을 표시
-            displayEndDate = moment(info.event.start).format('YYYY-MM-DD');
-        }
+        let displayEndDate = info.event.end ? moment(info.event.end).subtract(1, 'days').format('YYYY-MM-DD') : moment(info.event.start).format('YYYY-MM-DD');
         endEl.textContent = displayEndDate; 
         
         locationEl.textContent = info.event.extendedProps.location || "-";
         descEl.textContent = info.event.extendedProps.description || "-";
         
-        // 🚨 [핵심]: 버튼에 scheduleId 설정
-        if (goToDetailsBtn) {
-            goToDetailsBtn.setAttribute('data-schedule-id', scheduleId);
-        }
-
+        if (goToDetailsBtn) { goToDetailsBtn.setAttribute('data-schedule-id', scheduleId); }
         
-        // 2. AJAX로 상세 일정 조회
         fetchDetails(scheduleId);
-        
-        modal.show(); // 모달 띄우기
+        modal.show(); 
       }
     });
     
-    calendar.render(); // 캘린더를 화면에 렌더링
+    calendar.render(); 
 
-    // 🔸 테이블 클릭 시 모달 표시 및 상세 정보 로드
+    // 🔸 테이블 클릭 시 모달 표시 (생략)
     document.querySelectorAll('tbody tr').forEach(row => {
       row.style.cursor = 'pointer'; 
-      
       row.addEventListener('click', () => {
         const scheduleId = row.dataset.scheduleId; 
+        if (!scheduleId) { console.warn("ID 없음."); return; }
 
-        // 🚨🚨🚨 [ID 유효성 체크]: scheduleId가 없으면 경고 후 조용히 종료 🚨🚨🚨
-        if (!scheduleId) {
-             console.warn("경고: 테이블 이벤트에서 유효한 일정 ID를 가져올 수 없습니다. 작업을 건너뜁니다.");
-             return; 
-        }
-
-        // 1. 기본 정보 표시
         titleEl.textContent = row.dataset.title;
         startEl.textContent = row.dataset.start;
-        
-        // 테이블 데이터는 원본이므로, 그대로 표시
         endEl.textContent = row.dataset.end && row.dataset.end !== '-' ? row.dataset.end : row.dataset.start; 
-        
         locationEl.textContent = row.dataset.location;
         descEl.textContent = row.dataset.desc;
         
-        // 🚨 [핵심]: 버튼에 scheduleId 설정
-        if (goToDetailsBtn) {
-            goToDetailsBtn.setAttribute('data-schedule-id', scheduleId);
-        }
+        if (goToDetailsBtn) { goToDetailsBtn.setAttribute('data-schedule-id', scheduleId); }
         
-        // 2. AJAX로 상세 일정 조회
         fetchDetails(scheduleId);
-        
-        modal.show(); // 모달 띄우기
+        modal.show(); 
       });
     });
     
-    // 🚨🚨🚨 [핵심 함수 1] 일정 상세 정보 조회 및 렌더링 🚨🚨🚨
-    function fetchDetails(id) {
-        detailListArea.innerHTML = '<p class="text-center text-muted mt-4">상세 정보를 불러오는 중입니다...</p>';
+    // 🔸 상세 일정 데이터를 비동기로 조회하는 함수 (수정됨)
+    function fetchDetails(scheduleId) {
+        if (!scheduleTabs || !scheduleTabContent) {
+            console.error("오류: scheduleTabs 또는 scheduleTabContent 요소를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 🚨🚨🚨 [핵심] 탭 영역과 콘텐츠 영역 초기화 및 로딩 메시지 설정 🚨🚨🚨
+        scheduleTabs.innerHTML = '';
+        scheduleTabContent.innerHTML = '<p class="text-center text-muted mt-4">세부 일정 로딩 중...</p>';
         
-        // Fetch API 호출 (GET 요청)
-        fetch(`${DETAIL_URL}?id=${id}`) 
+        fetch(`${DETAIL_URL}?id=${scheduleId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(groupedData => {
-                // data는 DetailService에서 그룹화된 Map<DayString, List<DetailDTO>> 형태를 가정
-                detailListArea.innerHTML = renderGroupedDetails(groupedData);
+            .then(groupedDetails => {
+                // 🚨 변경: 새로운 탭 구조를 렌더링하는 함수 호출
+                renderTabStructure(groupedDetails);
             })
             .catch(error => {
-                detailListArea.innerHTML = `<p class="text-danger mt-4">일정 상세 정보 로드 실패. (서버 콘솔 확인)</p>`;
-                console.error('Fetching Schedule Details Error:', error);
+                console.error('Error fetching schedule details:', error);
+                scheduleTabContent.innerHTML = '<p class="text-center text-danger mt-4">세부 일정을 불러오는 데 실패했습니다. (서버 콘솔 확인)</p>';
             });
     }
 
-    // 🚨🚨🚨 [핵심 함수 2] HTML 렌더링 함수 (Map 데이터를 HTML로 변환) 🚨🚨🚨
-    function renderGroupedDetails(groupedData) {
-        let html = '<div class="list-group">';
+
+    // 🚨 새로 추가된 함수: Day별 탭 메뉴와 콘텐츠 구조를 렌더링합니다.
+    function renderTabStructure(groupedData) {
         
-        if (Object.keys(groupedData).length === 0) {
-            return '<p class="text-center text-muted mt-4">등록된 세부 일정이 없습니다.</p>';
+        if (!scheduleTabs || !scheduleTabContent) {
+            console.error("오류: renderTabStructure 함수 내에서 scheduleTabs 또는 scheduleTabContent 요소를 찾을 수 없습니다.");
+            return;
         }
 
-        for (const dayCount in groupedData) {
-            const detailsList = groupedData[dayCount];
+        // 🚨🚨🚨 [재초기화]: 이전 로딩 메시지를 지우기 위해 다시 초기화 🚨🚨🚨
+        scheduleTabs.innerHTML = '';
+        scheduleTabContent.innerHTML = ''; 
+        
+        const dayKeys = Object.keys(groupedData);
+
+        if (dayKeys.length === 0) {
+            scheduleTabContent.innerHTML = '<p class="text-center text-muted mt-4">등록된 세부 일정이 없습니다.</p>';
+            return;
+        }
+
+        dayKeys.forEach((dayCount, index) => {
+            const isActive = index === 0;
+            const tabId = `day-${dayCount}-tab`;
+            const paneId = `day-${dayCount}-pane`;
             
-            // Day 1, Day 2 형식의 헤더
-            html += `<div class="list-group-item list-group-item-action active bg-info text-white mt-3">
-                        <h6 class="mb-0">Day ${dayCount}</h6>
-                    </div>`;
+            // 1. 탭 버튼 (Tab Button) 생성
+            const tabItem = document.createElement('li');
+            tabItem.classList.add('nav-item');
+            tabItem.setAttribute('role', 'presentation');
+            tabItem.innerHTML = `
+                <button class="nav-link ${isActive ? 'active' : ''}" 
+                        id="${tabId}" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#${paneId}" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="${paneId}" 
+                        aria-selected="${isActive ? 'true' : 'false'}">
+                    Day ${dayCount}
+                </button>`;
+            scheduleTabs.appendChild(tabItem);
 
-            if (detailsList.length === 0) {
-                 html += `<div class="list-group-item">세부 일정 없음</div>`;
-            } else {
-                detailsList.forEach(detail => {
-                    html += `<div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong class="text-primary">${detail.place}</strong>
-                                    <small class="text-muted"> (${detail.category})</small><br>
-                                    <small>${detail.memo || ''}</small>
-                                </div>
-                                <span class="badge bg-secondary rounded-pill">${detail.startTime}</span>
-                             </div>`;
-                });
+            // 2. 탭 콘텐츠 창 (Tab Pane) 생성
+            const tabPane = document.createElement('div');
+            tabPane.classList.add('tab-pane', 'fade', 'pt-3');
+            if (isActive) {
+                tabPane.classList.add('show', 'active');
             }
+            tabPane.setAttribute('id', paneId);
+            tabPane.setAttribute('role', 'tabpanel');
+            tabPane.setAttribute('aria-labelledby', tabId);
+            
+            // 3. 특정 Day의 세부 일정을 탭 콘텐츠 창에 렌더링
+            tabPane.innerHTML = renderDayDetails(groupedData[dayCount]);
+
+            scheduleTabContent.appendChild(tabPane);
+            
+            // 🚨🚨🚨 [핵심 추가]: 첫 번째 탭을 강제로 활성화하여 표시되도록 보장 🚨🚨🚨
+            if (isActive) {
+                 try {
+                     const tabButton = tabItem.querySelector('.nav-link');
+                     new bootstrap.Tab(tabButton).show();
+                 } catch (e) {
+                      // Bootstrap 탭 기능이 로드되지 않았을 때 발생하는 경고
+                      console.warn("Bootstrap 탭 객체 활성화 실패:", e);
+                 }
+            }
+        });
+    }
+
+    // 🚨 새로 추가된 함수: 단일 Day의 세부 일정 목록만 렌더링합니다. (기존 로직에서 분리)
+    function renderDayDetails(detailsList) {
+        let html = '<div class="list-group">';
+
+        if (detailsList.length === 0) {
+             html += `<div class="list-group-item text-muted">등록된 세부 일정이 없습니다.</div>`;
+        } else {
+            detailsList.forEach(detail => {
+                html += `<div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="text-primary">${detail.place}</strong>
+                                <small class="text-muted"> (${detail.category})</small><br>
+                                <small>${detail.memo || ''}</small>
+                            </div>
+                            <span class="badge bg-secondary rounded-pill">${detail.startTime}</span>
+                         </div>`;
+            });
         }
+
         html += '</div>';
         return html;
     }
