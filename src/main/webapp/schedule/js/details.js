@@ -65,4 +65,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. 페이지 첫 로드 시 1일차 데이터 불러오기
     loadItinerary(1, scheduleId);
+	
+	// 폼 제출 유효성 검사
+	const form = document.getElementById('schedule-form');
+	
+	if (form) {
+		const scheduleTimeInput = document.getElementById('schedule-time');
+		
+		form.addEventListener('submit', function(event) {
+			const checkedDates = document.querySelectorAll('input[name="selectedDates"]:checked');
+			const scheduleTimeValue = scheduleTimeInput.value.trim();
+			
+			if (checkedDates.length === 0) {
+				alert('해당 일정을 추가할 날짜를 선택해주세요.');
+				event.preventDefault();
+				return;
+			}
+			
+			if (scheduleTimeValue === '') {
+				alert('일정 시작 시간을 입력해주세요.');
+				event.preventDefault();
+				scheduleTimeInput.focus();
+				return;
+			}
+		});
+		
+		if (scheduleTimeInput) {
+			scheduleTimeInput.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+				}
+			});
+		}
+	}
 });
