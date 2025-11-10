@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let eventsData = [];
     const jsonString = window.jsonEventsData; 
     
-    // 🚨🚨🚨 상세 정보 조회 URL 정의 (컨텍스트 경로 사용) 🚨🚨🚨
+    // 🚨🚨🚨 상세 정보 조회 URL 정의 (오타 수정됨) 🚨🚨🚨
     const DETAIL_URL = CONTEXT_PATH + '/schedule/details'; 
 
 
@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // 🚨🚨🚨 [최종 해결 로직]: 모달이 완전히 표시된 후 리스너를 붙여 안정성 확보 🚨🚨🚨
-    // Bootstrap 모달 이벤트: 모달이 사용자에게 표시된 직후 발생
     modalElement.addEventListener('shown.bs.modal', function () {
         
         // 이전에 리스너가 연결되지 않았을 때만 연결하여 중복 방지
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 페이지 이동
                     window.location.href = `${CONTEXT_PATH}/schedule/schedule.jsp?schedule_id=${scheduleId}`;
                 } else {
-                    alert('일정 ID를 찾을 수 없습니다.');
+                    console.warn('일정 ID를 가져올 수 없습니다.');
                 }
             });
             // 리스너가 연결되었음을 표시
@@ -68,7 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,listWeek'
+        // 🚨🚨🚨 [수정]: 'timeGridWeek'와 'listWeek' 제거 🚨🚨🚨
+        right: 'dayGridMonth,listMonth' 
       },
       events: eventsData,
 
@@ -76,10 +76,27 @@ document.addEventListener('DOMContentLoaded', function() {
       eventClick: function(info) {
         const scheduleId = info.event.id;
         
+        // 🚨🚨🚨 [ID 유효성 체크]: scheduleId가 없으면 경고 후 조용히 종료 🚨🚨🚨
+        if (!scheduleId) {
+             console.warn("경고: FullCalendar 초기 이벤트에서 유효한 일정 ID를 가져올 수 없습니다. 작업을 건너뜁니다.");
+             return; 
+        }
+
         // 1. 기본 정보 표시
         titleEl.textContent = info.event.title;
-        startEl.textContent = info.event.startStr;
-        endEl.textContent = info.event.endStr ? info.event.endStr : info.event.startStr; 
+        startEl.textContent = moment(info.event.start).format('YYYY-MM-DD'); 
+
+        // 🚨🚨🚨 [종료일 -1일 처리] 🚨🚨🚨
+        let displayEndDate = '';
+        if (info.event.end) {
+            // FullCalendar의 end 날짜에서 하루를 뺌
+            displayEndDate = moment(info.event.end).subtract(1, 'days').format('YYYY-MM-DD');
+        } else {
+            // 종료일이 없는 경우 (하루짜리 일정) 시작일을 표시
+            displayEndDate = moment(info.event.start).format('YYYY-MM-DD');
+        }
+        endEl.textContent = displayEndDate; 
+        
         locationEl.textContent = info.event.extendedProps.location || "-";
         descEl.textContent = info.event.extendedProps.description || "-";
         
@@ -90,11 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         
         // 2. AJAX로 상세 일정 조회
-        if (scheduleId) {
-             fetchDetails(scheduleId);
-        } else {
-             detailListArea.innerHTML = '<p class="text-danger">일정 ID를 찾을 수 없어 상세 정보 로드가 불가능합니다.</p>';
-        }
+        fetchDetails(scheduleId);
         
         modal.show(); // 모달 띄우기
       }
@@ -109,10 +122,19 @@ document.addEventListener('DOMContentLoaded', function() {
       row.addEventListener('click', () => {
         const scheduleId = row.dataset.scheduleId; 
 
+        // 🚨🚨🚨 [ID 유효성 체크]: scheduleId가 없으면 경고 후 조용히 종료 🚨🚨🚨
+        if (!scheduleId) {
+             console.warn("경고: 테이블 이벤트에서 유효한 일정 ID를 가져올 수 없습니다. 작업을 건너뜁니다.");
+             return; 
+        }
+
         // 1. 기본 정보 표시
         titleEl.textContent = row.dataset.title;
         startEl.textContent = row.dataset.start;
+        
+        // 테이블 데이터는 원본이므로, 그대로 표시
         endEl.textContent = row.dataset.end && row.dataset.end !== '-' ? row.dataset.end : row.dataset.start; 
+        
         locationEl.textContent = row.dataset.location;
         descEl.textContent = row.dataset.desc;
         
@@ -122,11 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // 2. AJAX로 상세 일정 조회
-        if (scheduleId) {
-             fetchDetails(scheduleId);
-        } else {
-             detailListArea.innerHTML = '<p class="text-danger">일정 ID를 찾을 수 없어 상세 정보 로드가 불가능합니다.</p>';
-        }
+        fetchDetails(scheduleId);
         
         modal.show(); // 모달 띄우기
       });
