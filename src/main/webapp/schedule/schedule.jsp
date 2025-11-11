@@ -238,7 +238,7 @@
 				</div>
 
 				<div class="modal">
-					<div id="menu_wrap" class="bg_white" style="width:40%; height: 70%;">
+					<div id="menu_wrap" class="bg_white" style="width:40%; height: 71%;">
 						<div class="btn-wrap">
 							<button type="submit" class="close_btn material-symbols-outlined">close</button> 
 						</div>
