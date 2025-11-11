@@ -153,4 +153,21 @@ public class DetailDAO {
 		
 		return result;
 	}
+	
+	public int deleteDetailsOutRange(Connection conn, long scheduleId, String startDate, String endDate) throws SQLException {
+	    String sql = "DELETE FROM details " +
+	                  "WHERE schedule_id = ? " +
+	                  "AND (date < DATE(?) OR date > DATE(?))";
+	    int result = 0;
+	    
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        pstmt.setLong(1, scheduleId);
+	        pstmt.setString(2, startDate); // 또는 setDate
+	        pstmt.setString(3, endDate);   // 또는 setDate
+	        
+	        result = pstmt.executeUpdate();
+	    }
+	    
+	    return result;
+	}
 }

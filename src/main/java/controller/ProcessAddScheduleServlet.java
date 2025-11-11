@@ -45,11 +45,9 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         // 체크박스: 체크됨=비공개(N), 체크안됨=공개(Y)
         schedule.setVisibility(request.getParameter("visibility") == null ? "Y" : "N");
 
-        // ✅ 동행인 배열: 두 이름 모두 지원 (companions[] | travelBuddies)
-        String[] companionsA = request.getParameterValues("companions[]");   // 최신 JS가 넣는 이름
-        String[] companionsB = request.getParameterValues("travelBuddies");  // 예전 이름(텍스트 인풋 방식)
-        String[] mergedCompanions = mergeUnique(companionsA, companionsB);
-        schedule.setTravelBuddies(mergedCompanions);
+        // 동행인 배열
+        String[] companions = request.getParameterValues("companions[]");  
+        schedule.setTravelBuddies(companions);
 
         // 날짜(예: "2025-11-05 ~ 2025-11-07")
         String date = request.getParameter("demo");
@@ -87,25 +85,4 @@ public class ProcessAddScheduleServlet extends HttpServlet {
         return (s == null) ? "" : s.trim();
     }
 
-    /** 두 배열을 합쳐 중복 제거 + 공백 제거 + 빈 값 제거 */
-    private static String[] mergeUnique(String[] a, String[] b) {
-        Set<String> set = new LinkedHashSet<>();
-        if (a != null) {
-            for (String v : a) {
-                if (v != null) {
-                    String t = v.trim();
-                    if (!t.isEmpty()) set.add(t);
-                }
-            }
-        }
-        if (b != null) {
-            for (String v : b) {
-                if (v != null) {
-                    String t = v.trim();
-                    if (!t.isEmpty()) set.add(t);
-                }
-            }
-        }
-        return set.toArray(new String[0]);
-    }
 }

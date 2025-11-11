@@ -17,6 +17,8 @@ import java.util.UUID;
 
 import com.travel.dao.ScheduleDAO;
 import com.travel.dto.ScheduleDTO;
+import com.travel.service.ScheduleService;
+
 import util.DBUtil; 
 
 @WebServlet("/processEditSchedule") 
@@ -24,6 +26,7 @@ import util.DBUtil;
 @MultipartConfig 
 public class ProcessEditScheduleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private final ScheduleService scheduleService = new ScheduleService();
        
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
@@ -80,26 +83,16 @@ public class ProcessEditScheduleServlet extends HttpServlet {
                     schedule.setEndDate(arr[1].trim());
                 }
             }
-
             
-//            Part filePart = request.getPart("mainImage");
-//            String fileName = filePart.getSubmittedFileName();
-//
-//            if (fileName != null && !fileName.isEmpty()) {
-//
-//                String uploadPath = "D:/GDJ94/workspace/upload"; // 실제 경로 확인
-//    
-//            
-//                String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-//                String newFileName = UUID.randomUUID().toString() + fileExtension;
-//                filePart.write(uploadPath + File.separator + newFileName);
-//                
-//                schedule.setMainImage(newFileName);
-//            }
-//            
-//           
-//            dao.updateSchedule(conn, schedule); 
+            String[] companions = request.getParameterValues("companions[]");  
+            schedule.setTravelBuddies(companions);
+            
+            Part filePart = request.getPart("mainImage");
+            String uploadPath = "D:/GDJ94/workspace/upload"; 
+            
+            scheduleService.editSchedule(schedule, filePart, uploadPath);
 
+            System.out.println(schedule);
 
             response.sendRedirect(request.getContextPath() + "/schedule/schedule.jsp?schedule_id=" + scheduleId);
 

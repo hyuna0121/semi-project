@@ -14,6 +14,19 @@
     padding: 0;
 }
 
+.left a {
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+	outline: 1px solid #235baf; 
+    color: #235baf;
+    background-color: #fff;
+}
+.left a:hover {
+	color: #fff;
+	background-color: #235baf;	
+}
+
 .right {
     width: 90%;
 }
