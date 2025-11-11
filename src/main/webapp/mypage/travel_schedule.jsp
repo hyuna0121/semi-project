@@ -11,6 +11,7 @@
 <%@ page import="java.io.PrintWriter"%>
 <%
 // 🔸 1. 로그인된 사용자 ID 확인 (세션에서 가져와야 함)
+String cp = request.getContextPath();
 String userId = (String) session.getAttribute("loginId");
 // DB에서 일정 정보를 조회할 리스트 선언
 List<ScheduleDTO> myScheduleList = new ArrayList<>();
@@ -175,8 +176,9 @@ myScheduleList = new ArrayList<>();
    <div class="main-container">
       <aside class="sidebar">
          <h5>My Page</h5>
-         <a href="mypage_profile.jsp">내 프로필</a> <a href="#" class="active">여행
-            일정</a> <a href="#">내 댓글</a>
+          <a href="<%=cp%>/mypage/mypage_profile.jsp">내 프로필</a>
+   		  <a href="<%=cp%>/mypage/travel_schedule.jsp" class="active">여행 일정</a>
+    	  <a href="<%=cp%>/mypage/mypage_comments.jsp">내 댓글</a>
       </aside>
 
       <main class="content">

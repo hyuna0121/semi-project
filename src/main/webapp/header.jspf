@@ -222,7 +222,7 @@ body.drawer-open .page-content{filter:blur(3px);pointer-events:none;}
       </span>
     </a>
 
-    <a href="#">
+    <a href="<%=ctx%>/mypage/mypage_comments.jsp">
       <span class="item-icon material-symbols-outlined">mode_comment</span>
       <span class="item-label">내 댓글</span>
       <span class="item-right"><span class="chev">chevron_right</span></span>

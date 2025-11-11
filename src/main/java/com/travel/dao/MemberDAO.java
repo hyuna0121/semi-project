@@ -17,7 +17,6 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         MemberDTO member = null;
-        // 🚨 SQL 수정: password_update_count 컬럼 추가 조회
         String sql = "SELECT id, name, password, email, phone, address, gender, profile_image, password_update_count FROM users WHERE id = ?"; 
 
         try {
@@ -52,7 +51,6 @@ public class MemberDAO {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        // 🚨 SQL 수정: READ COMMITTED 설정 덕분에 단순 조회로 복귀
         String sql = "SELECT password FROM users WHERE id = ?"; 
 
         try {
@@ -79,7 +77,6 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         int result = 0;
         
-        // SQL 빌더 (카운트 증가 로직 포함)
         StringBuilder sql = new StringBuilder("UPDATE users SET name=?, phone=?, email=?, address=?, gender=?, profile_image=?");
         
         if (newPassword != null && !newPassword.isEmpty()) {
@@ -89,14 +86,12 @@ public class MemberDAO {
 
         try {
             conn = DBUtil.getConnection(); 
-            // 🚨🚨 핵심: 트랜잭션 시작 (AutoCommit OFF)
             conn.setAutoCommit(false); 
 
             pstmt = conn.prepareStatement(sql.toString());
             
             int index = 1;
             
-            // 파라미터 바인딩
             pstmt.setString(index++, member.getName());      
             pstmt.setString(index++, member.getPhone());     
             pstmt.setString(index++, member.getEmail());     
@@ -112,7 +107,6 @@ public class MemberDAO {
             
             result = pstmt.executeUpdate();
             
-            // 🚨🚨 핵심: 성공 시 커밋, 실패 시 롤백
             if (result > 0) {
                 conn.commit(); 
             } else {
@@ -126,7 +120,7 @@ public class MemberDAO {
             throw e;
         } finally {
             if (conn != null) {
-                conn.setAutoCommit(true); // 상태 복구
+                conn.setAutoCommit(true); 
             }
             DBUtil.close(pstmt, conn); 
         }
@@ -135,7 +129,7 @@ public class MemberDAO {
     }
     
     /**
-     * 새로운 회원 정보를 DB에 저장합니다. (기존 로직 유지)
+     * 새로운 회원 정보를 DB에 저장합니다. 
      */
     public int insertMember(MemberDTO member) throws SQLException {
         Connection conn = null;
@@ -188,7 +182,7 @@ public class MemberDAO {
 
     
     /**
-     * 회원가입 시 ID 중복을 체크합니다. (기존 로직 유지)
+     * 회원가입 시 ID 중복을 체크합니다. 
      */
     public boolean isIdDuplicate(String id) throws SQLException {
         Connection conn = null;
