@@ -1,5 +1,7 @@
 package com.travel.dto;
 
+import java.util.Arrays;
+
 // 제공된 스키마와 DTO 코드를 기반으로 통합
 public class ScheduleDTO {
 	private long id;
@@ -49,4 +51,13 @@ public class ScheduleDTO {
 	
 	public String[] getTravelBuddies() { return travelBuddies; }
 	public void setTravelBuddies(String[] travelBuddies) { this.travelBuddies = travelBuddies; }
+
+	@Override
+	public String toString() {
+		return "ScheduleDTO [title=" + title + ", location=" + location + ", description=" + description
+				+ ", visibility=" + visibility + ", startDate=" + startDate + ", endDate=" + endDate + ", mainImage="
+				+ mainImage + ", travelBuddies=" + Arrays.toString(travelBuddies) + "]";
+	}
+	
+	
 }

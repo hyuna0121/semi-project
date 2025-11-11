@@ -1,16 +1,3 @@
-/*imageInput.addEventListener('change', function(event) {
-	const file = event.target.files[0];
-    if (file) {
-	    const reader = new FileReader();	        
-        reader.onload = function(e) {
-	        imagePreview.src = e.target.result;
-    }
-    	reader.readAsDataURL(file);
-    } else {
-		imagePreview.src = "/upload/<%= schedule.getMainImage() %>";
-    }
-});*/
-	
 // 공개/비공개 토글 (값은 항상 value="N", 존재 유무로 판단)
 (function () {
   const cb = document.getElementById('visibility');
@@ -45,11 +32,11 @@ $(function () {
   // 읽어온 값을 moment 객체로 변환, 값이 비어있거나 유효하지 않으면 오늘 날짜를 기본값(today)으로 사용합니다.
   const today = moment();
   const initialStartMoment = (initialStartDateStr && moment(initialStartDateStr, 'YYYY-MM-DD').isValid())
-                           ? moment(initialStartDateStr, 'YYYY-MM-DD')
-                           : today;
+                          ? moment(initialStartDateStr, 'YYYY-MM-DD')
+                          : today;
   const initialEndMoment = (initialEndDateStr && moment(initialEndDateStr, 'YYYY-MM-DD').isValid())
-                         ? moment(initialEndDateStr, 'YYYY-MM-DD')
-                         : today;
+                        ? moment(initialEndDateStr, 'YYYY-MM-DD')
+                        : today;
 
 
   $view.daterangepicker({
@@ -76,13 +63,13 @@ $(function () {
   const initPretty = initialStartMoment.format('YYYY-MM-DD') + ' ~ ' + initialEndMoment.format('YYYY-MM-DD');
   $view.val(initPretty);
   $demo.val(initPretty);
- 
+
 });
 
 // ===== 동행인 추가 (최종 통합) =====
 (function () {
   var ctx   = window.CTX || "";
-  var form  = document.querySelector('form[action$="/processAddSchedule"]') || document.querySelector("form");
+  var form  = document.querySelector('form[action$="/processEditSchedule"]') || document.querySelector("form");
   var input = document.getElementById("companionInput");
   var addBtn= document.getElementById("companionAddBtn");
   var list  = document.getElementById("companionList");
@@ -190,4 +177,20 @@ $(function () {
     }
   });
   addBtn.addEventListener("click", onAddClick);
+
+  function loadExistingCompanions() {
+    var existingIds = window.EXISTING_BUDDIES || [];
+    
+    if (existingIds.length === 0) {
+      return;
+    }
+
+    console.log("Loading existing companions : ", existingIds);
+    
+    existingIds.forEach(function (userId) {
+      findFriend(userId);
+    });
+  }
+
+  loadExistingCompanions();
 })();

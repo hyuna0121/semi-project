@@ -85,7 +85,7 @@
     <div class="schedule-card shadow-lg">
       <h1 class="schedule-title">일정 수정</h1>
 
-      <form action="<%=ctx%>/processEditSchedule" method="post" enctype="multipart/form-data" class="mt-4">
+      <form action="<%=ctx%>/processEditSchedule?schedule_id=<%= scheduleId %>" method="post" enctype="multipart/form-data" class="mt-4">
 		  <!-- 제목 -->
 		  <div class="mb-3">
 		    <label for="title" class="form-label">제목</label>
@@ -162,7 +162,22 @@
   <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
   <!-- 페이지 전용 스크립트 -->
-  <script>window.CTX = '<%=request.getContextPath()%>';</script>
+  <script>
+  	window.CTX = '<%=request.getContextPath()%>';
+  	window.EXISTING_BUDDIES = [
+  	  <% 
+  	      boolean first = true;
+  	  
+  	      if (schedule != null && schedule.getTravelBuddies() != null) {
+  	          for (String buddyId : schedule.getTravelBuddies()) {
+  	              if (!first) out.print(",");
+  	              out.print("\"" + buddyId.replace("\"", "\\\"") + "\""); 
+  	              first = false;
+  	          }
+  	      }
+  	  %>
+  	  ];
+  </script>
   <script src="<%=request.getContextPath()%>/schedule/js/editSchedule.js"></script>
 </body>
 </html>

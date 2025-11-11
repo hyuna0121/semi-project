@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 
-import com.travel.dao.DetailDAO;
-import com.travel.dao.MemberDAO;
 import com.travel.dao.ScheduleDAO;
 import com.travel.dto.ScheduleDTO;
 import util.DBUtil;
