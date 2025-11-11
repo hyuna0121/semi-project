@@ -339,8 +339,8 @@
 				    <% 
 				    
 					    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				    	sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-
+				    	/* sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));  */
+				    
 				    	if (comments != null && !comments.isEmpty()) {
 					    for (ChatDTO c : comments) {    
 				    %>
@@ -372,7 +372,19 @@
 					                
 					                <div class="subContent">
 										<div class="comment-timestamp">
-								        	<small>(작성: <%= sdf.format(c.getCreatedAt()) %>)</small>
+								        	<small>
+								        	<%
+								        	if (c.getCreatedAt() != null) {
+								        	%>
+								        		(작성: <%= sdf.format(c.getCreatedAt()) %>)
+								        	<%
+								        	} else {
+								        	%>
+								        		(작성 시간 없음)
+								        	<%
+								        	}
+								        	%>
+								        	</small>
 								        </div>
 								        <div class="comment-actions">
 											<% if (userId != null && userId.equals(c.getUser_id())){ %>
@@ -406,7 +418,7 @@
 				%>
 				
 				<h3>댓글 등록</h3>
-				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post"  onsubmit="return Comment();">
+				<form class="comment-form-new" action="<%= request.getContextPath() %>/commentAction" method="post"  onsubmit="return Comment();" id="commentForm">
 				    <input type="hidden" name="action" value="insert">
 				    <input type="hidden" name="scheduleId" value="<%= scheduleId %>">
 				    
@@ -430,9 +442,10 @@
 				    
 				    <div class="form-right">
 				    	<div class="form-user-id"><%= userId %></div>
-				    	<textarea name="content" rows="3" placeholder="댓글을 입력하세요."></textarea>
+				    	<textarea name="content" rows="3" placeholder="댓글을 입력하세요." id="commentContent"></textarea>
+				    	
 					    <div class="btn-gray-submit">
-					    	<button type="submit" class="btn-gray">등록</button>
+					    	<button type="submit" class="btn-gray" id="commentSubmit">등록</button>
 					    </div>
 				    </div>
 				</form>
@@ -454,6 +467,8 @@
 				%>			
 				<script type="text/javascript">
 					function Comment() {
+					const content = document.getElementById("commentContent").value;
+
 						if (!isLoggedIn) {
 							alert("로그인 후 댓글을 작성할 수 있습니다.");
 							return false; 
@@ -461,14 +476,40 @@
 						if (!isBuddy) {
 							alert("이 일정의 동행인(작성자)만 댓글을 등록할 수 있습니다.");
 							return false;
-						}					
-						return true;
+						}
+						
+						if(content.trim().length === 0){
+							alert("내용을 입력하세요.");
+							return false;
+						}
+						
+						if(content.length > 255 ){
+							alert("댓글은 255자를 넘을 수 없습니다.");
+							return false;
+						}
+						
+					return true;
 					}
-				</script>			
+					
+					<% if (flag == true){ %>
+					
+					const textarea = document.getElementById("commentContent");
+					
+					textarea.addEventListener('keydown', function(event){
+						if(event.key === 'Enter' && ! event.shiftKey){
+							event.preventDefault();
+
+							document.getElementById('commentSubmit').click();
+						}
+					});
+					
+					<% } %>
+				</script>				
 			</div>
 		</div>
 
 	</div>
+
     
     <%@ include file="../footer.jsp" %>
 </body>

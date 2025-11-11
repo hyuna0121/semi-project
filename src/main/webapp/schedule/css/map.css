@@ -680,3 +680,8 @@ li::marker {
     background-color: #555; 
     color: #fff;
 }
+
+.comment-content-text {
+  overflow-wrap: break-word;
+
+}
