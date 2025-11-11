@@ -170,4 +170,35 @@ public class DetailDAO {
 	    
 	    return result;
 	}
+	
+	public void insertDetailCopy(Connection conn, List<DetailDTO> detailList) throws SQLException {
+		String sql = "INSERT INTO details(schedule_id, date, place, start_time, memo, category, position) VALUES (?, ?, ?, ?, ?, ?, POINT(?, ?))";
+		
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			
+			for (DetailDTO detail : detailList) {
+				pstmt.setLong(1, detail.getScheduleId());
+				pstmt.setString(2, detail.getDate());
+				pstmt.setString(3, detail.getPlace());
+				pstmt.setString(4, detail.getStartTime());
+				pstmt.setString(5, detail.getMemo());
+				pstmt.setString(6, detail.getCategory());
+				pstmt.setDouble(7, detail.getLongitude());
+				pstmt.setDouble(8, detail.getLatitude());
+				
+				pstmt.addBatch();
+			}
+			
+			pstmt.executeBatch();
+			
+		} catch (SQLException e) {
+			
+			
+			e.printStackTrace();
+			
+			throw e;
+		} finally {
+		}
+	}
+
 }
