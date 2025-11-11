@@ -142,7 +142,7 @@
 			<%
             	if (flag == true) {
             %>
-					<a href="<%= request.getContextPath() %>/schedule/editSchedule2.jsp?schedule_id=<%= scheduleId %>">수정하기</a>
+					<a href="<%= request.getContextPath() %>/schedule/editSchedule.jsp?schedule_id=<%= scheduleId %>">수정하기</a>
             <%
             	}
             %>
