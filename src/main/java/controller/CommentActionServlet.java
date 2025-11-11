@@ -57,7 +57,6 @@ public class CommentActionServlet extends HttpServlet {
                 	dto.setUser_id(userId); 
                 	dto.setcomment(content); 
 
-                	dao.insertComment(dto);
                 
                 
 					
@@ -77,10 +76,12 @@ public class CommentActionServlet extends HttpServlet {
            }
                 
            if(isBuddy) {
-           ChatDTO chat = new ChatDTO();
-           chat.setcomment(content);
-           chat.setSchedule_id(scheduleId);
-           chat.setUser_id(userId);
+           ChatDTO dto = new ChatDTO();
+           dto.setcomment(content);
+           dto.setSchedule_id(scheduleId);
+           dto.setUser_id(userId);
+
+           dao.insertComment(dto);
            }
 
             } else if ("delete".equals(action)) {
