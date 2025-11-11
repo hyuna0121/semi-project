@@ -10,8 +10,7 @@ public class ChatDTO {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private String profile_image;
-    
-    
+    private String scheduleTitle; // 추가함
     
 	public int getComment_id() {
 		return comment_id;
@@ -55,8 +54,13 @@ public class ChatDTO {
 	public void setProfile_image(String profile_image) {
 		this.profile_image = profile_image;
 	}
-
-	
+	// 추가함
+	public String getScheduleTitle() {
+        return scheduleTitle;
+    }
+    public void setScheduleTitle(String scheduleTitle) {
+        this.scheduleTitle = scheduleTitle;
+    }
 	
    
     

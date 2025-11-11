@@ -29,17 +29,15 @@ public class ScheduleDetailServlet extends HttpServlet {
         try {
             scheduleId = Long.parseLong(request.getParameter("id"));
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400 Bad Request
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
             out.print("{\"error\":\"Invalid schedule ID\"}");
             return;
         }
 
         DetailService service = new DetailService();
         
-        // 1. Service를 통해 상세 일정을 날짜별로 그룹화하여 조회
         Map<String, List<DetailDTO>> groupedDetails = service.getGroupedDetails(scheduleId);
         
-        // 2. 결과를 JSON으로 변환하여 클라이언트에 전송
         String jsonResponse = gson.toJson(groupedDetails);
         out.print(jsonResponse);
     }
