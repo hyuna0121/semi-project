@@ -323,35 +323,17 @@ public class ScheduleDAO {
 		
 		String deleteScheduleSql = "DELETE FROM schedules WHERE id = ?";
 		
-		try {
-			conn.setAutoCommit(false);
 
-			detailDAO.deleteDetailByScheduleId(conn, scheduleId);
-			chatDAO.deleteCommentByScheduleId(conn, scheduleId);
-			this.deleteMembersByScheduleId(conn, scheduleId);			
+		detailDAO.deleteDetailByScheduleId(conn, scheduleId);
+		chatDAO.deleteCommentByScheduleId(conn, scheduleId);
+		this.deleteMembersByScheduleId(conn, scheduleId);			
 			
-			try (PreparedStatement pstmt = conn.prepareStatement(deleteScheduleSql)) {
-				pstmt.setLong(1, scheduleId); 
-				rowsAffected = pstmt.executeUpdate();
+		try (PreparedStatement pstmt = conn.prepareStatement(deleteScheduleSql)) {
+			pstmt.setLong(1, scheduleId); 
+			rowsAffected = pstmt.executeUpdate();
 				
-				if (rowsAffected == 0) {
-					throw new SQLException("Schedule 삭제 실패: ID를 찾을 수 없습니다 - " + scheduleId);
-				}
-			}
-			
-			conn.commit();
-			
-		} catch (SQLException e) {
-
-			if (conn != null) {
-				conn.rollback();
-			}
-			
-			e.printStackTrace();
-			throw e; 
-		} finally {
-			if (conn != null) {
-				conn.setAutoCommit(true);
+			if (rowsAffected == 0) {
+				throw new SQLException("Schedule 삭제 실패: ID를 찾을 수 없습니다 - " + scheduleId);
 			}
 		}
 		

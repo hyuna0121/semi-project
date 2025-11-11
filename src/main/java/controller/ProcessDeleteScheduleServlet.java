@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import com.travel.dao.ScheduleDAO;
 import com.travel.dto.ScheduleDTO;
@@ -61,26 +62,35 @@ public class ProcessDeleteScheduleServlet extends HttpServlet {
                 return;
             }
 
-            int result = scheduleDAO.deleteSchedule(conn, scheduleId); 
+            conn.setAutoCommit(false);
+            try {
+            	int result = scheduleDAO.deleteSchedule(conn, scheduleId); 
+            	
+            	if (result > 0) {
+            		response.setContentType("text/html;charset=UTF-8");
+            		
+            		PrintWriter out = response.getWriter();
+            		
+            		out.println("<script>");
+            		out.println("alert('일정이 삭제되었습니다.');");
+            		out.println("location.href='" + request.getContextPath() + "/mainpage/mainpage.jsp';");
+            		out.println("</script>");
+            		out.flush();
+            		
+            		conn.commit();
+            		return;
+            	} else {
+            		conn.rollback();
+            	}
+            } catch (Exception e) {
+            	conn.rollback();
+            	e.printStackTrace();
+            	response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
+			}
             
-            if (result > 0) {
-            	response.setContentType("text/html;charset=UTF-8");
-            	
-            	PrintWriter out = response.getWriter();
-            	
-            	out.println("<script>");
-            	out.println("alert('일정이 삭제되었습니다.');");
-            	out.println("location.href='" + request.getContextPath() + "/mainpage/mainpage.jsp';");
-            	out.println("</script>");
-            	out.flush();
-            	
-            	return;
-            }
-            
-
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
-        }
+        } 
 	}
 }
