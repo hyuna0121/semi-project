@@ -1,5 +1,3 @@
-// travel_schedule.js
-
 document.addEventListener('DOMContentLoaded', function() {
     
     const CONTEXT_PATH = window.CTX; 
@@ -18,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
         eventsData = jsonString;
     }
     
-    // 🚨🚨🚨 모달 관련 요소 정의 🚨🚨🚨
     const modalElement = document.getElementById('eventModal');
     const modal = new bootstrap.Modal(modalElement);
     const titleEl = document.getElementById('modalTitle');
@@ -27,15 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationEl = document.getElementById('modalLocation');
     const descEl = document.getElementById('modalDesc');
     
-    // 🚨🚨🚨 [핵심]: 새 탭 관련 요소 정의 🚨🚨🚨
     const scheduleTabs = document.getElementById('scheduleTabs');
     const scheduleTabContent = document.getElementById('scheduleTabContent'); 
     
-    // 🚨🚨🚨 [핵심]: 상세 일정 보기 버튼 요소
     const goToDetailsBtn = document.getElementById('goToDetailsBtn');
 
 
-    // 🚨🚨🚨 모달 이벤트 리스너 (생략) 🚨🚨🚨
     modalElement.addEventListener('shown.bs.modal', function () {
         if (goToDetailsBtn && !goToDetailsBtn.hasAttribute('data-listener-attached')) {
             goToDetailsBtn.addEventListener('click', function() {
@@ -51,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     
-    // 🔸 캘린더 설정 (생략)
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
@@ -85,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     calendar.render(); 
 
-    // 🔸 테이블 클릭 시 모달 표시 (생략)
     document.querySelectorAll('tbody tr').forEach(row => {
       row.style.cursor = 'pointer'; 
       row.addEventListener('click', () => {
@@ -105,14 +97,12 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
     
-    // 🔸 상세 일정 데이터를 비동기로 조회하는 함수 (수정됨)
     function fetchDetails(scheduleId) {
         if (!scheduleTabs || !scheduleTabContent) {
             console.error("오류: scheduleTabs 또는 scheduleTabContent 요소를 찾을 수 없습니다.");
             return;
         }
 
-        // 🚨🚨🚨 [핵심] 탭 영역과 콘텐츠 영역 초기화 및 로딩 메시지 설정 🚨🚨🚨
         scheduleTabs.innerHTML = '';
         scheduleTabContent.innerHTML = '<p class="text-center text-muted mt-4">세부 일정 로딩 중...</p>';
         
@@ -124,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(groupedDetails => {
-                // 🚨 변경: 새로운 탭 구조를 렌더링하는 함수 호출
                 renderTabStructure(groupedDetails);
             })
             .catch(error => {
@@ -134,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // 🚨 새로 추가된 함수: Day별 탭 메뉴와 콘텐츠 구조를 렌더링합니다.
     function renderTabStructure(groupedData) {
         
         if (!scheduleTabs || !scheduleTabContent) {
@@ -142,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // 🚨🚨🚨 [재초기화]: 이전 로딩 메시지를 지우기 위해 다시 초기화 🚨🚨🚨
         scheduleTabs.innerHTML = '';
         scheduleTabContent.innerHTML = ''; 
         
@@ -158,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const tabId = `day-${dayCount}-tab`;
             const paneId = `day-${dayCount}-pane`;
             
-            // 1. 탭 버튼 (Tab Button) 생성
             const tabItem = document.createElement('li');
             tabItem.classList.add('nav-item');
             tabItem.setAttribute('role', 'presentation');
@@ -175,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>`;
             scheduleTabs.appendChild(tabItem);
 
-            // 2. 탭 콘텐츠 창 (Tab Pane) 생성
             const tabPane = document.createElement('div');
             tabPane.classList.add('tab-pane', 'fade', 'pt-3');
             if (isActive) {
@@ -185,25 +170,21 @@ document.addEventListener('DOMContentLoaded', function() {
             tabPane.setAttribute('role', 'tabpanel');
             tabPane.setAttribute('aria-labelledby', tabId);
             
-            // 3. 특정 Day의 세부 일정을 탭 콘텐츠 창에 렌더링
             tabPane.innerHTML = renderDayDetails(groupedData[dayCount]);
 
             scheduleTabContent.appendChild(tabPane);
             
-            // 🚨🚨🚨 [핵심 추가]: 첫 번째 탭을 강제로 활성화하여 표시되도록 보장 🚨🚨🚨
             if (isActive) {
                  try {
                      const tabButton = tabItem.querySelector('.nav-link');
                      new bootstrap.Tab(tabButton).show();
                  } catch (e) {
-                      // Bootstrap 탭 기능이 로드되지 않았을 때 발생하는 경고
                       console.warn("Bootstrap 탭 객체 활성화 실패:", e);
                  }
             }
         });
     }
 
-    // 🚨 새로 추가된 함수: 단일 Day의 세부 일정 목록만 렌더링합니다. (기존 로직에서 분리)
     function renderDayDetails(detailsList) {
         let html = '<div class="list-group">';
 

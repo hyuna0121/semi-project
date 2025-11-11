@@ -47,7 +47,7 @@ String v = String.valueOf(System.currentTimeMillis()); // 캐시 버스터
     <h5>My Page</h5>
     <a href="<%=cp%>/mypage/mypage_profile.jsp" class="active">내 프로필</a>
     <a href="<%=cp%>/mypage/travel_schedule.jsp">여행 일정</a>
-    <a href="#">내 댓글</a>
+    <a href="<%=cp%>/mypage/mypage_comments.jsp">내 댓글</a>
   </aside>
 
   <main class="content">
