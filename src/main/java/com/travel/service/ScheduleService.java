@@ -125,7 +125,8 @@ public class ScheduleService {
             
             detailDAO.deleteDetailsOutRange(conn, schedule.getId(), schedule.getStartDate(), schedule.getEndDate());
             
-            if (schedule.getTravelBuddies().length == 0) {
+            String[] buddies = schedule.getTravelBuddies();
+            if (buddies == null || buddies.length == 0) {
             	scheduleDAO.deleteSchedule(conn, schedule.getId());
             } else {
             	scheduleDAO.updateSchedule(conn, schedule);
