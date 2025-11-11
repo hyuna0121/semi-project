@@ -300,20 +300,20 @@ public class ScheduleDAO {
 		}
 	}
 	
-	
-	/**
-	 * [수정됨] 일정 삭제 (자식 테이블: comments, details, members 포함)
-	 */
-	public void deleteSchedule(Connection conn, long scheduleId) throws SQLException {
+	public int deleteSchedule(Connection conn, long scheduleId) throws SQLException {
+		int rowsAffected = 0;
 		
+		DetailDAO detailDAO = new DetailDAO();
+		ChatDAO chatDAO = new ChatDAO();
 		
-
 		String deleteMembersSql = "DELETE FROM members WHERE schedule_id = ?";
 		String deleteScheduleSql = "DELETE FROM schedules WHERE id = ?";
 		
 		try {
-
-			conn.setAutoCommit(false); 
+			conn.setAutoCommit(false);
+			detailDAO.deleteDetailByScheduleId(conn, scheduleId);
+			chatDAO.deleteCommentByScheduleId(conn, scheduleId);
+			
 			try (PreparedStatement pstmt = conn.prepareStatement(deleteMembersSql)) {
 				pstmt.setLong(1, scheduleId); 
 				pstmt.executeUpdate();
@@ -321,7 +321,8 @@ public class ScheduleDAO {
 
 			try (PreparedStatement pstmt = conn.prepareStatement(deleteScheduleSql)) {
 				pstmt.setLong(1, scheduleId); 
-				int rowsAffected = pstmt.executeUpdate();
+				rowsAffected = pstmt.executeUpdate();
+				
 				if (rowsAffected == 0) {
 					throw new SQLException("Schedule 삭제 실패: ID를 찾을 수 없습니다 - " + scheduleId);
 				}
@@ -334,6 +335,7 @@ public class ScheduleDAO {
 			if (conn != null) {
 				conn.rollback();
 			}
+			
 			e.printStackTrace();
 			throw e; 
 		} finally {
@@ -341,5 +343,7 @@ public class ScheduleDAO {
 				conn.setAutoCommit(true);
 			}
 		}
+		
+		return rowsAffected;
 	}
 }

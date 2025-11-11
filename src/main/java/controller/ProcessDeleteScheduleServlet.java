@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 
 import com.travel.dao.ScheduleDAO;
@@ -28,21 +29,15 @@ public class ProcessDeleteScheduleServlet extends HttpServlet {
 		    return; 
 		}
 		
-		Connection conn = null;
-		ScheduleDAO dao = new ScheduleDAO();
+		long scheduleId = Long.parseLong(request.getParameter("schedule_id"));
+		ScheduleDAO scheduleDAO = new ScheduleDAO();
 		
-		try {
-
-            long scheduleId = Long.parseLong(request.getParameter("scheduleId"));
-
-
-            conn = DBUtil.getConnection();
-            ScheduleDTO schedule = dao.selectSchedule(conn, scheduleId);
+		try (Connection conn = DBUtil.getConnection()) {
+            ScheduleDTO schedule = scheduleDAO.selectSchedule(conn, scheduleId);
 
             if (schedule == null) {
                 throw new Exception("삭제할 일정이 없습니다.");
             }
-
 
             boolean flag = false;
             for (String buddy : schedule.getTravelBuddies()) {
@@ -53,20 +48,39 @@ public class ProcessDeleteScheduleServlet extends HttpServlet {
             }
             
             if (!flag) {
+            	response.setContentType("text/html;charset=UTF-8");
 
-                 response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
-                 return;
+                PrintWriter out = response.getWriter();
+
+                out.println("<script>");
+                out.println("alert('일정을 삭제할 권한이 없습니다.');");
+                out.println("location.href='" + request.getContextPath() + "/mainpage/mainpage.jsp';");
+                out.println("</script>");
+                out.flush();
+
+                return;
             }
 
-
-            dao.deleteSchedule(conn, scheduleId); 
-            response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
+            int result = scheduleDAO.deleteSchedule(conn, scheduleId); 
+            
+            if (result > 0) {
+            	response.setContentType("text/html;charset=UTF-8");
+            	
+            	PrintWriter out = response.getWriter();
+            	
+            	out.println("<script>");
+            	out.println("alert('일정이 삭제되었습니다.');");
+            	out.println("location.href='" + request.getContextPath() + "/mainpage/mainpage.jsp';");
+            	out.println("</script>");
+            	out.flush();
+            	
+            	return;
+            }
+            
 
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
-        } finally {
-            DBUtil.close(conn, null, null);
         }
 	}
 }

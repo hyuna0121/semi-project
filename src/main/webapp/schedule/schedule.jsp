@@ -125,6 +125,27 @@
 	<div class="container">
 		<div class="left">
 			<h1>여행 친구</h1>
+<%-- 			<div>
+				<h3>
+					같이 여행하는 친구
+				</h3>
+				<ul id="companionList" class="companion-list">
+					<%
+						for (String buddy : schedule.getTravelBuddies()) {
+					%>
+							<li><%= buddy %></li>
+					<%
+						}
+					%>
+				</ul>
+			</div> --%>
+			<%
+            	if (flag == true) {
+            %>
+					<a href="<%= request.getContextPath() %>/schedule/editSchedule2.jsp?schedule_id=<%= scheduleId %>">수정하기</a>
+            <%
+            	}
+            %>
 		</div>
 
 		<div class="right">

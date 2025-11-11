@@ -140,4 +140,17 @@ public class DetailDAO {
 
 		return success;
 	}
+	
+	public int deleteDetailByScheduleId(Connection conn, Long scheduleId) throws SQLException {		
+		String sql = "DELETE FROM details WHERE schedule_id = ?";
+		int result = 0;
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setLong(1, scheduleId);
+			
+			result = pstmt.executeUpdate();
+		} 
+		
+		return result;
+	}
 }

@@ -39,7 +39,20 @@ public class ChatDAO {
             return 0;
         }
     }
-
+    
+    public int deleteCommentByScheduleId(Connection conn, Long scheduleId) throws SQLException { 
+    	String sql = "DELETE FROM chat WHERE schedule_id = ?"; 
+    	int result = 0;
+    	
+    	try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    		pstmt.setLong(1, scheduleId); 
+    		
+    		result = pstmt.executeUpdate();
+    		
+    	} 
+    	
+    	return result;
+    }
 
     public List<ChatDTO> getCommentsByScheduleId(int scheduleId) { 
         List<ChatDTO> list = new ArrayList<>();

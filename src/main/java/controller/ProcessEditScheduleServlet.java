@@ -11,6 +11,7 @@ import jakarta.servlet.http.Part;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.UUID;
 
@@ -35,14 +36,10 @@ public class ProcessEditScheduleServlet extends HttpServlet {
 		    return; 
 		}
 		
-		Connection conn = null;
+		long scheduleId = Long.parseLong(request.getParameter("schedule_id"));
 		ScheduleDAO dao = new ScheduleDAO();
 		
-		try {
-
-            long scheduleId = Long.parseLong(request.getParameter("scheduleId"));
-
-            conn = DBUtil.getConnection();
+		try (Connection conn = DBUtil.getConnection()) {
             ScheduleDTO schedule = dao.selectSchedule(conn, scheduleId);
 
             if (schedule == null) {
@@ -57,33 +54,51 @@ public class ProcessEditScheduleServlet extends HttpServlet {
                 }
             }
             if (!flag) {
-                 response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
-                 return;
+            	response.setContentType("text/html;charset=UTF-8");
+
+                PrintWriter out = response.getWriter();
+
+                out.println("<script>");
+                out.println("alert('일정을 삭제할 권한이 없습니다.');");
+                out.println("location.href='" + request.getContextPath() + "/mainpage/mainpage.jsp';");
+                out.println("</script>");
+                out.flush();
+
+                return;
             }
-            schedule.setTitle(request.getParameter("title"));
-            schedule.setLocation(request.getParameter("location"));
-            schedule.setDescription(request.getParameter("description"));
+            
+            schedule.setTitle(nvl(request.getParameter("title")));
+            schedule.setLocation(nvl(request.getParameter("location")));
+            schedule.setDescription(nvl(request.getParameter("description")));
             schedule.setVisibility(request.getParameter("visibility") == null ? "Y" : "N"); 
-
-
-
-            Part filePart = request.getPart("mainImage");
-            String fileName = filePart.getSubmittedFileName();
-
-            if (fileName != null && !fileName.isEmpty()) {
-
-                String uploadPath = "D:/GDJ94/workspace/upload"; // 실제 경로 확인
-    
             
-                String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-                String newFileName = UUID.randomUUID().toString() + fileExtension;
-                filePart.write(uploadPath + File.separator + newFileName);
-                
-                schedule.setMainImage(newFileName);
+            String date = request.getParameter("demo");
+            if (date != null && date.contains("~")) {
+                String[] arr = date.split("~");
+                if (arr.length >= 2) {
+                    schedule.setStartDate(arr[0].trim());
+                    schedule.setEndDate(arr[1].trim());
+                }
             }
+
             
-           
-            dao.updateSchedule(conn, schedule); 
+//            Part filePart = request.getPart("mainImage");
+//            String fileName = filePart.getSubmittedFileName();
+//
+//            if (fileName != null && !fileName.isEmpty()) {
+//
+//                String uploadPath = "D:/GDJ94/workspace/upload"; // 실제 경로 확인
+//    
+//            
+//                String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+//                String newFileName = UUID.randomUUID().toString() + fileExtension;
+//                filePart.write(uploadPath + File.separator + newFileName);
+//                
+//                schedule.setMainImage(newFileName);
+//            }
+//            
+//           
+//            dao.updateSchedule(conn, schedule); 
 
 
             response.sendRedirect(request.getContextPath() + "/schedule/schedule.jsp?schedule_id=" + scheduleId);
@@ -92,8 +107,10 @@ public class ProcessEditScheduleServlet extends HttpServlet {
             e.printStackTrace();
 
             response.sendRedirect(request.getContextPath() + "/mainpage/mainpage.jsp");
-        } finally {
-            DBUtil.close(conn, null, null);
-        }
+        } 
 	}
+	
+	private static String nvl(String s) {
+        return (s == null) ? "" : s.trim();
+    }
 }

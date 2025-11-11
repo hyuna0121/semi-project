@@ -12,14 +12,11 @@
 <head>
 <meta charset="UTF-8">
 <title>일정 수정</title>
-<!-- <link rel="stylesheet" href="./css/map.css"> -->
 <link rel="stylesheet" href="./css/editSchedule.css">
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8aaef2cb5fdf5a54c0607c5d2c9935c1&libraries=services"></script>
 <script type="text/javascript" src="./js/map.js" defer></script>
 <script type="text/javascript" src="./js/editSchedule.js" defer></script>
 </head>
 <body>
-	<%@ include file="../header.jsp" %>
 	
 	<%
 		Connection conn = null;
@@ -80,9 +77,6 @@
 	%>
 	
 	<div class="container">
-		<div class="left">
-			<h1>여행 친구</h1>
-		</div>
 
 		<div class="right">
 			<form action="<%= request.getContextPath() %>/processEditSchedule" method="post" enctype="multipart/form-data">
