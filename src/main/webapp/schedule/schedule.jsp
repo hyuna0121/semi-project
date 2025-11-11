@@ -146,6 +146,12 @@
             <%
             	}
             %>
+            
+            <form action="<%= request.getContextPath() %>/copySchedule" method="post">
+				<input type="hidden" name="schedule_id_to_copy" value="<%= scheduleId %>">
+				<button type="submit" class="copy_schedule">복사하기</button>
+			</form>
+			
 		</div>
 
 		<div class="right">
