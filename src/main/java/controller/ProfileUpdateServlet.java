@@ -29,7 +29,8 @@ public class ProfileUpdateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
+    	System.out.println("\n[ProfileUpdateServlet] 1. doPost() 시작");
+    	
         req.setCharacterEncoding("UTF-8");
 
         String id      = trim(req.getParameter("id"));
