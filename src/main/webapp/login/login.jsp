@@ -5,10 +5,15 @@
   <meta charset="UTF-8" />
   <title>로그인</title>
   <!-- 외부 CSS 연결 -->
-  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="./css/login.css" />
   <!-- 웹폰트(선택) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  
+  <script>
+  	const contextPath = "<%= request.getContextPath() %>";
+  </script>
 </head>
 <body>
   <div class="login-wrap">
@@ -36,32 +41,65 @@
 
     <!-- 하단 링크 -->
     <div class="links">
-      <a href="findId.jsp">아이디 찾기</a>
+      <a href="#" id="openFindIdModal">아이디 찾기</a>
       <span>|</span>
-      <a href="findPwd.jsp">비밀번호 찾기</a>
+      <a href="#" id="openResetPwModal">비밀번호 재설정하기</a>
     </div>
    </form>
   </div>
   
-  <!-- 아이디 기억하기 -->
-  <script>
-  	window.onload = function() {
-  		let savedId = getCookie("savedUserId");
-  		
-  		if (savedId !== "") {
-  			document.getElementById("id").value = savedId;
-  			document.getElementById("rememberId").checked = true;
-  		}
-  	};
-  	
-  	function getCookie(name) {
-  		let value = "; " + document.cookie;
-  		let parts = value.split("; " + name + "=");
-  		if (parts.length === 2) {
-  			return parts.pop().split(";").shift();
-  		}
-  		return "";
-  	}
-  </script>
+  <div class="findIdModal">
+  	<div class="content">
+  		<div class="title">
+			<h2>아이디 찾기</h2> 
+  		</div>
+  		<div>
+		  	<form id="findIdForm" action="">
+			    <div class="field">
+			      <span class="label">이메일</span>
+			      <input class="input" type="text" id="email" name="email" placeholder="이메일 입력" required>
+			    </div>
+			    
+			    <div class="field">
+			      <span class="label">이름</span>
+			      <input class="input" type="text" id="name" name="name" placeholder="이름 입력" required>
+			    </div>
+			    
+			    <div class="btn-wrap">
+   				  <button type="reset" class="closeModalBtn">취소하기</button> 
+			      <button type="submit" class="findIdBtn">아이디 찾기</button>
+			    </div>
+		  	</form>
+  		</div>
+	</div>
+  </div>
+  
+  <div class="resetPwModal">
+  	<div class="content">
+  		<div class="title">
+			<h2>비밀번호 재설정하기</h2> 
+  		</div>
+  		<div>
+		  	<form action="">
+			    <div class="field">
+			      <span class="label">아이디</span>
+			      <input class="input" type="text" id="resetId" name="resetId" placeholder="아이디 입력" required>
+			    </div>
+			    
+			    <div class="field">
+			      <span class="label">이름</span>
+			      <input class="input" type="text" id="resetName" name="resetName" placeholder="이름 입력" required>
+			    </div>
+			    
+			    <div class="btn-wrap">
+   				  <button type="reset" class="closeResetModalBtn">취소하기</button> 
+			      <button type="submit" class="findIdBtn">재설정하기</button>
+			    </div>
+		  	</form>
+  		</div>
+	</div>
+  </div>
+  
+  <script src="./js/login.js"></script>
 </body>
 </html>
