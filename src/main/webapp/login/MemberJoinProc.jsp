@@ -1,3 +1,4 @@
+<%@page import="org.mindrot.jbcrypt.BCrypt"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="util.DBUtil" %>
@@ -48,6 +49,9 @@
             return;
         }
     }
+    
+    // 비밀번호 해시화
+    String hashedPw = BCrypt.hashpw(pass2, BCrypt.gensalt());
 
     // traveldb 연결 (DBUtil이 내부에 URL/USER/PASS 포함)
     String ctx = request.getContextPath();
@@ -90,7 +94,7 @@
         try (PreparedStatement ps = conn.prepareStatement(insert)) {
             ps.setString(1, id);
             ps.setString(2, name);
-            ps.setString(3, pass1);              // 실제 서비스: BCrypt 등 해시 권장
+            ps.setString(3, hashedPw); 
             ps.setString(4, "");                  // phone
             ps.setString(5, "");                  // email (NOT NULL이면 빈문자)
             ps.setString(6, address);
