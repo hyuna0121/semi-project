@@ -60,7 +60,7 @@
 		                            	%>									
 									  	<div class="card-content">
 									  		<div class="visibility">
-										  		<h3><%= sc.getTitle() %></h3>
+										  		<h3><%= (sc.getTitle().length() > 15) ? (sc.getTitle().substring(0, 15) + "...") : sc.getTitle() %></h3>
 										  		<%
 										  			if("N".equals(sc.getVisibility())) {		
 												%>
