@@ -187,6 +187,25 @@ String v = String.valueOf(System.currentTimeMillis()); // 캐시 버스터
         <div id="passwordFeedback" class="form-text text-danger" style="display:none;">비밀번호가 일치하지 않습니다.</div>
       </div>
     </div>
+    
+    <script>
+	    const passwdInput = document.getElementById("currentPassword");
+	    const passwordCheckModal = document.getElementById('passwordCheckModal');
+	    
+	    if(passwdInput && passwordCheckModal){
+	    	passwordCheckModal.addEventListener('shown.bs.modal', function () {
+	    		passwdInput.focus();	
+			});
+	    };
+		
+	    passwdInput.addEventListener('keydown', function(event){
+			if(event.key === 'Enter' && ! event.shiftKey){
+				event.preventDefault();
+	
+				document.getElementById('confirmPasswordBtn').click();
+			}
+		});
+    </script>
     <div class="modal-footer">
       <button type="button" class="btn-custom btn-secondary-custom" data-bs-dismiss="modal">취소</button>
       <button type="button" class="btn-custom btn-primary-custom" id="confirmPasswordBtn">확인</button>
