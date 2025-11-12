@@ -46,17 +46,22 @@ public class LoginProcServlet extends HttpServlet {
             try (
                 Connection conn = DBUtil.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(
-                        "SELECT name FROM users WHERE id=? AND password=?");
+                        "SELECT name, profile_image FROM users WHERE id=? AND password=?");
             ) {
                 pstmt.setString(1, id);
                 pstmt.setString(2, pwd);
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
                         String name = rs.getString("name");
+                        
+                        String profileImage = rs.getString("profile_image");
 
                         HttpSession session = request.getSession();
                         session.setAttribute("loginId", id);
                         session.setAttribute("loginName", name);
+                        
+                        session.setAttribute("profileImage", profileImage);
+
 
                         response.sendRedirect("MainPage.jsp");
                         return;
