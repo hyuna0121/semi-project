@@ -13,6 +13,8 @@
 	
 	String id  = request.getParameter("id")  != null ? request.getParameter("id").trim()  : "";
 	String pwd = request.getParameter("pwd") != null ? request.getParameter("pwd").trim() : "";
+	String remember = request.getParameter("rememberId");
+	
 	
 	String ctx = request.getContextPath();
 	if (id.isEmpty() || pwd.isEmpty()) {
@@ -40,6 +42,20 @@
 	                // 세션 저장
 	                session.setAttribute("loginId", id);
 	                session.setAttribute("loginName", name);
+	                
+	                // 아이디 저장하기(쿠키)
+	                if ("true".equals(remember)) {
+	                	Cookie cookie = new Cookie("savedUserId", id);
+	                	cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+	                	cookie.setPath("/");
+	                	response.addCookie(cookie);
+	                } else {
+	                	Cookie cookie = new Cookie("savedUserId", "");
+	                	cookie.setMaxAge(0); // 7일
+	                	cookie.setPath("/");
+	                	response.addCookie(cookie);
+	                }
+	                
 	                // 메인으로 이동
 	                response.sendRedirect("../mainpage/mainpage.jsp");
 	                return;

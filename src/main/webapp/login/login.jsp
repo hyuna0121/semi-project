@@ -19,15 +19,15 @@
   <form class="card" method="post" action="loginProc.jsp">
     <!-- 아이디 / 비밀번호 -->
     <div class="field">
-      <input class="input" type="text" name="id" placeholder="아이디 입력" required>
+      <input class="input" type="text" id="id" name="id" placeholder="아이디 입력" required>
     </div>
     <div class="field">
-      <input class="input" type="password" name="pwd" placeholder="비밀번호 입력" required>
+      <input class="input" type="password" id="pwd" name="pwd" placeholder="비밀번호 입력" required>
     </div>
 
     <!-- 아이디 저장 -->
     <label class="remember">
-      <input type="checkbox" name="rememberId">
+      <input type="checkbox" id="rememberId" name="rememberId" value="true">
       <span>아이디 저장</span>
     </label>
 
@@ -42,5 +42,26 @@
     </div>
    </form>
   </div>
+  
+  <!-- 아이디 기억하기 -->
+  <script>
+  	window.onload = function() {
+  		let savedId = getCookie("savedUserId");
+  		
+  		if (savedId !== "") {
+  			document.getElementById("id").value = savedId;
+  			document.getElementById("rememberId").checked = true;
+  		}
+  	};
+  	
+  	function getCookie(name) {
+  		let value = "; " + document.cookie;
+  		let parts = value.split("; " + name + "=");
+  		if (parts.length === 2) {
+  			return parts.pop().split(";").shift();
+  		}
+  		return "";
+  	}
+  </script>
 </body>
 </html>
