@@ -38,6 +38,10 @@ String v = String.valueOf(System.currentTimeMillis()); // 캐시 버스터
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 <link rel="stylesheet" href="./css/mypage_profile.css?v=<%=v%>">
+
+<script>
+	const contextPath = "<%= request.getContextPath() %>";
+</script>
 </head>
 <body>
 <%@ include file="../header.jsp" %>
@@ -146,7 +150,7 @@ String v = String.valueOf(System.currentTimeMillis()); // 캐시 버스터
           </div>
 
           <!-- (선택) 비밀번호 변경 UI -->
-          <div id="newPasswordGroup" style="display:none;">
+          <div id="newPasswordGroup">
             <div class="info-field-group">
               <label for="newPasswordInput" class="info-field-label">새 비밀번호</label>
               <input type="password" id="newPasswordInput" name="newPassword" class="form-control">

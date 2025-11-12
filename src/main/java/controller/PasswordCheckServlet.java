@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.gson.Gson; 
 import java.util.logging.Logger; // 🚨 Logger import
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.logging.Level;
 
 @WebServlet("/mypage/PasswordCheckServlet")
@@ -53,7 +56,7 @@ public class PasswordCheckServlet extends HttpServlet {
             
 
             // 비밀번호 비교
-            if (storedPassword != null && storedPassword.equals(enteredPassword)) {
+            if (storedPassword != null && BCrypt.checkpw(enteredPassword, storedPassword)) {
                  isMatch = true;
             }
             

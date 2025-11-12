@@ -1,3 +1,4 @@
+<%@page import="org.mindrot.jbcrypt.BCrypt"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="util.DBUtil" %>
@@ -11,12 +12,13 @@
 <%
     request.setCharacterEncoding("UTF-8");
 
-    String name     = request.getParameter("name")     == null ? "" : request.getParameter("name").trim();
     String id       = request.getParameter("id")       == null ? "" : request.getParameter("id").trim();
-    String nickname = request.getParameter("nickname") == null ? "" : request.getParameter("nickname").trim();
-    String birth    = request.getParameter("birth")    == null ? "" : request.getParameter("birth").trim();
     String pass1    = request.getParameter("pass1")    == null ? "" : request.getParameter("pass1").trim();
     String pass2    = request.getParameter("pass2")    == null ? "" : request.getParameter("pass2").trim();
+    String name     = request.getParameter("name")     == null ? "" : request.getParameter("name").trim();
+    String email    = request.getParameter("email")    == null ? "" : request.getParameter("email").trim();
+    String nickname = request.getParameter("nickname") == null ? "" : request.getParameter("nickname").trim();
+    String birth    = request.getParameter("birth")    == null ? "" : request.getParameter("birth").trim();
     String address  = request.getParameter("address")  == null ? "" : request.getParameter("address").trim();
 
     // 1) 필수/비밀번호 확인
@@ -24,8 +26,8 @@
         out.println("<script>alert('비밀번호가 일치하지 않습니다.'); history.back();</script>");
         return;
     }
-    if (name.isEmpty() || id.isEmpty() || pass1.isEmpty()) {
-        out.println("<script>alert('이름/아이디/비밀번호는 필수입니다.'); history.back();</script>");
+    if (name.isEmpty() || id.isEmpty() || pass1.isEmpty() || email.isEmpty()) {
+        out.println("<script>alert('이름/아이디/비밀번호/이메일은 필수입니다.'); history.back();</script>");
         return;
     }
 
@@ -48,6 +50,9 @@
             return;
         }
     }
+    
+    // 비밀번호 해시화
+    String hashedPw = BCrypt.hashpw(pass2, BCrypt.gensalt());
 
     // traveldb 연결 (DBUtil이 내부에 URL/USER/PASS 포함)
     String ctx = request.getContextPath();
@@ -64,6 +69,18 @@
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     out.println("<script>alert('이미 존재하는 아이디입니다.'); history.back();</script>");
+                    return;
+                }
+            }
+        }
+     
+        // 이메일 중복확인
+        String sqlEmail = "SELECT 1 FROM users WHERE email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sqlEmail)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    out.println("<script>alert('이미 존재하는 이메일입니다.'); history.back();</script>");
                     return;
                 }
             }
@@ -90,9 +107,9 @@
         try (PreparedStatement ps = conn.prepareStatement(insert)) {
             ps.setString(1, id);
             ps.setString(2, name);
-            ps.setString(3, pass1);              // 실제 서비스: BCrypt 등 해시 권장
+            ps.setString(3, hashedPw); 
             ps.setString(4, "");                  // phone
-            ps.setString(5, "");                  // email (NOT NULL이면 빈문자)
+            ps.setString(5, email);                  
             ps.setString(6, address);
             ps.setNull(7, java.sql.Types.CHAR);   // gender (없으면 NULL)
             ps.setString(8, "");                  // profile_image

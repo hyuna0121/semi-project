@@ -112,6 +112,77 @@ body{
 }
 .links span{ margin:0 10px; color:#cbd5e1; }
 
+.findIdModal, .resetPwModal {
+	display: none;
+    position: fixed;
+    top:0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 10;
+}
+.findIdModal.show, .resetPwModal.show {
+  	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+	margin: 0 auto;
+	width: 440px;
+	background: #fff;
+	padding: 40px 55px;
+    border-radius: 12px;
+}
+
+.content .title {
+	text-align: center;
+}
+
+.content h2{
+	margin: 0px 0px 30px;	
+}
+
+.content .label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+}
+
+.content input {
+	margin-top: 7px;
+}
+
+.content .btn-wrap {
+	display: flex;
+	justify-content: center;
+	margin-top: 25px;
+	gap: 20px;
+}
+
+.content .btn-wrap button {
+    height: 48px;
+    width: 50%;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.findIdBtn {
+	border: none;
+    background: #6b7280;
+    color: #fff;
+    transition: background .15s ease;	
+}
+
+.closeModalBtn, .closeResetModalBtn {
+	background: #ffffff;
+    border: 1px solid #e5e7eb;;
+    color: #374151;
+}
+
 @media (max-width:480px){
   .card{ width:92vw; padding:28px 20px; }
 }
