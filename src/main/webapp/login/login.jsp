@@ -80,15 +80,15 @@
 			<h2>비밀번호 재설정하기</h2> 
   		</div>
   		<div>
-		  	<form action="">
+		  	<form id="resetPwForm" action="">
 			    <div class="field">
 			      <span class="label">아이디</span>
 			      <input class="input" type="text" id="resetId" name="resetId" placeholder="아이디 입력" required>
 			    </div>
 			    
 			    <div class="field">
-			      <span class="label">이름</span>
-			      <input class="input" type="text" id="resetName" name="resetName" placeholder="이름 입력" required>
+			      <span class="label">이메일</span>
+			      <input class="input" type="text" id="resetEmail" name="resetEmail" placeholder="이메일 입력" required>
 			    </div>
 			    
 			    <div class="btn-wrap">

@@ -1,4 +1,5 @@
 window.onload = function() {
+	// 아이디 저장하기
 	let savedId = getCookie("savedUserId");
 	
 	if (savedId !== "") {
@@ -6,6 +7,8 @@ window.onload = function() {
 		document.getElementById("rememberId").checked = true;
 	}
 	
+	
+	// 아이디 찾기 모달
 	const openModalLink = document.getElementById("openFindIdModal");
     const findIdModal = document.querySelector(".findIdModal");
     const closeModalBtn = document.querySelector(".closeModalBtn");
@@ -23,6 +26,8 @@ window.onload = function() {
     	});
   	}
 	
+	
+	// 비밀번호 재설정 모달
 	const openResetModalLink = document.getElementById("openResetPwModal");
     const resetPwModal = document.querySelector(".resetPwModal");
     const closeResetModalBtn = document.querySelector(".closeResetModalBtn");
@@ -40,6 +45,8 @@ window.onload = function() {
     	});
   	}
 	
+	
+	// 아이디 찾기
 	const findIdForm = document.getElementById('findIdForm');
 	
 	if (findIdForm) {
@@ -75,6 +82,42 @@ window.onload = function() {
 		});
 	}
 	
+	
+	// 비밀번호 재설정
+	const resetPwForm = document.getElementById('resetPwForm');
+	
+	if (resetPwForm) {
+		resetPwForm.addEventListener('submit', function(event) {
+			event.preventDefault();
+			
+			const id = resetPwForm.querySelector('input[name="resetId"]').value;
+			const email = resetPwForm.querySelector('input[name="resetEmail"]').value;
+			
+			const data = {
+				id: id,
+				email: email
+			};
+			
+			fetch(`${contextPath}/resetPassword`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			}).then(response => response.json())
+			  .then(result => {
+				if (result.status === 'success') {
+					alert(result.message + "\n임시 비밀번호: " + result.tempPassword);
+					resetPwModal.classList.remove('show');
+				} else {
+					alert(result.message);
+				}
+			  }).catch(error => {
+				console.error('비밀번호 재설정 오류 : ', error);
+				alert('비밀번호 재설정 중 오류가 발생했습니다. 다시 시도해주세요.');
+			  });
+		});
+	}
 };
 
 function getCookie(name) {
