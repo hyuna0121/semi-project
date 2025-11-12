@@ -4,6 +4,9 @@ import java.io.*;
 import java.nio.file.*;
 import java.sql.SQLException;
 import java.util.*;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -38,6 +41,7 @@ public class ProfileUpdateServlet extends HttpServlet {
         String phone   = trim(req.getParameter("phone"));
         String email   = trim(req.getParameter("email"));
         String gender  = trim(req.getParameter("gender"));
+        String newPw    = trim(req.getParameter("newPassword"));
         String oldRel  = normalizeOldPath(trim(req.getParameter("oldImagePath"))); // 과거 경로 호환
 
         MemberDTO before;
@@ -50,11 +54,18 @@ public class ProfileUpdateServlet extends HttpServlet {
         }
         if (before == null) { flash(req, resp, "존재하지 않는 사용자"); return; }
 
-        name    = pick(name, before.getName());
-        address = pick(address, before.getAddress());
-        phone   = pick(phone, before.getPhone());
-        email   = pick(email, before.getEmail()); // NOT NULL 보호
-        gender  = pick(gender, before.getGender());
+        name     = pick(name, before.getName());
+        address  = pick(address, before.getAddress());
+        phone    = pick(phone, before.getPhone());
+        email    = pick(email, before.getEmail()); // NOT NULL 보호
+        gender   = pick(gender, before.getGender());
+        
+        String hashedPw = null;
+        if (isBlank(newPw)) {
+        	hashedPw = before.getPassword();
+        } else {
+        	hashedPw = BCrypt.hashpw(newPw, BCrypt.gensalt());
+        }
 
         String currentRel = (oldRel!=null && !oldRel.isBlank())
                 ? oldRel
@@ -105,7 +116,7 @@ public class ProfileUpdateServlet extends HttpServlet {
             System.out.println("[Upload] no file -> keep = " + currentRel);
         }
 
-        boolean ok = memberDAO.updateProfileInfo(id, name, address, phone, email, gender, finalRel);
+        boolean ok = memberDAO.updateProfileInfo(id, hashedPw, name, address, phone, email, gender, finalRel);
         req.getSession().setAttribute("msg", ok ? "프로필이 수정되었습니다." : "수정 실패");
         resp.sendRedirect(req.getContextPath() + "/mypage/mypage_profile.jsp");
     }

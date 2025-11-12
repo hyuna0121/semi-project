@@ -150,7 +150,7 @@ String v = String.valueOf(System.currentTimeMillis()); // 캐시 버스터
           </div>
 
           <!-- (선택) 비밀번호 변경 UI -->
-          <div id="newPasswordGroup" style="display:none;">
+          <div id="newPasswordGroup">
             <div class="info-field-group">
               <label for="newPasswordInput" class="info-field-label">새 비밀번호</label>
               <input type="password" id="newPasswordInput" name="newPassword" class="form-control">
