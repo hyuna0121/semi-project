@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        fetch('PasswordCheckServlet', {
+        fetch(`${contextPath}/mypage/PasswordCheckServlet`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
