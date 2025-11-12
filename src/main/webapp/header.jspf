@@ -207,13 +207,13 @@ body.drawer-open .page-content{filter:blur(3px);pointer-events:none;}
   </div>
 
   <nav class="menu">
-    <a href="<%=ctx%>/mypage/mypage_profile.jsp">
+    <a href="<%=ctx%>/mypage/mypage_profile.jsp" onclick="return checkLogin()">
       <span class="item-icon material-symbols-outlined">person</span>
       <span class="item-label">내 프로필</span>
       <span class="item-right"><span class="chev">chevron_right</span></span>
     </a>
 
-    <a href="<%=ctx%>/mypage/travel_schedule.jsp">
+    <a href="<%=ctx%>/mypage/travel_schedule.jsp" onclick="return checkLogin()">
       <span class="item-icon material-symbols-outlined">calendar_month</span>
       <span class="item-label">여행 일정</span>
       <span class="item-right">
@@ -222,13 +222,13 @@ body.drawer-open .page-content{filter:blur(3px);pointer-events:none;}
       </span>
     </a>
 
-    <a href="<%=ctx%>/mypage/mypage_comments.jsp">
+    <a href="<%=ctx%>/mypage/mypage_comments.jsp" onclick="return checkLogin()">
       <span class="item-icon material-symbols-outlined">mode_comment</span>
       <span class="item-label">내 댓글</span>
       <span class="item-right"><span class="chev">chevron_right</span></span>
     </a>
 
-    <a href="<%=ctx%>/schedule/addSchedule.jsp">
+    <a href="<%=ctx%>/schedule/addSchedule.jsp" onclick="return checkLogin()">
       <span class="item-icon material-symbols-outlined">add_circle</span>
       <span class="item-label">일정 추가</span>
       <span class="item-right"><span class="chev">chevron_right</span></span>
@@ -273,4 +273,16 @@ body.drawer-open .page-content{filter:blur(3px);pointer-events:none;}
   document.addEventListener('click', outsideHandler);
   document.addEventListener('touchstart', outsideHandler, { passive: true });
 })();
+
+
+function checkLogin() {
+	const loginId = "<%= loginId %>";
+
+	if(!loginId || loginId === "null"){
+		alert("로그인 후 이용하실 수 있습니다.");
+		location.href = "<%= ctx %>/login/login.jsp";
+		return false;
+	}
+	return true;
+}
 </script>
