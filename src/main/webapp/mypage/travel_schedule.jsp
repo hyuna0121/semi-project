@@ -182,9 +182,9 @@ myScheduleList = new ArrayList<>();
       </aside>
 
       <main class="content">
-         <div class="container-fluid">
+         <div class="container">
     
-         <h3 class="mb-3 border-bottom pb-2">📆 여행 일정</h3>
+         <h3 class="section-title">📆 여행 일정</h3>
             <div id="calendar"></div>
 
             <ul class="nav nav-tabs mt-5" id="scheduleListTabs" role="tablist">

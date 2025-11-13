@@ -18,7 +18,7 @@
 <body>
   <div class="login-wrap">
     <div class="brand">
-      <img class="logo" src="image/logo.png" alt="서비스 로고">
+      <img class="logo" src="image/logo.png" alt="서비스 로고" onclick="showMain()">
     </div>
     
   <form class="card" method="post" action="loginProc.jsp">
@@ -44,6 +44,8 @@
       <a href="#" id="openFindIdModal">아이디 찾기</a>
       <span>|</span>
       <a href="#" id="openResetPwModal">비밀번호 재설정하기</a>
+      <span>|</span>
+      <a href="./memberJoin.jsp">회원가입</a>
     </div>
    </form>
   </div>
@@ -101,5 +103,13 @@
   </div>
   
   <script src="./js/login.js"></script>
+  <script type="text/javascript">
+  	const logo = document.querySelector('.logo');
+  	function showMain() {
+		const ctx = '<%= request.getContextPath() %>';
+	    location.href = ctx + '/mainpage/mainpage.jsp';
+	}
+  	logo.addEventListener('click', showMain);
+  </script>
 </body>
 </html>

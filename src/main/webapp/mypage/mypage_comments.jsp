@@ -49,7 +49,7 @@ try {
 <meta charset="UTF-8" />
 <title>내 댓글 | 마이페이지</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="./css/mypage_profile.css"> 
+<link rel="stylesheet" href="./css/mypage_comments.css"> 
 </head>
 <body>
 <%@ include file="../header.jsp" %>
@@ -69,6 +69,13 @@ try {
 
       <div class="table-responsive">
         <table class="table table-bordered align-middle">
+        <colgroup>
+            <col style="width: 5%;">  
+            <col style="width: 450px;"> 
+            <col style="width: 15%;"> 
+            <col style="width: 20ch;"> 
+            <col style="width: 15%;"> 
+        </colgroup>
           <thead class="table-info">
             <tr>
               <th>#</th>
