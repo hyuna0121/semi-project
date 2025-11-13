@@ -234,6 +234,7 @@
 													<th>여행지</th>
 													<th>태그</th>
 													<th>메모</th>
+													<th>길찾기</th>
 													<th></th>
 											</tr>
 									</thead>

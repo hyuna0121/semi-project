@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (items.length === 0) {
-            itineraryBoard.innerHTML = '<tr><td colspan="4">일정이 없습니다.</td></tr>';
+            itineraryBoard.innerHTML = '<tr><td colspan="6">일정이 없습니다.</td></tr>';
 
             kakaoMap.setCenter(new kakao.maps.LatLng(37.566826, 126.9786567));
             kakaoMap.setLevel(3);
@@ -92,17 +92,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // 태그 스타일을 동적으로 적용
             const tagHtml = `<span class="tag" data-category="${item.category}">${item.category}</span>`;
 			
-			let deleteBtn = '<td></td>'
-			
+			let deleteBtn = '<td></td>';
 			if (userCanDelete) {
-				deleteBtn = `<td><a href="${CONTEXT_PATH}/DeleteDetails?detail_id=${item.id}" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a></td>`;
+                deleteBtn = `<td><a href="${CONTEXT_PATH}/DeleteDetails?detail_id=${item.id}" class="delete-detail" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a></td>`;
 			}
             
+            let directionsHtml = '<td></td>';
+            const preItem = items[index - 1];
+
+            if (preItem) {
+                const directionsUrl = `https://map.kakao.com/link/by/traffic/`
+                                    + `${preItem.place},${preItem.latitude},${preItem.longitude}/`
+                                    + `${item.place},${item.latitude},${item.longitude}`;
+                directionsHtml = `<td><a href="${directionsUrl}" target="_blank" class="directions-link"><i class="material-symbols-outlined">directions_bus</i></a></td>`;
+            }
+
             row.innerHTML = `
                 <td>${item.startTime}</td>
                 <td>${item.place}</td>
                 <td>${tagHtml}</td>
                 <td>${item.memo}</td>
+                ${directionsHtml}
 				${deleteBtn}
             `;
             itineraryBoard.appendChild(row);
