@@ -136,6 +136,11 @@
 }
 
 /* 테이블 스타일 */
+#itinerary-board tr:hover {
+    background-color: #f5f5f5; /* 원하는 배경색 */
+    cursor: pointer;
+}
+
 .table-container {
     width: 100%;
     min-height: 300px;

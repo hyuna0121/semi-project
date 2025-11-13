@@ -243,6 +243,10 @@
 					</div>
 				</div>
 
+				<div class="marker_container" style="width:76.5%;">
+					<div id="marker_map" style="width:100%; height:400px; border-radius: 20px; margin: 20px 0px;"></div>
+				</div>
+
 				<div class="modal">
 					<div id="menu_wrap" class="bg_white" style="width:40%; height: 71%;">
 						<div class="btn-wrap">
@@ -359,7 +363,8 @@
 				</div>
 
 			</div>
-						<div class="chat" id="comment-section">
+
+			<div class="chat" id="comment-section">
 				<h3>댓글 목록 (<%= comments != null ? comments.size() : 0 %>)</h3>
 	
 				<div id="comment-List">

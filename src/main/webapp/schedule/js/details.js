@@ -3,11 +3,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const itineraryBoard = document.getElementById('itinerary-board');
     const scheduleId = document.getElementById('schedule-id-input').value;
 
+    let kakaoMap = null;
+    let markers = [];
+    let infowindow = new kakao.maps.InfoWindow({
+        zIndex:1,
+        content: ''
+    });
+
     if (!scheduleId) {
         console.error('스케줄 ID를 찾을 수 없습니다.');
         itineraryBoard.innerHTML = '<tr><td colspan="4">오류: 스케줄 ID를 찾을 수 없습니다.</td></tr>';
         return; 
     }
+
+    const mapContainer = document.getElementById('marker_map');
+    const mapOption = {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+        level: 3
+    };
+
+    kakaoMap = new kakao.maps.Map(mapContainer, mapOption);
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -39,11 +54,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function clearMarkers() {
+        for (let i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
+        }
+        markers = [];
+        infowindow.close();
+    }
+
     function displayData(items) {
         itineraryBoard.innerHTML = '';
+        clearMarkers();
+
+        const bounds = new kakao.maps.LatLngBounds();
 
         if (items.length === 0) {
             itineraryBoard.innerHTML = '<tr><td colspan="4">일정이 없습니다.</td></tr>';
+
+            kakaoMap.setCenter(new kakao.maps.LatLng(37.566826, 126.9786567));
+            kakaoMap.setLevel(3);
+
             return;
         }
 
@@ -67,7 +97,52 @@ document.addEventListener('DOMContentLoaded', () => {
 				${deleteBtn}
             `;
             itineraryBoard.appendChild(row);
+
+            const lat = parseFloat(item.latitude);
+            const lng = parseFloat(item.longitude);
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const markerPosition = new kakao.maps.LatLng(lat, lng);
+
+                const marker = new kakao.maps.Marker({
+                    position: markerPosition,
+                    title: item.place
+                });
+
+                marker.setMap(kakaoMap);
+
+                kakao.maps.event.addListener(marker, 'click', () => {
+                    kakaoMap.setLevel(5); 
+                    kakaoMap.panTo(markerPosition);
+
+                    const content = `<div style="padding: 5px; white-space: nowrap;">${item.place}</div>`;
+                    infowindow.setContent(content);
+                    infowindow.open(kakaoMap, marker);
+                });
+
+                row.addEventListener('click', () => {
+                    kakaoMap.setLevel(5);
+                    kakaoMap.panTo(markerPosition);
+
+                    const content = `<div style="padding: 5px; white-space: nowrap;">${item.place}</div>`;
+                    infowindow.setContent(content);
+
+                    infowindow.open(kakaoMap, marker);
+                });
+
+                markers.push(marker);
+                bounds.extend(markerPosition);
+            }
         });
+
+        if (markers.length > 0) {
+            if (markers.length === 1) {
+                kakaoMap.setCenter(markers[0].getPosition());
+                kakaoMap.setLevel(5);
+            } else {
+                kakaoMap.setBounds(bounds);
+            }
+        }
     }
 
     // 4. 페이지 첫 로드 시 1일차 데이터 불러오기
