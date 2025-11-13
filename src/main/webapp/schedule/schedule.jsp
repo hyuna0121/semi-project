@@ -234,6 +234,7 @@
 													<th>여행지</th>
 													<th>태그</th>
 													<th>메모</th>
+													<th>길찾기</th>
 													<th></th>
 											</tr>
 									</thead>
@@ -241,6 +242,10 @@
 									</tbody>
 							</table>
 					</div>
+				</div>
+
+				<div class="marker_container" style="width:76.5%;">
+					<div id="marker_map" style="width:100%; height:400px; border-radius: 20px; margin: 20px 0px;"></div>
 				</div>
 
 				<div class="modal">
@@ -359,7 +364,8 @@
 				</div>
 
 			</div>
-						<div class="chat" id="comment-section">
+
+			<div class="chat" id="comment-section">
 				<h3>댓글 목록 (<%= comments != null ? comments.size() : 0 %>)</h3>
 	
 				<div id="comment-List">
