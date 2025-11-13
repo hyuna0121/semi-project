@@ -68,6 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const bounds = new kakao.maps.LatLngBounds();
 
+        const markerSpriteImageUrl = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png';
+        const markerImageSize = new kakao.maps.Size(36, 37);
+
+        const markerImageOptions = {
+            spriteSize: new kakao.maps.Size(36, 691), // 스프라이트 이미지 전체 크기
+            spriteOrigin: null, // 잘라낼 영역의 좌상단 좌표 (루프 내에서 계산)
+            offset: new kakao.maps.Point(13, 37) // 마커 중심 좌표에 일치시킬 이미지 내 좌표
+        };
+
         if (items.length === 0) {
             itineraryBoard.innerHTML = '<tr><td colspan="4">일정이 없습니다.</td></tr>';
 
@@ -77,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        items.forEach(item => {
+        items.forEach((item, index) => {
             const row = document.createElement('tr');
             
             // 태그 스타일을 동적으로 적용
@@ -104,9 +113,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isNaN(lat) && !isNaN(lng)) {
                 const markerPosition = new kakao.maps.LatLng(lat, lng);
 
+                const spriteOriginY = (index * 46) + 10;
+                markerImageOptions.spriteOrigin = new kakao.maps.Point(0, spriteOriginY);
+
+                const markerImage = new kakao.maps.MarkerImage(
+                    markerSpriteImageUrl, 
+                    markerImageSize, 
+                    markerImageOptions
+                );
+
                 const marker = new kakao.maps.Marker({
                     position: markerPosition,
-                    title: item.place
+                    image: markerImage
                 });
 
                 marker.setMap(kakaoMap);
