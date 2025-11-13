@@ -65,6 +65,13 @@ body {
     min-height: 650px;
     border: 1px solid #e0e0e0; /* 명확한 테두리 */
 }
+.fc-daygrid-day-number,
+.fc-col-header-cell-cushion {
+    text-decoration: none !important; 
+}
+#calendar a {
+    text-decoration: none !important;
+}
 /* 테이블 호버 스타일 */
 tr:hover { cursor: pointer; background-color: #f5f5f5 !important; }
 
