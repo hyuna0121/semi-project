@@ -108,10 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             row.innerHTML = `
-                <td>${item.startTime}</td>
+                <td>${item.startTime.slice(0, 5)}</td>
                 <td>${item.place}</td>
                 <td>${tagHtml}</td>
-                <td>${item.memo}</td>
+                <td class="memo-cell">${item.memo}</td>
                 ${directionsHtml}
 				${deleteBtn}
             `;

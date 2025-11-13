@@ -122,80 +122,70 @@
 		const userCanDelete = <%= flag %>;
 	</script>
 	
+	<div class="trip_main_image">
+		<%
+			String mainImage = schedule.getMainImage();
+			if (mainImage == null || mainImage.isEmpty()) {
+		%>
+				<img src="<%= request.getContextPath() %>/schedule/image/basic.png" alt="여행 대표 이미지">
+		<%
+			} else {
+		%>
+					<img src="/upload/<%= mainImage %>" alt="여행 대표 이미지">
+		<%
+			}
+		%>
+	</div>
+
 	<div class="container">
-		<div class="left">
-			<h1>여행 친구</h1>
-<%-- 			<div>
-				<h3>
-					같이 여행하는 친구
-				</h3>
-				<ul id="companionList" class="companion-list">
-					<%
-						for (String buddy : schedule.getTravelBuddies()) {
-					%>
-							<li><%= buddy %></li>
-					<%
-						}
-					%>
-				</ul>
-			</div> --%>
-			<%
-            	if (flag == true) {
-            %>
-					<a href="<%= request.getContextPath() %>/schedule/editSchedule.jsp?schedule_id=<%= scheduleId %>">수정하기</a>
-            <%
-            	}
-            %>
-            
-            <form action="<%= request.getContextPath() %>/copySchedule" method="post">
-				<input type="hidden" name="schedule_id_to_copy" value="<%= scheduleId %>">
-				<button type="submit" class="copy_schedule">복사하기</button>
-			</form>
-			
-		</div>
+		<!-- <div class="left" style="opacity: 0;">
+			<h1>구조</h1>
+		</div> -->
 
 		<div class="right">
-			<div class="trip_main_image">
-				<%
-					String mainImage = schedule.getMainImage();
-                    if (mainImage == null || mainImage.isEmpty()) {
-                %>
-		        		<img src="<%= request.getContextPath() %>/schedule/image/basic.png" alt="여행 대표 이미지">
-                <%
-                    } else {
-                %>
-		                <img src="/upload/<%= mainImage %>" alt="여행 대표 이미지">
-                <%
-                    }
-                %>
-			</div>
 
 			<div class="trip_content">
-				<div class="trip_title" style="height: 200px;">
-					<h1>
-						<%= schedule.getTitle() %>
+				<div class="trip_title" style="height: 200px; display: flex; justify-content: space-between;">
+					<div>
+						<h1>
+							<%= schedule.getTitle() %>
+							<%
+								if ("N".equals(schedule.getVisibility())) {
+							%>
+									<span class="material-symbols-outlined">lock</span>
+							<%
+								}
+							%> 
+						</h1>
 						<%
-							if ("N".equals(schedule.getVisibility())) {
+							String startStr = schedule.getStartDate();
+							String endStr = schedule.getEndDate();
+										
+							LocalDate startDate = LocalDate.parse(startStr);
+							LocalDate endDate = LocalDate.parse(endStr);
+		
+							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
 						%>
-								<span class="material-symbols-outlined">lock</span>
+						<p>
+							<span><%= schedule.getLocation() %></span>
+							<%= startDate.format(formatter) %> ~ <%= endDate.format(formatter) %>
+						</p>
+						<p class="desc"><%= schedule.getDescription() %></p>
+					</div>
+
+					<div class="left-btn">
+						<%
+							if (flag == true) {
+						%>
+								<a href="<%= request.getContextPath() %>/schedule/editSchedule.jsp?schedule_id=<%= scheduleId %>">수정하기</a>
 						<%
 							}
-						%> 
-					</h1>
-					<%
-						String startStr = schedule.getStartDate();
-						String endStr = schedule.getEndDate();
-									
-						LocalDate startDate = LocalDate.parse(startStr);
-						LocalDate endDate = LocalDate.parse(endStr);
-	
-						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd");
-					%>
-					<p>
-						<span><%= schedule.getLocation() %></span>
-						<%= startDate.format(formatter) %> ~ <%= endDate.format(formatter) %>
-					</p>
-					<p class="desc"><%= schedule.getDescription() %></p>
+						%>
+								<form action="<%= request.getContextPath() %>/copySchedule" method="post">
+									<input type="hidden" name="schedule_id_to_copy" value="<%= scheduleId %>">
+									<button type="submit" class="copy_schedule">복사하기</button>
+								</form>
+					</div>
 				</div>
 
 				<div class="details">
@@ -244,7 +234,7 @@
 					</div>
 				</div>
 
-				<div class="marker_container" style="width:76.5%;">
+				<div class="marker_container">
 					<div id="marker_map" style="width:100%; height:400px; border-radius: 20px; margin: 20px 0px;"></div>
 				</div>
 
@@ -342,7 +332,7 @@
                 </div>
 
 								<div class="memo-container">
-									<textarea class="input-memo" name="memo" placeholder="MEMO"></textarea>
+									<textarea class="input-memo" maxlength="200" name="memo" placeholder="MEMO"></textarea>
 								</div>
 
 								<div class="button-container">
@@ -543,7 +533,6 @@
 
 	</div>
 
-    
     <%@ include file="../footer.jsp" %>
 </body>
 </html>
