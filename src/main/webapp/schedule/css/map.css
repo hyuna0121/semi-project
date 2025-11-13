@@ -1,33 +1,39 @@
 .container {
     display: flex;
+    justify-content: center;
     min-height: calc(100vh - 125px);
 }
 
 .left {
-    width: 10%;
-    background-color: #e7bcbc;
-    background-color: #e5ebf7;
+    width: 15%;
     text-align: center;
 }
 
-.left ul {
+.left-btn {
+    padding: 30px 13px 0px 0px;
+    display: flex;
+    gap: 15px;
+}
+
+.left-btn ul {
     padding: 0;
 }
 
-.left a {
+.left-btn a {
     text-decoration: none;
+    height: 25px;
     padding: 8px 15px;
     border-radius: 20px;
 	outline: 1px solid #235baf; 
     color: #235baf;
     background-color: #fff;
 }
-.left a:hover {
+.left-btn a:hover {
 	color: #fff;
 	background-color: #235baf;	
 }
 
-.left .copy_schedule {
+.left-btn .copy_schedule {
     padding: 8.5px 15px;
     border-radius: 20px;
     outline: 1px solid #5CA9FF; 
@@ -38,11 +44,10 @@
     font-family: inherit;
     font-size: 16px; 
     cursor: pointer;
-    margin-top: 30px; 
     display: inline-block;
 }
 
-.left .copy_schedule:hover {
+.left-btn .copy_schedule:hover {
     color: #fff;
     background-color: #5CA9FF; 
 }
@@ -50,17 +55,13 @@
 
 
 .right {
-    width: 90%;
+    width: 65%;
 }
 
 .trip_main_image img {
     width: 100%;
-	height: 300px;
+	height: 400px;
 	object-fit: cover;
-}
-
-.trip_content {
-    margin-left: 80px;
 }
 
 .trip_title {
@@ -92,7 +93,6 @@
 }
 
 .details {
-    width: 70%;
     border: 1px solid #37352f29;
     border-radius: 20px;
     padding: 50px;
@@ -519,6 +519,12 @@ li::marker {
     justify-content: center;
 }
 
+.memo-cell {
+    max-width: 200px; 
+    white-space: normal; 
+    overflow-wrap: break-word; /* (또는 word-break: break-all;) */
+}
+
 .time-container {
     display: flex;
     justify-content: center;
@@ -571,10 +577,8 @@ li::marker {
 
 
 .chat {
-    margin-left: 80px; 
     margin-top: 50px; 
     margin-bottom: 50px;
-    width: 70%;
     border: 1px solid #37352f29;
 /*     box-shadow: 0 4px 12px rgba(0,0,0,0.05); */
     padding: 25px; 
