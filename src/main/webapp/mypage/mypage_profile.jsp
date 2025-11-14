@@ -5,7 +5,7 @@
 <%
 String cp = request.getContextPath();
 String userId = (String) session.getAttribute("loginId");
-// if (userId == null) { response.sendRedirect(cp + "/login/login.jsp"); return; }
+if (userId == null) { response.sendRedirect(cp + "/mainpage/mainpage.jsp"); return; }
 
 MemberDTO users = null;
 try {

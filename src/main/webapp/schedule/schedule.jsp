@@ -379,7 +379,7 @@
 				            				 class="profileImg">				                	<%
 				                		}else{
 				                	%>
-				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+				                	<img src="<%= request.getContextPath() %>/mypage/image/default_profile.png" alt="게스트 이미지" class="profileImg">		                		
 
 									<%
 				                		}
@@ -456,7 +456,7 @@
 				            				 class="profileImg">				                	<%
 				                		}else{
 				                	%>
-				                	<span class="material-symbols-outlined profile-icon">account_circle</span>				                		
+				                	<img src="<%= request.getContextPath() %>/mypage/image/default_profile.png" alt="게스트 이미지" class="profileImg">		           		                		
 
 									<%
 				                		}
