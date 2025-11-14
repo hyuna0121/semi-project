@@ -10,6 +10,11 @@ String cp = request.getContextPath();
 
 String userId = (String) session.getAttribute("loginId");
 
+if (userId == null) {
+    response.sendRedirect(cp + "/mainpage/mainpage.jsp");
+    return;
+}
+
 final int PAGE_SIZE = 10;
 int pageNo = 1;
 int totalComments = 0;

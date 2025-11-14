@@ -13,6 +13,11 @@
 // 🔸 1. 로그인된 사용자 ID 확인 (세션에서 가져와야 함)
 String cp = request.getContextPath();
 String userId = (String) session.getAttribute("loginId");
+
+if (userId == null) {
+    response.sendRedirect(cp + "/mainpage/mainpage.jsp");
+    return;
+}
 // DB에서 일정 정보를 조회할 리스트 선언
 List<ScheduleDTO> myScheduleList = new ArrayList<>();
 List<ScheduleDTO> joinedScheduleList = new ArrayList<>();

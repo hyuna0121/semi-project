@@ -59,6 +59,7 @@ form{border:none;margin:0;}
 .search input{
   width:100%;border:none;background:transparent;
   border-radius:999px;padding:10px 32px 10px 18px;font-size:14px;color:var(--text);
+  box-sizing: border-box;
 }
 .search input::placeholder{color:#94a3b8;}
 .search input:focus{outline:none;}
@@ -234,7 +235,8 @@ body.drawer-open .page-content{filter:blur(3px);pointer-events:none;}
   <%
   	} else{
   %>
-    <span class="avatar"></span>
+    <img src="<%=ctx%>/mypage/image/default_profile.png" alt="게스트 이미지" class="avatar-img">
+    <%-- <span class="avatar"></span> --%>
     
     <% } %>
     <div>
